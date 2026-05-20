@@ -11,13 +11,13 @@ import {
   exportRuns as exportStoredRuns,
   finalizeRun,
   getRun as getStoredRun,
-  importRuns as importStoredRuns,
   listRuns as listStoredRuns,
   recordRunAction,
   recordRunInput,
   startRun,
   summarizeRuns
 } from '/src/runs.mjs';
+import { importExternalRuns as importStoredRuns } from '/src/trace-importer.mjs';
 
 let tasks = [];
 let activeTaskId = '';
@@ -190,7 +190,7 @@ function exportRuns() {
 }
 
 function importRuns(payload) {
-  const result = importStoredRuns(payload);
+  const result = importStoredRuns(payload, { tasks });
   activeRun = activeRun ? getStoredRun(activeRun.id) : null;
   selectedRunId = result.runs[0]?.id || '';
   renderRuns();

@@ -11,9 +11,12 @@ import {
   summarizeRuns,
   validateRun
 } from '../src/runs.mjs';
+import { importExternalRuns, traceToRun } from '../src/trace-importer.mjs';
 import { createInitialState } from '../src/state.mjs';
+import { loadTasks } from '../src/task-registry.mjs';
 
 const errors = [];
+const tasks = await loadTasks();
 
 function assert(condition, message) {
   if (!condition) errors.push(message);
@@ -29,6 +32,36 @@ function assertThrows(fn, expectedErrorText, message) {
       errors.push(`${message}: expected error to include "${expectedErrorText}", got "${actual}"`);
     }
   }
+}
+
+function makePassingState(taskId) {
+  const state = createInitialState(taskId);
+
+  if (taskId === 'onboarding-form') {
+    state.form.fullName = 'Maya Ortiz';
+    state.form.email = 'maya.ortiz@example.com';
+    state.form.role = 'Designer';
+    state.form.startDate = '2026-06-15';
+    state.form.notes = 'Needs Figma access';
+    state.form.submitted = true;
+  } else if (taskId === 'catalog-filter') {
+    state.catalog.search = 'laptop stand';
+    state.catalog.category = 'office';
+    state.catalog.minRating = 4.5;
+    state.catalog.inStockOnly = true;
+    state.catalog.selectedSku = 'ERGO-27';
+  } else if (taskId === 'settings-toggle') {
+    state.settings.weeklyDigest = true;
+    state.settings.autosave = true;
+    state.settings.dataSharing = false;
+    state.settings.timezone = 'America/New_York';
+  } else if (taskId === 'ticket-review') {
+    state.table.query = 'Priya Shah';
+    state.table.selectedTicketId = 'INC-2048';
+    state.tickets.find((ticket) => ticket.id === 'INC-2048').reviewed = true;
+  }
+
+  return state;
 }
 
 const storage = createMemoryStorage();
@@ -112,6 +145,186 @@ assert(listRuns(storage).length === 0, 'clearRuns should remove persisted runs')
 const imported = importRuns(exported, storage);
 assert(imported.imported === 2, 'importRuns should report two imported runs');
 assert(listRuns(storage).length === 2, 'importRuns should restore both runs');
+
+const compatibilityStorage = createMemoryStorage();
+const compatibilityImport = importExternalRuns(exported, compatibilityStorage);
+assert(compatibilityImport.imported === 2, 'trace importer entrypoint should preserve existing run export imports');
+assert(listRuns(compatibilityStorage).length === 2, 'trace importer entrypoint should restore existing run exports');
+
+const traceStorage = createMemoryStorage();
+const successTrace = {
+  traceVersion: 1,
+  source: 'external-agent',
+  taskId: 'onboarding-form',
+  taskTitle: 'Submit onboarding request',
+  startedAt: '2026-05-20T00:10:00.000Z',
+  endedAt: '2026-05-20T00:10:05.000Z',
+  events: [
+    {
+      timestamp: '2026-05-20T00:10:01.000Z',
+      type: 'input',
+      label: 'Set full name',
+      path: 'form.fullName',
+      value: 'Maya Ortiz',
+      metadata: { selector: '[data-state-path="form.fullName"]' },
+      screenshot: `data:image/png;base64,${'A'.repeat(600)}`
+    },
+    {
+      timestamp: '2026-05-20T00:10:04.000Z',
+      type: 'submit',
+      label: 'Submit onboarding request',
+      target: '#onboarding-form',
+      value: true
+    }
+  ],
+  finalState: makePassingState('onboarding-form')
+};
+const successTraceImport = importExternalRuns({ traces: [successTrace] }, { storage: traceStorage, tasks });
+const importedSuccessTrace = listRuns(traceStorage)[0];
+assert(successTraceImport.imported === 1, 'trace importer should import one successful trace');
+assert(importedSuccessTrace.success === true && importedSuccessTrace.score === 1, 'successful trace should be judged from finalState');
+assert(importedSuccessTrace.inputs.length === 1, 'input-like trace events should be copied to inputs[]');
+assert(importedSuccessTrace.actions[0].value.screenshot?.omitted === 'base64 image data', 'trace importer should summarize base64 screenshot data');
+
+const rawImageTraceStorage = createMemoryStorage();
+const rawImageBase64 = 'A'.repeat(600);
+importExternalRuns({
+  source: 'external-agent',
+  taskId: 'catalog-filter',
+  startedAt: '2026-05-20T00:15:00.000Z',
+  events: [
+    {
+      timestamp: '2026-05-20T00:15:01.000Z',
+      type: 'screenshot',
+      label: 'Capture screen',
+      value: rawImageBase64,
+      text: rawImageBase64,
+      inputValue: rawImageBase64
+    }
+  ]
+}, { storage: rawImageTraceStorage, tasks });
+const importedRawImageTrace = listRuns(rawImageTraceStorage)[0];
+assert(importedRawImageTrace.actions[0].value.value?.omitted === 'base64 image data', 'screenshot event.value should summarize raw base64 image data');
+assert(importedRawImageTrace.actions[0].value.text?.omitted === 'base64 image data', 'screenshot event.text should summarize raw base64 image data');
+assert(importedRawImageTrace.actions[0].value.inputValue?.omitted === 'base64 image data', 'screenshot event.inputValue should summarize raw base64 image data');
+
+const failingTraceState = createInitialState('settings-toggle');
+failingTraceState.settings.weeklyDigest = true;
+const failingTraceStorage = createMemoryStorage();
+const failingTraceImport = importExternalRuns({
+  source: 'external-agent',
+  taskId: 'settings-toggle',
+  startedAt: '2026-05-20T00:20:00.000Z',
+  events: [
+    {
+      timestamp: '2026-05-20T00:20:02.000Z',
+      type: 'input_changed',
+      path: 'settings.weeklyDigest',
+      value: true
+    }
+  ],
+  finalState: failingTraceState
+}, { storage: failingTraceStorage, tasks });
+const importedFailingTrace = listRuns(failingTraceStorage)[0];
+assert(failingTraceImport.imported === 1, 'trace importer should import one failing trace');
+assert(importedFailingTrace.success === false, 'failing trace should be judged from finalState');
+assert(importedFailingTrace.failureReason === 'product analytics sharing is disabled', 'failing trace should use deterministic failureReason');
+
+const unjudgedTraceStorage = createMemoryStorage();
+importExternalRuns({
+  source: 'ui-tars',
+  taskId: 'catalog-filter',
+  startedAt: '2026-05-20T00:30:00.000Z',
+  events: [
+    {
+      timestamp: '2026-05-20T00:30:02.000Z',
+      type: 'click',
+      label: 'Open category filter',
+      target: 'catalog.category',
+      countsAsStep: false,
+      metadata: { sourceEventId: 'evt-1' }
+    }
+  ]
+}, { storage: unjudgedTraceStorage, tasks });
+const importedUnjudgedTrace = listRuns(unjudgedTraceStorage)[0];
+assert(importedUnjudgedTrace.endedAt === null, 'trace without finalState/evaluation should remain active');
+assert(importedUnjudgedTrace.evaluation === null, 'unjudged trace should not include evaluation');
+assert(importedUnjudgedTrace.success === null, 'unjudged trace success should be null');
+assert(importedUnjudgedTrace.score === null, 'unjudged trace score should be null');
+assert(importedUnjudgedTrace.failureReason === null, 'unjudged trace failureReason should be null');
+
+const jsonlTraceStorage = createMemoryStorage();
+const jsonlTrace = {
+  traceVersion: 1,
+  source: 'external-agent',
+  taskId: 'ticket-review',
+  events: [
+    {
+      timestamp: '2026-05-20T00:40:01.000Z',
+      type: 'input',
+      path: 'table.query',
+      value: 'Priya Shah'
+    }
+  ],
+  finalState: makePassingState('ticket-review')
+};
+const jsonlTraceImport = importExternalRuns(`${JSON.stringify(jsonlTrace)}\n`, { storage: jsonlTraceStorage, tasks });
+const importedJsonlTrace = listRuns(jsonlTraceStorage)[0];
+assert(jsonlTraceImport.imported === 1, 'JSONL trace import should report one imported trace');
+assert(importedJsonlTrace.success === true, 'JSONL trace should be normalized and judged');
+assert(importedJsonlTrace.inputs[0]?.path === 'table.query', 'JSONL trace should preserve input path');
+
+assertThrows(
+  () => importExternalRuns({ source: 'external-agent', taskId: 'unknown-task', events: [] }, { storage: createMemoryStorage() }),
+  'Trace import requires a non-empty task registry',
+  'trace imports should reject when no task registry is provided'
+);
+assertThrows(
+  () => traceToRun({ source: 'external-agent', taskId: 'unknown-task', events: [] }),
+  'requires a non-empty task registry',
+  'traceToRun should reject when no task registry is provided'
+);
+assertThrows(
+  () => importExternalRuns({ source: 'external-agent', taskId: 'unknown-task', events: [] }, { storage: createMemoryStorage(), tasks }),
+  'unknown task "unknown-task"',
+  'trace importer should reject unknown task ids'
+);
+assertThrows(
+  () => importExternalRuns([
+    JSON.stringify({ taskId: 'onboarding-form', timestamp: '2026-05-20T00:45:00.000Z', type: 'click' }),
+    JSON.stringify({ taskId: 'onboarding-form', timestamp: '2026-05-20T00:45:01.000Z', type: 'screenshot', value: rawImageBase64 })
+  ].join('\n'), { storage: createMemoryStorage(), tasks }),
+  'Event-stream JSONL is not supported yet',
+  'trace importer should explicitly reject event-stream JSONL'
+);
+assertThrows(
+  () => importExternalRuns({ source: 'external-agent', taskId: 'onboarding-form' }, { storage: createMemoryStorage(), tasks }),
+  'events must be an array',
+  'trace importer should reject missing events'
+);
+assertThrows(
+  () => importExternalRuns({ source: 'external-agent', taskId: 'onboarding-form', events: [null] }, { storage: createMemoryStorage(), tasks }),
+  'events[0] must be an object',
+  'trace importer should reject malformed events'
+);
+assertThrows(
+  () => importExternalRuns({
+    source: 'external-agent',
+    taskId: 'onboarding-form',
+    events: [{ timestamp: 'not-a-date', type: 'click' }]
+  }, { storage: createMemoryStorage(), tasks }),
+  'events[0].timestamp must be an ISO-compatible timestamp',
+  'trace importer should reject bad event timestamps'
+);
+assertThrows(
+  () => importExternalRuns({
+    source: 'external-agent',
+    taskId: 'onboarding-form',
+    events: [{ timestamp: '2026-05-20T00:50:00.000Z', type: 'click', metadata: { unsafe: () => true } }]
+  }, { storage: createMemoryStorage(), tasks }),
+  'metadata.unsafe must be JSON-safe',
+  'trace importer should reject non JSON-safe metadata'
+);
 
 const badStorage = createMemoryStorage();
 const invalidExport = JSON.parse(exported);

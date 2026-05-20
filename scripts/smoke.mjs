@@ -171,7 +171,8 @@ async function assertBenchEvaluateRejectsInactiveTask(baseUrl) {
     const moduleUrls = new Map([
       ['/src/state.mjs', pathToFileURL(join(rootDir, 'src/state.mjs')).href],
       ['/src/judge.mjs', pathToFileURL(join(rootDir, 'src/judge.mjs')).href],
-      ['/src/runs.mjs', pathToFileURL(join(rootDir, 'src/runs.mjs')).href]
+      ['/src/runs.mjs', pathToFileURL(join(rootDir, 'src/runs.mjs')).href],
+      ['/src/trace-importer.mjs', pathToFileURL(join(rootDir, 'src/trace-importer.mjs')).href]
     ]);
     for (const [specifier, moduleUrl] of moduleUrls) {
       source = source.replaceAll(`'${specifier}'`, `'${moduleUrl}'`);
@@ -225,6 +226,9 @@ try {
       throw new Error(`GET / did not include expected runs UI marker ${marker}.`);
     }
   }
+  if (!index.text.includes('.jsonl')) {
+    throw new Error('GET / did not include JSONL import file marker.');
+  }
 
   const runsModule = await fetchText(`${baseUrl}/src/runs.mjs`);
   if (!runsModule.response.ok) {
@@ -233,6 +237,16 @@ try {
   for (const marker of ['export function summarizeRuns', 'export function importRuns', 'RUNS_STORAGE_KEY']) {
     if (!runsModule.text.includes(marker)) {
       throw new Error(`GET /src/runs.mjs did not include expected recorder API marker ${marker}.`);
+    }
+  }
+
+  const traceImporterModule = await fetchText(`${baseUrl}/src/trace-importer.mjs`);
+  if (!traceImporterModule.response.ok) {
+    throw new Error(`GET /src/trace-importer.mjs returned HTTP ${traceImporterModule.response.status}`);
+  }
+  for (const marker of ['export function importExternalRuns', 'export function parseTraceImportPayload', 'export function traceToRun']) {
+    if (!traceImporterModule.text.includes(marker)) {
+      throw new Error(`GET /src/trace-importer.mjs did not include expected trace importer marker ${marker}.`);
     }
   }
 

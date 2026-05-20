@@ -46,7 +46,8 @@ window.__BENCH__.importRuns(payload)
 - `clearRuns()` removes all local run records.
 - `exportRuns()` returns a JSON string with `{ schemaVersion, exportedAt, runs }`.
 - `importRuns(payload)` accepts an exported JSON string, a run array, or an
-  object with a `runs` array.
+  object with a `runs` array. It also accepts standard trace payloads and JSONL
+  through the trace importer.
 
 ## Judge Result
 
@@ -88,10 +89,21 @@ Recorded runs are stored under `gui-agent-benchmark:runs:v1` in browser
   "actions": [],
   "inputs": [],
   "stateTimeline": [],
-  "evaluation": {},
+  "evaluation": {
+    "success": false,
+    "score": 0.5,
+    "details": [
+      {
+        "criterion": "form is submitted",
+        "pass": false,
+        "expected": true,
+        "actual": false
+      }
+    ]
+  },
   "success": false,
   "score": 0.5,
-  "failureReason": "first unmet criterion"
+  "failureReason": "form is submitted"
 }
 ```
 
@@ -110,3 +122,65 @@ Validate run schemas and import/export behavior with:
 ```sh
 node scripts/validate-runs.mjs
 ```
+
+## External Trace Import
+
+External agents should export a neutral trace payload instead of benchmark code
+reading tool-specific logs, browser storage, or secret-bearing config files.
+
+```json
+{
+  "traceVersion": 1,
+  "source": "ui-tars",
+  "taskId": "onboarding-form",
+  "taskTitle": "Submit onboarding request",
+  "startedAt": "2026-05-20T00:00:00.000Z",
+  "endedAt": "2026-05-20T00:00:10.000Z",
+  "events": [
+    {
+      "timestamp": "2026-05-20T00:00:01.000Z",
+      "type": "input",
+      "label": "Set full name",
+      "target": "form.fullName",
+      "path": "form.fullName",
+      "value": "Maya Ortiz",
+      "countsAsStep": true
+    }
+  ],
+  "evaluation": {
+    "success": true,
+    "score": 1,
+    "details": [
+      {
+        "criterion": "form is submitted",
+        "pass": true,
+        "expected": true,
+        "actual": true
+      }
+    ]
+  }
+}
+```
+
+Accepted top-level forms:
+
+- A single trace object with `events`.
+- `{ "traces": [ ... ] }`.
+- JSONL where each non-empty line is a complete trace object.
+- Existing run exports remain supported as arrays or `{ "runs": [ ... ] }`.
+
+Trace event fields map directly to run `actions[]`: `timestamp`, `type`,
+`label`, `target`, `path`, `value`, and `countsAsStep`. Input-like event types
+such as `input`, `input_changed`, `fill`, `type`, and `set_value` also create
+entries in `inputs[]`.
+
+If `finalState` exists and `evaluation` is omitted, the importer evaluates the
+trace with `evaluateTask(taskId, finalState, tasks)`. If both are omitted, the
+run stays active and unjudged with `endedAt`, `evaluation`, `success`, `score`,
+and `failureReason` set to `null`.
+
+The importer rejects unknown task ids, bad timestamps, missing or invalid
+`events`, and non JSON-safe metadata. Screenshot/image data should be exported
+as references (`screenshotUrl`, `screenshotPath`, `screenshotRef`) when
+possible. Base64 image strings are summarized before storage so run exports do
+not retain large screenshots.

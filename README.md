@@ -33,6 +33,36 @@ The right panel includes a compact Runs dashboard with aggregate metrics,
 failure reason distribution, per-task stats, a run list, replay timeline,
 final judge details, and JSON export/import controls.
 
+## Trace Importer
+
+The same Import control accepts existing run exports plus standard external
+trace payloads through `src/trace-importer.mjs`.
+
+```json
+{
+  "traceVersion": 1,
+  "source": "ui-tars",
+  "taskId": "onboarding-form",
+  "taskTitle": "Submit onboarding request",
+  "startedAt": "2026-05-20T00:00:00.000Z",
+  "events": [
+    {
+      "timestamp": "2026-05-20T00:00:01.000Z",
+      "type": "input",
+      "path": "form.fullName",
+      "value": "Maya Ortiz"
+    }
+  ]
+}
+```
+
+You can import one trace object, `{ "traces": [ ... ] }`, or JSONL where each
+non-empty line is one complete trace object. Event-stream JSONL is intentionally
+not parsed in this MVP. Trace events become run `actions[]`; input-like events
+also become `inputs[]`. If a trace includes `finalState` but no explicit
+`evaluation`, the dashboard runs the existing judge for that `taskId`. Traces
+without `finalState` or `evaluation` import as active, unjudged runs.
+
 ## Benchmark API
 
 The page exposes:
@@ -55,7 +85,8 @@ window.__BENCH__ = {
 - `getRun(id)` returns one recorded run.
 - `clearRuns()` removes recorded runs.
 - `exportRuns()` returns a JSON string with run records.
-- `importRuns(payload)` imports a JSON string, array, or `{ runs }` object.
+- `importRuns(payload)` imports a JSON string, array, `{ runs }` object, trace
+  object, `{ traces }` object, or JSONL trace file.
 
 `evaluate(taskId)` returns:
 
