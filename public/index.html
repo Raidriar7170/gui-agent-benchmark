@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GUI Agent Benchmark</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="task-sidebar">
+        <div class="brand-block">
+          <p class="eyebrow">Benchmark</p>
+          <h1>GUI Agent Workspace</h1>
+        </div>
+        <nav class="task-list" id="task-list" aria-label="Benchmark tasks"></nav>
+      </aside>
+
+      <main class="workspace">
+        <section class="instruction-bar" aria-live="polite">
+          <div>
+            <p class="eyebrow" id="task-meta">Task</p>
+            <h2 id="task-title">Loading...</h2>
+            <p id="task-instruction"></p>
+          </div>
+          <div class="action-row">
+            <button class="secondary" id="reset-task" type="button">Reset</button>
+            <button id="evaluate-task" type="button">Evaluate</button>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <div class="work-panel" id="task-workspace"></div>
+          <aside class="result-panel">
+            <h2>Judge Result</h2>
+            <div id="result-output" class="result-output muted">No evaluation yet.</div>
+            <section class="runs-panel" id="runs-panel" aria-label="Runs dashboard">
+              <div class="panel-header compact">
+                <h2>Runs</h2>
+                <div class="action-row tight">
+                  <button class="secondary" id="export-runs" type="button">Export</button>
+                  <button class="secondary" id="import-runs" type="button">Import</button>
+                  <button class="secondary danger" id="clear-runs" type="button">Clear</button>
+                </div>
+              </div>
+              <input id="run-import-file" type="file" accept="application/json,.json" hidden>
+              <div class="metric-grid" aria-label="Run metrics">
+                <div><strong id="metric-total-runs">0</strong><span>total runs</span></div>
+                <div><strong id="metric-success-rate">0%</strong><span>success rate</span></div>
+                <div><strong id="metric-avg-steps">0</strong><span>avg steps</span></div>
+                <div><strong id="metric-avg-duration">0s</strong><span>avg duration</span></div>
+              </div>
+              <div class="run-section">
+                <h3>Failure Reasons</h3>
+                <div id="failure-reasons" class="mini-list muted">No failed runs.</div>
+              </div>
+              <div class="run-section">
+                <h3>Per Task Stats</h3>
+                <div id="per-task-stats" class="mini-list muted">No runs recorded.</div>
+              </div>
+              <div class="run-section">
+                <h3>Run List</h3>
+                <div id="run-list" class="run-list muted">No runs recorded.</div>
+              </div>
+              <div class="run-section">
+                <h3>Replay</h3>
+                <div id="run-replay" class="replay-box muted">Select a run to inspect its timeline.</div>
+              </div>
+              <div class="run-section">
+                <h3>Final Judge Details</h3>
+                <div id="run-judge-details" class="judge-details muted">No finalized run selected.</div>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/app.mjs"></script>
+  </body>
+</html>

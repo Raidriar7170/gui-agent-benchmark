@@ -1,0 +1,20 @@
+{
+  "name": "gui-agent-benchmark",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-dependency GUI agent benchmark workspace.",
+  "scripts": {
+    "start": "node server.mjs",
+    "validate": "npm run validate:tasks && npm run validate:runs",
+    "validate:tasks": "node scripts/validate-tasks.mjs",
+    "validate:runs": "node scripts/validate-runs.mjs",
+    "check:local": "node scripts/check-local.mjs",
+    "check:tunnel": "node scripts/check-tunnel.mjs",
+    "check:remote": "node scripts/check-remote.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

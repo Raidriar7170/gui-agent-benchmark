@@ -1,0 +1,56 @@
+[
+  {
+    "id": "onboarding-form",
+    "title": "Submit onboarding request",
+    "instruction": "Create an onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request.",
+    "startUrl": "/?task=onboarding-form",
+    "maxSteps": 12,
+    "successCriteria": [
+      "form is submitted",
+      "full name is Maya Ortiz",
+      "email is maya.ortiz@example.com",
+      "role is Designer",
+      "start date is 2026-06-15",
+      "notes mention Figma access"
+    ]
+  },
+  {
+    "id": "catalog-filter",
+    "title": "Find approved desk gear",
+    "instruction": "Search or filter the catalog to find an in-stock Office item rated at least 4.5 stars, then select the Adjustable Laptop Stand.",
+    "startUrl": "/?task=catalog-filter",
+    "maxSteps": 10,
+    "successCriteria": [
+      "selected SKU is ERGO-27",
+      "selected product is in stock",
+      "selected product category is office",
+      "selected product rating is at least 4.5"
+    ]
+  },
+  {
+    "id": "settings-toggle",
+    "title": "Update workspace settings",
+    "instruction": "Enable the weekly email digest, keep autosave enabled, turn off product analytics sharing, and set the timezone to America/New_York.",
+    "startUrl": "/?task=settings-toggle",
+    "maxSteps": 8,
+    "successCriteria": [
+      "weekly email digest is enabled",
+      "autosave remains enabled",
+      "product analytics sharing is disabled",
+      "timezone is America/New_York"
+    ]
+  },
+  {
+    "id": "ticket-review",
+    "title": "Review priority support ticket",
+    "instruction": "Find Priya Shah's INC-2048 support ticket in the review queue and mark it reviewed.",
+    "startUrl": "/?task=ticket-review",
+    "maxSteps": 8,
+    "successCriteria": [
+      "table query identifies Priya Shah or INC-2048",
+      "INC-2048 is selected",
+      "INC-2048 is marked reviewed"
+    ]
+  }
+]
+
