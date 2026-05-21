@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "2026-05-21-uitars-baseline",
+  "targetUrl": "http://127.0.0.1:4173",
+  "operator": "UI-TARS Local Browser Operator",
+  "attemptPolicy": {
+    "tasks": 4,
+    "maxAttemptsPerTask": 1
+  },
+  "preflight": {
+    "checkLocal": {
+      "command": "node scripts/check-local.mjs",
+      "ranAt": null,
+      "passed": true,
+      "notes": "Passed before this experiment round."
+    },
+    "checkTunnel": {
+      "command": "node scripts/check-tunnel.mjs",
+      "ranAt": null,
+      "passed": true,
+      "notes": "Initially failed; the main thread rebuilt the SSH tunnel, then this check passed before the task attempt. Tunnel was healthy during and after the run."
+    }
+  },
+  "infrastructureFailures": [],
+  "experimentStatus": {
+    "status": "blocked",
+    "blockedAtObservedLocal": "2026-05-21T10:40:27+0800",
+    "blocker": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
+    "remainingBaselineTasksStopped": true,
+    "notes": "After the initial attempt and two controlled pilots, UI-TARS continued to observe or act as if Chrome were on Google even when Chrome accessibility confirmed the benchmark page was selected and visible. Stop remaining baseline tasks until this operator/browser target-binding issue is fixed."
+  },
+  "results": [
+    {
+      "taskId": "onboarding-form",
+      "attempt": 1,
+      "promptSentToUiTars": "Open http://127.0.0.1:4173/?task=onboarding-form. Create an onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request, then evaluate the task.",
+      "promptSentAt": null,
+      "startedAt": null,
+      "endedAt": null,
+      "stoppedAtObservedLocal": "2026-05-21T10:29:46+0800",
+      "success": false,
+      "score": null,
+      "failureType": "model_task_failure",
+      "failureReason": "navigation_or_visual_grounding_failure",
+      "infrastructureFailure": false,
+      "benchmarkPageReached": false,
+      "targetUrlOpened": false,
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "behaviorSummary": "UI-TARS saw or assumed the Google homepage, repeatedly clicked near the top-right/top area, never opened the requested benchmark URL, never reached the benchmark page, and produced no benchmark judge result. The main thread stopped the attempt after repeated identical wrong actions.",
+      "observedActions": [
+        "click (start_box: [0.6503139717425431,0.03508771929824561,...])",
+        "repeated click (start_box: [0.7488226059654631,0.017543859649122806,...])"
+      ],
+      "notes": "Classified as model task failure, not infrastructure failure, because the tunnel was restored before the experiment and check-tunnel passed during or after the run.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "taskId": "catalog-filter",
+      "attempt": null,
+      "attemptStatus": "not_run_blocked",
+      "promptSentToUiTars": null,
+      "promptSentAt": null,
+      "startedAt": null,
+      "endedAt": null,
+      "stoppedAtObservedLocal": null,
+      "success": null,
+      "score": null,
+      "failureType": "experiment_blocker",
+      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
+      "blockedBy": "experimentStatus.blocker",
+      "infrastructureFailure": false,
+      "benchmarkPageReached": null,
+      "targetUrlOpened": null,
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "behaviorSummary": null,
+      "observedActions": [],
+      "notes": "Not run because the experiment was stopped after a systematic UI-TARS Local Browser Operator observation/target-binding blocker was confirmed during onboarding-form pilots.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "taskId": "settings-toggle",
+      "attempt": null,
+      "attemptStatus": "not_run_blocked",
+      "promptSentToUiTars": null,
+      "promptSentAt": null,
+      "startedAt": null,
+      "endedAt": null,
+      "stoppedAtObservedLocal": null,
+      "success": null,
+      "score": null,
+      "failureType": "experiment_blocker",
+      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
+      "blockedBy": "experimentStatus.blocker",
+      "infrastructureFailure": false,
+      "benchmarkPageReached": null,
+      "targetUrlOpened": null,
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "behaviorSummary": null,
+      "observedActions": [],
+      "notes": "Not run because the experiment was stopped after a systematic UI-TARS Local Browser Operator observation/target-binding blocker was confirmed during onboarding-form pilots.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "taskId": "ticket-review",
+      "attempt": null,
+      "attemptStatus": "not_run_blocked",
+      "promptSentToUiTars": null,
+      "promptSentAt": null,
+      "startedAt": null,
+      "endedAt": null,
+      "stoppedAtObservedLocal": null,
+      "success": null,
+      "score": null,
+      "failureType": "experiment_blocker",
+      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
+      "blockedBy": "experimentStatus.blocker",
+      "infrastructureFailure": false,
+      "benchmarkPageReached": null,
+      "targetUrlOpened": null,
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "behaviorSummary": null,
+      "observedActions": [],
+      "notes": "Not run because the experiment was stopped after a systematic UI-TARS Local Browser Operator observation/target-binding blocker was confirmed during onboarding-form pilots.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    }
+  ],
+  "pilotObservations": [
+    {
+      "observationId": "observation-2-preloaded-page-pilot",
+      "taskId": "onboarding-form",
+      "pilotType": "preloaded-page",
+      "promptSentToUiTars": "The browser is already open on the benchmark task page. Fill the onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request, then click Evaluate.",
+      "promptSentAt": null,
+      "startedAt": null,
+      "endedAt": null,
+      "stoppedAtObservedLocal": null,
+      "precondition": "Before prompting, the main thread opened Chrome to http://127.0.0.1:4173/?task=onboarding-form. Chrome accessibility confirmed the benchmark page was visible.",
+      "success": false,
+      "score": null,
+      "failureType": "model_or_operator_observation_failure",
+      "failureReason": "browser_target_binding_failure",
+      "infrastructureFailure": false,
+      "benchmarkPageVisibleToChromeAccessibility": true,
+      "benchmarkPageReachedByUiTars": false,
+      "targetUrlOpenedByUiTars": false,
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "behaviorSummary": "Despite the preloaded benchmark page being open, UI-TARS acted on or observed a Google homepage, tried address bar or new tab behavior, never filled the benchmark form, and produced no judge result.",
+      "observedActions": [],
+      "notes": "Classified as a model/operator observation failure or browser target-binding failure. Not classified as benchmark server failure; the tunnel remained healthy.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "observationId": "observation-3-single-tab-controlled-pilot",
+      "taskId": "onboarding-form",
+      "pilotType": "single-tab-controlled",
+      "promptSentToUiTars": "Use the currently open benchmark page. Fill the onboarding request fields: full name Maya Ortiz, email maya.ortiz@example.com, role Designer, start date 2026-06-15, notes include Figma access. Click Submit Request, then click Evaluate.",
+      "promptSentAt": null,
+      "startedAt": null,
+      "endedAt": null,
+      "stoppedAtObservedLocal": "2026-05-21T10:40:27+0800",
+      "precondition": "The main thread closed or removed distractor Chrome tabs and ensured the Chrome front window had a single tab at http://127.0.0.1:4173/?task=onboarding-form. Chrome accessibility confirmed only the GUI Agent Benchmark tab was selected and visible.",
+      "success": false,
+      "score": null,
+      "failureType": "operator_target_binding_blocker",
+      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
+      "infrastructureFailure": false,
+      "benchmarkPageVisibleToChromeAccessibility": true,
+      "benchmarkPageReachedByUiTars": false,
+      "targetUrlOpenedByUiTars": false,
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "behaviorSummary": "UI-TARS still reported or acted as if the current page were the Google search homepage, repeatedly clicked around the address/search bar area, never interacted with the benchmark form, and produced no judge result.",
+      "observedActions": [
+        "click (start_box: [0.41601255886970173,0.44298245614035087,...])"
+      ],
+      "notes": "Classified as a systematic UI-TARS Local Browser Operator observation/target-binding blocker. Remaining baseline tasks should be stopped until this is fixed.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    }
+  ],
+  "notes": "Observed results only. Unknown timestamps are null. No API keys, tokens, passwords, UI-TARS IndexedDB contents, raw private logs, or base64 screenshots are recorded."
+}

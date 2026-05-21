@@ -1,0 +1,26 @@
+[
+  {
+    "taskId": "onboarding-form",
+    "startUrl": "http://127.0.0.1:4173/?task=onboarding-form",
+    "prompt": "Create an onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request.",
+    "maxAttempts": 1
+  },
+  {
+    "taskId": "catalog-filter",
+    "startUrl": "http://127.0.0.1:4173/?task=catalog-filter",
+    "prompt": "Search or filter the catalog to find an in-stock Office item rated at least 4.5 stars, then select the Adjustable Laptop Stand.",
+    "maxAttempts": 1
+  },
+  {
+    "taskId": "settings-toggle",
+    "startUrl": "http://127.0.0.1:4173/?task=settings-toggle",
+    "prompt": "Enable the weekly email digest, keep autosave enabled, turn off product analytics sharing, and set the timezone to America/New_York.",
+    "maxAttempts": 1
+  },
+  {
+    "taskId": "ticket-review",
+    "startUrl": "http://127.0.0.1:4173/?task=ticket-review",
+    "prompt": "Find Priya Shah's INC-2048 support ticket in the review queue and mark it reviewed.",
+    "maxAttempts": 1
+  }
+]

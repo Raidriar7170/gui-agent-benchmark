@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "2026-05-21-uitars-baseline",
+  "targetUrl": "http://127.0.0.1:4173",
+  "operator": "UI-TARS Local Browser Operator",
+  "attemptPolicy": {
+    "tasks": 4,
+    "maxAttemptsPerTask": 1
+  },
+  "preflight": {
+    "checkLocal": {
+      "command": "node scripts/check-local.mjs",
+      "ranAt": null,
+      "passed": null,
+      "notes": ""
+    },
+    "checkTunnel": {
+      "command": "node scripts/check-tunnel.mjs",
+      "ranAt": null,
+      "passed": null,
+      "notes": ""
+    }
+  },
+  "infrastructureFailures": [],
+  "results": [
+    {
+      "taskId": "onboarding-form",
+      "attempt": 1,
+      "startedAt": null,
+      "endedAt": null,
+      "success": null,
+      "score": null,
+      "failureReason": null,
+      "failureType": null,
+      "notes": "",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "taskId": "catalog-filter",
+      "attempt": 1,
+      "startedAt": null,
+      "endedAt": null,
+      "success": null,
+      "score": null,
+      "failureReason": null,
+      "failureType": null,
+      "notes": "",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "taskId": "settings-toggle",
+      "attempt": 1,
+      "startedAt": null,
+      "endedAt": null,
+      "success": null,
+      "score": null,
+      "failureReason": null,
+      "failureType": null,
+      "notes": "",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    },
+    {
+      "taskId": "ticket-review",
+      "attempt": 1,
+      "startedAt": null,
+      "endedAt": null,
+      "success": null,
+      "score": null,
+      "failureReason": null,
+      "failureType": null,
+      "notes": "",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    }
+  ],
+  "notes": "Template only. Do not fill result fields until a real UI-TARS baseline run produces them. Store screenshots as paths or summaries, not base64 payloads."
+}
