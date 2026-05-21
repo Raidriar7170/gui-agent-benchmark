@@ -101,5 +101,103 @@ The remaining planned baseline tasks, `catalog-filter`, `settings-toggle`, and
 `ticket-review`, were not run because this experiment-level operator
 observation/target-binding blocker invalidated further baseline attempts.
 
+## 2026-05-21 11:02-11:17 diagnosis and preflight-assisted observation
+
+### 11:02 diagnosis: fresh Local Browser run opens search target
+
+Observed setup:
+
+- CDP initially exposed only the Benchmark target.
+- Starting a non-`call_user` UI-TARS Local Browser run created a new Google
+  target.
+- The model reported seeing Google rather than the Benchmark page.
+
+Source evidence from
+`/Applications/UI TARS.app/Contents/Resources/app.asar`:
+
+- `DefaultBrowserOperator.getInstance` calls `createPage`, which navigates the
+  new page to a search-engine URL: Google, Bing, or Baidu.
+- `BaseBrowser.setupPageListener` updates `activePage` through
+  `targetcreated` and `targetchanged`.
+- `BrowserOperator` action space includes `navigate(content='xxx')`, but when
+  the natural-language task asked the model to use navigation, the model still
+  chose to click the address bar.
+
+Conclusion:
+
+- The delay was not caused by a slow remote model response.
+- The blocker was the Local Browser start page and `activePage` binding
+  mechanism.
+
+### 11:10 diagnosis: CDP targetchanged can repair active page binding
+
+While UI-TARS was in `call_user`, the main thread used CDP `Page.navigate` to
+send the UI-TARS-hosted Chrome Google targets to
+`http://127.0.0.1:4173/?task=onboarding-form`.
+
+Observed behavior after continuing:
+
+- UI-TARS saw the GUI Agent Workspace and onboarding form.
+- It finished with `finished(content='Benchmark visible')`.
+
+Conclusion:
+
+- Navigating the UI-TARS-owned target through CDP can trigger the target change
+  path and repair `activePage` for the Local Browser Operator.
+
+### 11:13-11:17 preflight-assisted diagnostic run
+
+Prompting strategy:
+
+- Let the model enter `call_user` while it was on the Google page.
+- Use CDP to navigate UI-TARS-hosted Chrome targets to the onboarding benchmark
+  page.
+- Continue the onboarding task as a diagnostic observation.
+
+Baseline status:
+
+- This was not `onboarding-form` baseline attempt 2.
+- The baseline protocol remained one attempt per task with no human correction or
+  retry.
+- The earlier baseline invalidation still holds because CDP `Page.navigate` was
+  required to repair the UI-TARS target binding before the benchmark page became
+  visible.
+
+Observed behavior:
+
+- UI-TARS successfully entered the benchmark page.
+- It entered `Full name` as `Maya Ortiz`.
+- On the `Work email` field, it repeatedly clicked instead of typing
+  `maya.ortiz@example.com`.
+- The main thread manually stopped the run at `loopCnt=10`.
+- Target URL navigation was CDP-assisted through `Page.navigate`, not opened
+  autonomously by UI-TARS.
+- Timing observations used different clocks: the wall-clock observation window
+  was `2026-05-21 11:13-11:17 Asia/Shanghai`, UI-TARS logged
+  `totalTime=97515ms`, and `runAgent total cost=175.326s`.
+
+Final form state:
+
+- `name`: `Maya Ortiz`
+- `email`: blank
+- `role`: blank
+- `start date`: blank
+- `notes`: blank
+
+Judge result:
+
+- Not completed.
+
+Classification:
+
+- `classification`: `preflight-assisted diagnostic run / non-baseline`
+- `failureType`: `diagnostic_model_task_failure_after_preflight_assist`
+- `failureReason`:
+  `target_binding_preflight_required + repeated_email_field_click/focus_or_type_failure`
+
+The remaining planned baseline tasks, `catalog-filter`, `settings-toggle`, and
+`ticket-review`, remain stopped until the target-binding preflight is made
+explicit and repeatable.
+
 No API keys, tokens, passwords, UI-TARS IndexedDB contents, raw private logs, or
 base64 screenshots were recorded.

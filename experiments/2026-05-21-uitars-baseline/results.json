@@ -24,10 +24,10 @@
   "infrastructureFailures": [],
   "experimentStatus": {
     "status": "blocked",
-    "blockedAtObservedLocal": "2026-05-21T10:40:27+0800",
-    "blocker": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
+    "blockedAtObservedLocal": "2026-05-21T11:17:00+0800",
+    "blocker": "target_binding_preflight_required",
     "remainingBaselineTasksStopped": true,
-    "notes": "After the initial attempt and two controlled pilots, UI-TARS continued to observe or act as if Chrome were on Google even when Chrome accessibility confirmed the benchmark page was selected and visible. Stop remaining baseline tasks until this operator/browser target-binding issue is fixed."
+    "notes": "After the initial attempt and controlled pilots, 11:02 and 11:10 diagnostics showed that UI-TARS Local Browser Operator creates a search-engine page for non-call_user runs and binds activePage through targetcreated/targetchanged. A CDP Page.navigate target correction in call_user made the benchmark visible, but the 11:13-11:17 preflight-assisted diagnostic run is non-baseline and still failed after repeated Work email field clicks. Stop remaining baseline tasks until target-binding preflight is explicit and repeatable."
   },
   "results": [
     {
@@ -72,8 +72,8 @@
       "success": null,
       "score": null,
       "failureType": "experiment_blocker",
-      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
-      "blockedBy": "experimentStatus.blocker",
+      "failureReason": "target_binding_preflight_required",
+      "blockedBy": "experimentStatus.blocker: target_binding_preflight_required",
       "infrastructureFailure": false,
       "benchmarkPageReached": null,
       "targetUrlOpened": null,
@@ -81,7 +81,7 @@
       "tunnelHealthyDuringOrAfterRun": true,
       "behaviorSummary": null,
       "observedActions": [],
-      "notes": "Not run because the experiment was stopped after a systematic UI-TARS Local Browser Operator observation/target-binding blocker was confirmed during onboarding-form pilots.",
+      "notes": "Not run because the experiment was stopped after UI-TARS Local Browser Operator target-binding diagnostics showed a required preflight. The 11:13-11:17 CDP-assisted run was diagnostic/non-baseline and did not reinstate baseline attempts.",
       "artifactPaths": {
         "trace": null,
         "runExport": null,
@@ -101,8 +101,8 @@
       "success": null,
       "score": null,
       "failureType": "experiment_blocker",
-      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
-      "blockedBy": "experimentStatus.blocker",
+      "failureReason": "target_binding_preflight_required",
+      "blockedBy": "experimentStatus.blocker: target_binding_preflight_required",
       "infrastructureFailure": false,
       "benchmarkPageReached": null,
       "targetUrlOpened": null,
@@ -110,7 +110,7 @@
       "tunnelHealthyDuringOrAfterRun": true,
       "behaviorSummary": null,
       "observedActions": [],
-      "notes": "Not run because the experiment was stopped after a systematic UI-TARS Local Browser Operator observation/target-binding blocker was confirmed during onboarding-form pilots.",
+      "notes": "Not run because the experiment was stopped after UI-TARS Local Browser Operator target-binding diagnostics showed a required preflight. The 11:13-11:17 CDP-assisted run was diagnostic/non-baseline and did not reinstate baseline attempts.",
       "artifactPaths": {
         "trace": null,
         "runExport": null,
@@ -130,8 +130,8 @@
       "success": null,
       "score": null,
       "failureType": "experiment_blocker",
-      "failureReason": "systematic_ui_tars_local_browser_operator_observation_or_target_binding_failure",
-      "blockedBy": "experimentStatus.blocker",
+      "failureReason": "target_binding_preflight_required",
+      "blockedBy": "experimentStatus.blocker: target_binding_preflight_required",
       "infrastructureFailure": false,
       "benchmarkPageReached": null,
       "targetUrlOpened": null,
@@ -139,7 +139,89 @@
       "tunnelHealthyDuringOrAfterRun": true,
       "behaviorSummary": null,
       "observedActions": [],
-      "notes": "Not run because the experiment was stopped after a systematic UI-TARS Local Browser Operator observation/target-binding blocker was confirmed during onboarding-form pilots.",
+      "notes": "Not run because the experiment was stopped after UI-TARS Local Browser Operator target-binding diagnostics showed a required preflight. The 11:13-11:17 CDP-assisted run was diagnostic/non-baseline and did not reinstate baseline attempts.",
+      "artifactPaths": {
+        "trace": null,
+        "runExport": null,
+        "screenshots": [],
+        "other": []
+      }
+    }
+  ],
+  "diagnosticObservations": [
+    {
+      "observationId": "diagnostic-1102-local-browser-search-target",
+      "observedAtLocal": "2026-05-21T11:02:00+0800",
+      "diagnosticType": "local-browser-active-page-binding",
+      "precondition": "CDP initially exposed only the Benchmark target.",
+      "observedBehavior": "Starting a non-call_user UI-TARS Local Browser run created a new Google target. The model reported seeing Google rather than the Benchmark page.",
+      "sourceEvidence": [
+        "/Applications/UI TARS.app/Contents/Resources/app.asar: DefaultBrowserOperator.getInstance calls createPage, which navigates the new page to a search-engine URL: Google, Bing, or Baidu.",
+        "/Applications/UI TARS.app/Contents/Resources/app.asar: BaseBrowser.setupPageListener updates activePage through targetcreated and targetchanged.",
+        "/Applications/UI TARS.app/Contents/Resources/app.asar: BrowserOperator action space includes navigate(content='xxx'), but when the natural-language task asked the model to use navigation, the model still chose to click the address bar."
+      ],
+      "conclusion": "This was not a slow remote-model issue; it was caused by the Local Browser start page and activePage binding mechanism.",
+      "secretsRecorded": false
+    },
+    {
+      "observationId": "diagnostic-1110-cdp-targetchanged-repair",
+      "observedAtLocal": "2026-05-21T11:10:00+0800",
+      "diagnosticType": "cdp-targetchanged-active-page-repair",
+      "precondition": "UI-TARS was in call_user state on Google targets owned by the UI-TARS-hosted Chrome.",
+      "observedBehavior": "After CDP Page.navigate sent the Google targets to http://127.0.0.1:4173/?task=onboarding-form and the run continued, the model saw GUI Agent Workspace/onboarding form and finished with finished(content='Benchmark visible').",
+      "conclusion": "CDP targetchanged can repair activePage binding for the Local Browser Operator.",
+      "secretsRecorded": false
+    }
+  ],
+  "preflightAssistedRuns": [
+    {
+      "observationId": "preflight-assisted-1113-onboarding-form",
+      "taskId": "onboarding-form",
+      "classification": "diagnostic_non_baseline_observation",
+      "baselineAttempt": false,
+      "attemptCountedInBaseline": false,
+      "attemptStatus": "stopped_by_main_thread",
+      "promptSentToUiTars": "Use the currently visible onboarding benchmark page. Fill the onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request, then evaluate the task.",
+      "promptSentAt": null,
+      "startedAt": "2026-05-21T11:13:00+0800",
+      "endedAt": "2026-05-21T11:17:00+0800",
+      "stoppedAtObservedLocal": "2026-05-21T11:17:00+0800",
+      "success": false,
+      "score": null,
+      "failureType": "diagnostic_model_task_failure_after_preflight_assist",
+      "failureReason": "target_binding_preflight_required + repeated_email_field_click/focus_or_type_failure",
+      "infrastructureFailure": false,
+      "benchmarkPageReached": true,
+      "targetUrlOpenedByUiTars": false,
+      "targetUrlOpenedBy": "cdp_page_navigate",
+      "judgeResultProduced": false,
+      "tunnelHealthyDuringOrAfterRun": true,
+      "timing": {
+        "wallClockObservationWindow": "2026-05-21 11:13-11:17 Asia/Shanghai",
+        "uiTarsLoggedTotalTimeMs": 97515,
+        "runAgentTotalCostSeconds": 175.326,
+        "notes": "Wall-clock observation window is the human-observed local interval. uiTarsLoggedTotalTimeMs is the UI-TARS log metric. runAgentTotalCostSeconds is the runAgent total cost metric; these clocks measure different scopes and are not expected to match exactly."
+      },
+      "uiTarsRunMetrics": {
+        "loopCntAtStop": 10,
+        "totalTokens": 62855,
+        "totalTimeMs": 97515,
+        "runAgentTotalCostSeconds": 175.326
+      },
+      "finalFormState": {
+        "name": "Maya Ortiz",
+        "email": "",
+        "role": "",
+        "startDate": "",
+        "notes": ""
+      },
+      "behaviorSummary": "The run first let UI-TARS enter call_user on the Google page, then used CDP Page.navigate to navigate UI-TARS-hosted Chrome targets to http://127.0.0.1:4173/?task=onboarding-form before continuing the task. UI-TARS entered the benchmark and typed Full name as Maya Ortiz, but repeatedly clicked the Work email field instead of entering maya.ortiz@example.com. The main thread stopped at loopCnt=10; no judge result was completed.",
+      "observedActions": [
+        "entered Full name = Maya Ortiz",
+        "repeated click on Work email field without typing maya.ortiz@example.com"
+      ],
+      "notes": "This was a preflight-assisted diagnostic run, not baseline attempt 2. It preserves evidence that CDP target navigation can make the benchmark visible, while the earlier baseline invalidation and stopped remaining baseline tasks still stand.",
+      "secretsRecorded": false,
       "artifactPaths": {
         "trace": null,
         "runExport": null,
