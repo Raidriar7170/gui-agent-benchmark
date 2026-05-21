@@ -514,6 +514,94 @@ function assertAllowedWebSocketEndpoint(webSocketUrl, allowRemoteCdp) {
   }
 }
 
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+    && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+}
+
+function assertJsonSafe(value, path, seen = new Set()) {
+  if (value === null) return;
+  if (['string', 'boolean'].includes(typeof value)) return;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) throw new Error(`${path} must be JSON-safe.`);
+    return;
+  }
+  if (typeof value !== 'object') throw new Error(`${path} must be JSON-safe.`);
+  if (seen.has(value)) throw new Error(`${path} must be JSON-safe.`);
+  if (!Array.isArray(value) && !isPlainObject(value)) {
+    throw new Error(`${path} must be a JSON-safe plain object.`);
+  }
+
+  seen.add(value);
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertJsonSafe(item, `${path}[${index}]`, seen));
+  } else {
+    for (const [key, item] of Object.entries(value)) {
+      if (item === undefined) throw new Error(`${path}.${key} must be JSON-safe.`);
+      assertJsonSafe(item, `${path}.${key}`, seen);
+    }
+  }
+  seen.delete(value);
+}
+
+function runtimeExceptionMessage(result) {
+  const details = result?.exceptionDetails;
+  if (!details) return '';
+  return details.exception?.description
+    || details.exception?.value
+    || details.text
+    || 'Runtime.evaluate threw an exception.';
+}
+
+export function benchmarkCaptureExpression(taskId) {
+  const taskIdLiteral = JSON.stringify(taskId);
+  if (typeof taskIdLiteral !== 'string') throw new Error('taskId must be JSON-serializable.');
+  return `(() => {
+    if (!window.__BENCH__ || typeof window.__BENCH__.snapshot !== 'function' || typeof window.__BENCH__.evaluate !== 'function') {
+      throw new Error('window.__BENCH__.snapshot/evaluate are not available.');
+    }
+    const finalState = window.__BENCH__.snapshot();
+    const evaluation = window.__BENCH__.evaluate(${taskIdLiteral});
+    return { finalState, evaluation };
+  })()`;
+}
+
+async function evaluateBenchmarkCapture(target, taskId, { allowRemoteCdp = false, timeoutMs = 5000 } = {}) {
+  if (!target.webSocketDebuggerUrl) throw new Error('Exact benchmark target does not expose a CDP WebSocket URL.');
+  assertAllowedWebSocketEndpoint(target.webSocketDebuggerUrl, allowRemoteCdp);
+  const client = await CdpWebSocket.connect(target.webSocketDebuggerUrl, { timeoutMs });
+  const expression = benchmarkCaptureExpression(taskId);
+
+  try {
+    const result = await client.send('Runtime.evaluate', {
+      expression,
+      returnByValue: true,
+      awaitPromise: false,
+      userGesture: false
+    }, { timeoutMs });
+
+    const exceptionMessage = runtimeExceptionMessage(result);
+    if (exceptionMessage) {
+      throw new Error(`Runtime.evaluate failed: ${sanitizeString(exceptionMessage)}`);
+    }
+
+    const value = result?.result?.value;
+    if (!isPlainObject(value)) {
+      throw new Error('Runtime.evaluate returned value must be a JSON-safe plain object.');
+    }
+    if (!isPlainObject(value.finalState)) {
+      throw new Error('Runtime.evaluate returned value.finalState must be a JSON-safe plain object.');
+    }
+    if (!isPlainObject(value.evaluation)) {
+      throw new Error('Runtime.evaluate returned value.evaluation must be a JSON-safe plain object.');
+    }
+    assertJsonSafe(value, 'Runtime.evaluate returned value');
+    return value;
+  } finally {
+    client.close();
+  }
+}
+
 async function navigateTarget(target, benchmarkUrl, { allowRemoteCdp = false } = {}) {
   assertAllowedWebSocketEndpoint(target.webSocketDebuggerUrl, allowRemoteCdp);
   const client = await CdpWebSocket.connect(target.webSocketDebuggerUrl);
@@ -522,6 +610,68 @@ async function navigateTarget(target, benchmarkUrl, { allowRemoteCdp = false } =
   } finally {
     client.close();
   }
+}
+
+export async function captureBenchmarkBenchState(options = {}) {
+  let benchmarkUrl;
+  try {
+    benchmarkUrl = normalizeBenchmarkUrl(options.benchmarkUrl || DEFAULT_BENCHMARK_URL, {
+      allowRemoteBenchmark: options.allowRemoteBenchmark
+    });
+  } catch (error) {
+    throw new Error(`blocked: ${sanitizeString(error.message)}`);
+  }
+
+  let endpointValue = options.cdpUrl;
+  let source = options.source || 'explicit';
+  if (!endpointValue && options.discoverLocalUitars) {
+    const discovery = await discoverLocalUitarsCdpEndpoint();
+    source = discovery.source || 'discovered-local-uitars';
+    if (discovery.status !== 'ready') {
+      throw new Error(`${discovery.status}: ${sanitizeString(discovery.reason)}`);
+    }
+    endpointValue = discovery.endpoint;
+  }
+  if (!endpointValue) {
+    throw new Error('blocked: Provide --cdp-url, UI_TARS_CDP_URL, or enable --discover-local-uitars.');
+  }
+
+  let cdpUrl;
+  try {
+    cdpUrl = normalizeCdpEndpoint(endpointValue, { allowRemoteCdp: options.allowRemoteCdp });
+  } catch (error) {
+    throw new Error(`blocked: ${sanitizeString(error.message)}`);
+  }
+
+  const [version, targets] = await Promise.all([
+    fetchJson(makeCdpUrl(cdpUrl, '/json/version'), { timeoutMs: options.timeoutMs }),
+    fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs })
+  ]);
+  const pageTargets = Array.isArray(targets) ? targets.filter((target) => target?.type === 'page') : [];
+  const exactTargets = pageTargets.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
+  if (exactTargets.length === 0) {
+    throw new Error('blocked: No exact benchmark target was found for the requested benchmark URL.');
+  }
+  if (exactTargets.length > 1) {
+    throw new Error(`ambiguous: Found ${exactTargets.length} exact benchmark targets for the requested benchmark URL.`);
+  }
+
+  const { finalState, evaluation } = await evaluateBenchmarkCapture(exactTargets[0], options.taskId, {
+    allowRemoteCdp: options.allowRemoteCdp,
+    timeoutMs: options.timeoutMs
+  });
+
+  return {
+    captureStatus: 'captured',
+    source,
+    benchmarkUrl: sanitizeUrl(benchmarkUrl.href),
+    target: sanitizeTarget(exactTargets[0]),
+    cdp: {
+      version: sanitizeVersion(version)
+    },
+    finalState,
+    evaluation
+  };
 }
 
 function baseReport({ source, benchmarkUrl, cdpUrl, fix }) {

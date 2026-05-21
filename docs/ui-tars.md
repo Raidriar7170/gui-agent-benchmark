@@ -248,6 +248,63 @@ npm run validate:harness
 node scripts/uitars-benchmark-harness.mjs --help
 ```
 
+## Real Run Capture
+
+Real Run Capture is the conservative path for turning a UI-TARS/user-executed
+benchmark attempt into importable artifacts. It assumes the benchmark target has
+already been prepared by target preparation and that the agent or user has
+completed the task in that exact tab. Capture does not navigate pages, close
+tabs, read UI-TARS storage/config/logs, inspect IndexedDB or Local Storage, or
+operate the UI-TARS GUI.
+
+Run capture after the task is ready:
+
+```sh
+npm run uitars:capture -- \
+  --task onboarding-form \
+  --output artifacts/uitars-capture/onboarding-form \
+  --base-url http://127.0.0.1:4173 \
+  --cdp-url http://127.0.0.1:9222
+```
+
+`--cdp-url` can also be provided with `UI_TARS_CDP_URL`, `--base-url` with
+`BENCHMARK_BASE_URL`, and safe local discovery with
+`UI_TARS_DISCOVER_LOCAL=1` or `--discover-local-uitars`. CDP and benchmark URLs
+must be local by default; use `--allow-remote-cdp` and
+`--allow-remote-benchmark` only for intentional remote endpoints.
+
+Capture reads `/json/version` and `/json/list`, requires exactly one exact
+benchmark target for the requested task URL, then sends a fixed
+`Runtime.evaluate` expression to that target. The expression calls only
+`window.__BENCH__.snapshot()` and `window.__BENCH__.evaluate(taskId)`, with the
+task id JSON-encoded into the expression. It rejects zero exact targets as
+blocked, multiple exact targets as ambiguous, runtime exceptions, non-JSON-safe
+return values, and sensitive-looking artifact content.
+
+Output contains three independent files:
+
+```text
+capture.json      # captured finalState and evaluation
+trace.json        # traceVersion 1, source ui-tars-real-run-capture
+run-export.json   # generated from tracesToRuns() and validateRun()
+```
+
+The trace always includes a non-step `real_run_capture` event whose value keeps
+only lightweight metadata such as sanitized `benchmarkUrl` and `captureStatus`.
+The run export is generated locally from `trace.json`; it does not depend on
+the page's `window.__BENCH__.exportRuns()`.
+
+Important side effect: `window.__BENCH__.evaluate(taskId)` finalizes the page's
+current run storage for that benchmark app tab. Capture does not read or export
+that storage directly.
+
+Validate the capture path with synthetic local CDP fixtures:
+
+```sh
+npm run validate:capture
+node scripts/uitars-capture-run.mjs --help
+```
+
 ## Tunnel
 
 The default model endpoint assumes a local SSH tunnel:
