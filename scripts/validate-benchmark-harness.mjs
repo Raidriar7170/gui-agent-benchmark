@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { createServer } from 'node:http';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -46,6 +47,54 @@ async function collectOutputFiles(dir, files = []) {
     }
   }
   return files;
+}
+
+function decodeClientFrame(buffer) {
+  if (buffer.length < 2) return null;
+  const byte2 = buffer[1];
+  let length = byte2 & 0x7f;
+  let offset = 2;
+  if (length === 126) {
+    if (buffer.length < 4) return null;
+    length = buffer.readUInt16BE(2);
+    offset = 4;
+  } else if (length === 127) {
+    if (buffer.length < 10) return null;
+    length = Number(buffer.readBigUInt64BE(2));
+    offset = 10;
+  }
+  const masked = Boolean(byte2 & 0x80);
+  if (!masked) return null;
+  const payloadOffset = offset + 4;
+  if (buffer.length < payloadOffset + length) return null;
+  const mask = buffer.subarray(offset, offset + 4);
+  const payload = Buffer.from(buffer.subarray(payloadOffset, payloadOffset + length));
+  for (let index = 0; index < payload.length; index += 1) {
+    payload[index] ^= mask[index % 4];
+  }
+  return {
+    opcode: buffer[0] & 0x0f,
+    payload,
+    bytes: payloadOffset + length
+  };
+}
+
+function encodeServerFrame(payload, opcode = 0x1) {
+  const body = Buffer.isBuffer(payload) ? payload : Buffer.from(payload, 'utf8');
+  const headerLength = body.length < 126 ? 2 : body.length <= 0xffff ? 4 : 10;
+  const frame = Buffer.alloc(headerLength + body.length);
+  frame[0] = 0x80 | opcode;
+  if (body.length < 126) {
+    frame[1] = body.length;
+  } else if (body.length <= 0xffff) {
+    frame[1] = 126;
+    frame.writeUInt16BE(body.length, 2);
+  } else {
+    frame[1] = 127;
+    frame.writeBigUInt64BE(BigInt(body.length), 2);
+  }
+  body.copy(frame, headerLength);
+  return frame;
 }
 
 const root = await mkdtemp(join(tmpdir(), 'uitars-harness-'));
@@ -155,6 +204,9 @@ try {
   let fixtureTargets = [];
   let fixtureTargetLists = null;
   let fixtureListReads = 0;
+  const fixtureNavigateLog = [];
+  const fixtureCdpErrors = [];
+  const allowedFixtureCdpMethods = new Set(['Page.navigate']);
   const fixtureServer = createServer((request, response) => {
     response.setHeader('content-type', 'application/json');
     if (request.url === '/json/version') {
@@ -172,6 +224,52 @@ try {
     response.statusCode = 404;
     response.end(JSON.stringify({ error: 'not found' }));
   });
+  fixtureServer.on('upgrade', (request, socket) => {
+    const id = request.url?.match(/\/devtools\/page\/([^/?#]+)/)?.[1];
+    const key = request.headers['sec-websocket-key'];
+    if (!id || typeof key !== 'string') {
+      socket.destroy();
+      return;
+    }
+    const accept = createHash('sha1').update(`${key}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`).digest('base64');
+    socket.write([
+      'HTTP/1.1 101 Switching Protocols',
+      'Upgrade: websocket',
+      'Connection: Upgrade',
+      `Sec-WebSocket-Accept: ${accept}`,
+      '\r\n'
+    ].join('\r\n'));
+
+    let buffer = Buffer.alloc(0);
+    socket.on('data', (chunk) => {
+      buffer = Buffer.concat([buffer, chunk]);
+      while (buffer.length >= 2) {
+        const frame = decodeClientFrame(buffer);
+        if (!frame) return;
+        buffer = buffer.subarray(frame.bytes);
+        if (frame.opcode === 0x8) {
+          socket.end(encodeServerFrame(Buffer.alloc(0), 0x8));
+          return;
+        }
+        if (frame.opcode !== 0x1) continue;
+        const message = JSON.parse(frame.payload.toString('utf8'));
+        if (!allowedFixtureCdpMethods.has(message.method)) {
+          fixtureCdpErrors.push({ id, method: message.method || '' });
+          socket.write(encodeServerFrame(JSON.stringify({
+            id: message.id,
+            error: { code: -32601, message: `Synthetic fixture rejects CDP method ${message.method || '<missing>'}` }
+          })));
+          continue;
+        }
+        if (message.method === 'Page.navigate') {
+          const target = fixtureTargets.find((candidate) => candidate.id === id);
+          if (target) target.url = message.params?.url || target.url;
+          fixtureNavigateLog.push({ id, url: message.params?.url || '' });
+        }
+        socket.write(encodeServerFrame(JSON.stringify({ id: message.id, result: {} })));
+      }
+    });
+  });
   await new Promise((resolve, reject) => {
     fixtureServer.once('error', reject);
     fixtureServer.listen(0, '127.0.0.1', resolve);
@@ -179,6 +277,67 @@ try {
   try {
     const { port } = fixtureServer.address();
     const cdpUrl = `http://127.0.0.1:${port}`;
+    fixtureTargets = [
+      {
+        id: 'exact-task-1',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/exact-task-1`
+      },
+      {
+        id: 'exact-task-2',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/exact-task-2`
+      }
+    ];
+    fixtureTargetLists = null;
+    fixtureListReads = 0;
+    const multiExactDryRun = await runUitarsPreflight({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl
+    });
+    assert(multiExactDryRun.status === 'ambiguous', 'multiple exact benchmark targets should make dry-run preflight ambiguous');
+    assert(/multiple benchmark page targets prevent unique real capture/i.test(multiExactDryRun.reason), 'multiple exact dry-run reason should explain unique real capture isolation/manual cleanup');
+    assert(multiExactDryRun.warnings.length > 0, 'multiple exact dry-run should retain warnings');
+    assert(validatePreflightReport(multiExactDryRun).length === 0, 'multiple exact dry-run report should satisfy schema validation');
+
+    const multiExactPrepare = await prepareUitarsTarget({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl
+    });
+    assert(multiExactPrepare.status === 'ambiguous', 'multiple exact benchmark targets should make target preparation ambiguous without isolate');
+    assert(validatePreflightReport(multiExactPrepare).length === 0, 'multiple exact prepare report should satisfy schema validation');
+
+    fixtureTargets = [
+      {
+        id: 'search-fix-1',
+        type: 'page',
+        title: 'Google',
+        url: 'https://www.google.com/',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/search-fix-1`
+      },
+      {
+        id: 'search-fix-2',
+        type: 'page',
+        title: 'Google',
+        url: 'https://www.google.com/search?q=benchmark',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/search-fix-2`
+      }
+    ];
+    fixtureTargetLists = null;
+    fixtureListReads = 0;
+    const multiSearchFixAmbiguous = await runUitarsPreflight({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      fix: true,
+      confirmExplicitCdpFix: true
+    });
+    assert(multiSearchFixAmbiguous.status === 'ambiguous', 'preflight fix that creates multiple exact benchmark targets should be ambiguous');
+    assert(validatePreflightReport(multiSearchFixAmbiguous).length === 0, 'multiple search preflight fix report should satisfy schema validation');
+
     fixtureTargets = [{
       id: 'wrong-task',
       type: 'page',
@@ -228,6 +387,157 @@ try {
     assert(multiWrongTaskConfirmed.actions.length === 2, 'confirmed multiple wrong-task report should include one navigation action per candidate');
     assert(multiWrongTaskConfirmed.actions.every((action) => action.status === 'error'), 'confirmed multiple wrong-task actions should fail individually against closed fixture websockets');
     assert(validatePreflightReport(multiWrongTaskConfirmed).length === 0, 'confirmed multiple wrong-task report should satisfy schema validation');
+
+    fixtureTargetLists = [
+      [
+        {
+          id: 'wrong-task-converges-1',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=onboarding-form',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9/devtools/page/wrong-task-converges-1'
+        },
+        {
+          id: 'wrong-task-converges-2',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=onboarding-form',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9/devtools/page/wrong-task-converges-2'
+        }
+      ],
+      [
+        {
+          id: 'exact-task-converges-1',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=catalog-filter',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9/devtools/page/exact-task-converges-1'
+        },
+        {
+          id: 'exact-task-converges-2',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=catalog-filter',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9/devtools/page/exact-task-converges-2'
+        }
+      ]
+    ];
+    fixtureListReads = 0;
+    const multiWrongTaskConvergesAmbiguous = await prepareUitarsTarget({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      confirmExplicitCdpFix: true
+    });
+    fixtureTargetLists = null;
+    assert(multiWrongTaskConvergesAmbiguous.status === 'ambiguous', 'multiple wrong-task benchmark app targets that converge to multiple exact targets should be ambiguous by default');
+    assert(validatePreflightReport(multiWrongTaskConvergesAmbiguous).length === 0, 'multiple wrong-task converges report should satisfy schema validation');
+
+    fixtureTargets = [
+      {
+        id: 'isolate-keeper',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=onboarding-form',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/isolate-keeper`
+      },
+      {
+        id: 'isolate-extra',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=onboarding-form',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/isolate-extra`
+      }
+    ];
+    fixtureTargetLists = null;
+    fixtureListReads = 0;
+    fixtureNavigateLog.length = 0;
+    const isolatedPrepare = await prepareUitarsTarget({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      confirmExplicitCdpFix: true,
+      isolateTarget: true
+    });
+    const isolatedExactTargets = isolatedPrepare.targetsAfter.filter((target) => target.url === expectedCatalogUrl.href);
+    assert(isolatedPrepare.status === 'fixed', 'isolate target preparation should fix multiple same-app candidates to one exact target');
+    assert(isolatedPrepare.actions.length === 2, 'isolate target preparation should navigate keeper and holding targets');
+    assert(isolatedPrepare.actions.some((action) => action.candidateType === 'benchmark_app_keeper' && action.navigateTo === expectedCatalogUrl.href), 'isolate target preparation should record the benchmark app keeper');
+    assert(isolatedPrepare.actions.some((action) => action.candidateType === 'benchmark_app_holding' && action.navigateTo === 'about:blank'), 'isolate target preparation should record benchmark app holding navigation');
+    assert(fixtureNavigateLog.some((entry) => entry.id === 'isolate-extra' && entry.url === 'about:blank'), 'isolate target preparation should navigate extra same-app targets to about:blank');
+    assert(isolatedExactTargets.length === 1, 'isolate target preparation should leave exactly one exact target afterward');
+    assert(validatePreflightReport(isolatedPrepare).length === 0, 'isolated prepare report should satisfy schema validation');
+
+    fixtureTargets = [
+      {
+        id: 'isolate-search-keeper',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/isolate-search-keeper`
+      },
+      {
+        id: 'isolate-search-extra',
+        type: 'page',
+        title: 'Google',
+        url: 'https://www.google.com/search?q=benchmark',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/isolate-search-extra`
+      }
+    ];
+    fixtureTargetLists = null;
+    fixtureListReads = 0;
+    fixtureNavigateLog.length = 0;
+    const isolatedSearchPrepare = await prepareUitarsTarget({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      confirmExplicitCdpFix: true,
+      isolateTarget: true
+    });
+    const isolatedSearchExactTargets = isolatedSearchPrepare.targetsAfter.filter((target) => target.url === expectedCatalogUrl.href);
+    assert(isolatedSearchPrepare.status === 'fixed', 'isolate target preparation should fix exact benchmark plus search extra to one exact target');
+    assert(isolatedSearchPrepare.actions.some((action) => action.candidateType === 'benchmark_app_keeper' && action.navigateTo === expectedCatalogUrl.href), 'isolate search preparation should record the exact benchmark keeper');
+    assert(isolatedSearchPrepare.actions.some((action) => action.candidateType === 'search_holding' && action.navigateTo === 'about:blank'), 'isolate search preparation should record search holding navigation');
+    assert(fixtureNavigateLog.some((entry) => entry.id === 'isolate-search-keeper' && entry.url === expectedCatalogUrl.href), 'isolate search preparation should navigate keeper to benchmark URL');
+    assert(fixtureNavigateLog.some((entry) => entry.id === 'isolate-search-extra' && entry.url === 'about:blank'), 'isolate search preparation should navigate search extra to about:blank');
+    assert(isolatedSearchExactTargets.length === 1, 'isolate search preparation should leave exactly one exact target afterward');
+    assert(!isolatedSearchPrepare.targetsAfter.some((target) => target.url === 'https://www.google.com/search?q=benchmark'), 'isolate search preparation should leave no search extra afterward');
+    assert(validatePreflightReport(isolatedSearchPrepare).length === 0, 'isolated search prepare report should satisfy schema validation');
+
+    fixtureTargets = [
+      {
+        id: 'harness-exact-1',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/harness-exact-1`
+      },
+      {
+        id: 'harness-exact-2',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/harness-exact-2`
+      }
+    ];
+    const ambiguousHarnessRoot = await mkdtemp(join(tmpdir(), 'uitars-harness-ambiguous-'));
+    try {
+      const ambiguousHarness = await runBenchmarkHarness({
+        outputDir: ambiguousHarnessRoot,
+        tasks: 'catalog-filter',
+        baseUrl: 'http://127.0.0.1:4173',
+        cdpUrl,
+        discoverLocalUitars: false,
+        prepareTarget: true,
+        preflightFix: false,
+        now: new Date('2026-05-21T00:00:00.000Z')
+      });
+      const ambiguousMetadata = await readJson(join(ambiguousHarnessRoot, 'metadata.json'));
+      const ambiguousTargetPrepareReport = await readJson(join(ambiguousHarnessRoot, 'tasks', 'catalog-filter', 'target-prepare.json'));
+      assert(ambiguousTargetPrepareReport.status === 'ambiguous', 'harness target preparation should record ambiguous multiple exact targets');
+      assert(ambiguousMetadata.tasks[0]?.targetPrepareStatus === 'ambiguous', 'harness metadata should preserve ambiguous target preparation status');
+      assert(ambiguousMetadata.tasks[0]?.status !== 'ready', 'harness metadata task status must not be ready when target preparation is ambiguous');
+      assert(ambiguousHarness.tasks[0]?.status !== 'ready', 'harness result task status must not be ready when target preparation is ambiguous');
+    } finally {
+      await rm(ambiguousHarnessRoot, { recursive: true, force: true });
+    }
 
     fixtureTargetLists = [
       [{
@@ -339,6 +649,10 @@ try {
     assert(exactPrepare.status === 'ready', 'exact task target should be ready without navigation');
     assert(exactPrepare.actions.length === 0, 'exact task target should not produce navigation actions');
     assert(validatePreflightReport(exactPrepare).length === 0, 'exact target prepare report should satisfy schema validation');
+    assert(
+      fixtureCdpErrors.length === 0,
+      `synthetic CDP fixture should only receive Page.navigate during target preparation, got ${fixtureCdpErrors.map((entry) => `${entry.id}:${entry.method}`).join(', ')}`
+    );
   } finally {
     await new Promise((resolve) => fixtureServer.close(resolve));
   }

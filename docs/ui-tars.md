@@ -211,12 +211,26 @@ adds a non-step `target_prepare` trace event. It is deliberately conservative:
 an exact task URL with no open search target is reported as `ready` without
 navigation, same-origin and same-path benchmark app tabs with the wrong query
 may be navigated to the current task URL, and supported Google/Bing/Baidu search
-tabs may be navigated to the current task URL. Multiple same-type safe
-candidates can be prepared in one batch, but mixed benchmark-app and search
-candidates are reported as `ambiguous`.
+tabs may be navigated to the current task URL. By default, multiple exact
+benchmark page targets are reported as `ambiguous` because real run capture
+requires exactly one exact target. If preparation leaves more than one exact
+target, it remains `ambiguous`; it is never promoted to `fixed` or `ready`.
+By default, mixed wrong-task benchmark app and search candidates also remain
+`ambiguous`; use `--isolate-target` when you want target preparation to
+explicitly converge them.
 When the CDP endpoint is explicit, navigation still requires
 `--confirm-explicit-cdp-fix` or `UI_TARS_CONFIRM_EXPLICIT_CDP_FIX=1`; discovery
 with a UI-TARS app parent chain can prepare without that extra confirmation.
+
+Round4 target isolation is explicit opt-in. Add `--isolate-target` or
+`UI_TARS_ISOLATE_TARGET=1` together with `--prepare-target` when several
+benchmark app/search candidates are open and you want the harness to converge
+them before dry-run preflight. Isolation chooses one keeper and navigates it to
+the current benchmark URL, then navigates extra benchmark/search candidates to
+the safe holding URL `about:blank`. It does not close tabs, kill processes, read
+UI-TARS storage, inspect logs, or collect secrets. Real run capture still keeps
+its strict safety rule: capture proceeds only when `/json/list` shows exactly
+one exact benchmark target for the requested task URL.
 
 Round2-style local run:
 
@@ -227,6 +241,18 @@ npm run uitars:harness -- \
   --base-url http://127.0.0.1:4173 \
   --discover-local-uitars \
   --prepare-target
+```
+
+Round4-style isolated local run:
+
+```sh
+npm run uitars:harness -- \
+  --output experiments/round4-uitars-harness \
+  --tasks all \
+  --base-url http://127.0.0.1:4173 \
+  --discover-local-uitars \
+  --prepare-target \
+  --isolate-target
 ```
 
 Remote endpoints are refused by default. Use `--allow-remote-cdp` only for an

@@ -602,11 +602,12 @@ async function evaluateBenchmarkCapture(target, taskId, { allowRemoteCdp = false
   }
 }
 
-async function navigateTarget(target, benchmarkUrl, { allowRemoteCdp = false } = {}) {
+async function navigateTarget(target, navigateTo, { allowRemoteCdp = false } = {}) {
   assertAllowedWebSocketEndpoint(target.webSocketDebuggerUrl, allowRemoteCdp);
   const client = await CdpWebSocket.connect(target.webSocketDebuggerUrl);
+  const url = navigateTo instanceof URL ? navigateTo.href : String(navigateTo);
   try {
-    await client.send('Page.navigate', { url: benchmarkUrl.href });
+    await client.send('Page.navigate', { url });
   } finally {
     client.close();
   }
@@ -788,6 +789,9 @@ export async function runUitarsPreflight(options = {}) {
 
     if (benchmarkTargets.length > 1) {
       warnings.push(`Found ${benchmarkTargets.length} benchmark page targets.`);
+      report.status = 'ambiguous';
+      report.reason = `Found ${benchmarkTargets.length} benchmark page targets; multiple benchmark page targets prevent unique real capture. Use target isolation or manually clean up extra benchmark tabs.`;
+      return report;
     }
 
     if (searchTargets.length === 0) {
@@ -837,10 +841,13 @@ export async function runUitarsPreflight(options = {}) {
     const afterBenchmarkTargets = afterPages.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
     const failedActions = report.actions.filter((action) => action.status !== 'ok');
 
-    if (failedActions.length > 0) {
+    if (afterBenchmarkTargets.length > 1) {
+      report.status = 'ambiguous';
+      report.reason = `Preflight fix left ${afterBenchmarkTargets.length} benchmark page targets; multiple benchmark page targets prevent unique real capture. Use target isolation or manually clean up extra benchmark tabs.`;
+    } else if (failedActions.length > 0) {
       report.status = 'error';
       report.reason = `${failedActions.length} target navigation action${failedActions.length === 1 ? '' : 's'} failed.`;
-    } else if (afterBenchmarkTargets.length > 0) {
+    } else if (afterBenchmarkTargets.length === 1) {
       report.status = 'fixed';
       report.reason = `Navigated ${searchTargets.length} search page target${searchTargets.length === 1 ? '' : 's'} to the benchmark URL.`;
     } else {
@@ -929,6 +936,7 @@ export async function prepareUitarsTarget(options = {}) {
 
   const report = baseReport({ source, benchmarkUrl, cdpUrl, fix: true });
   report.mode.prepareTarget = true;
+  report.mode.isolateTarget = Boolean(options.isolateTarget);
 
   try {
     const [version, targets] = await Promise.all([
@@ -943,15 +951,43 @@ export async function prepareUitarsTarget(options = {}) {
     const benchmarkAppTargets = pageTargets.filter((target) => isBenchmarkAppTarget(target, benchmarkUrl));
     const wrongTaskTargets = benchmarkAppTargets.filter((target) => !isBenchmarkTarget(target, benchmarkUrl));
     const searchTargets = pageTargets.filter(isSearchTarget);
+    const isolateTarget = Boolean(options.isolateTarget);
 
-    const candidates = [
-      ...(exactTargets.length > 0 ? [] : wrongTaskTargets.map((target) => ({ target, kind: 'benchmark_app_wrong_task' }))),
-      ...searchTargets.map((target) => ({ target, kind: 'search' }))
+    if (exactTargets.length > 1 && !isolateTarget) {
+      warnings.push(`Found ${exactTargets.length} exact benchmark page targets.`);
+      report.status = 'ambiguous';
+      report.reason = `Found ${exactTargets.length} exact benchmark page targets; multiple benchmark page targets prevent unique real capture. Use --isolate-target or manually clean up extra benchmark tabs.`;
+      return report;
+    }
+
+    const defaultCandidates = [
+      ...(exactTargets.length > 0 ? [] : wrongTaskTargets.map((target) => ({ target, kind: 'benchmark_app_wrong_task', navigateTo: benchmarkUrl.href }))),
+      ...searchTargets.map((target) => ({ target, kind: 'search', navigateTo: benchmarkUrl.href }))
     ];
+
+    const isolateKeeperTarget = exactTargets[0] || wrongTaskTargets[0] || searchTargets[0] || null;
+    const alreadyIsolated = exactTargets.length === 1 && benchmarkAppTargets.length === 1 && searchTargets.length === 0;
+    const isolateCandidates = isolateKeeperTarget && !alreadyIsolated
+      ? [
+          {
+            target: isolateKeeperTarget,
+            kind: isBenchmarkAppTarget(isolateKeeperTarget, benchmarkUrl) ? 'benchmark_app_keeper' : 'search_keeper',
+            navigateTo: benchmarkUrl.href
+          },
+          ...[...benchmarkAppTargets, ...searchTargets]
+            .filter((target) => target.id !== isolateKeeperTarget.id)
+            .map((target) => ({
+              target,
+              kind: isBenchmarkAppTarget(target, benchmarkUrl) ? 'benchmark_app_holding' : 'search_holding',
+              navigateTo: 'about:blank'
+            }))
+        ]
+      : [];
+
+    const candidates = isolateTarget ? isolateCandidates : defaultCandidates;
 
     if (candidates.length === 0) {
       if (exactTargets.length > 0) {
-        if (exactTargets.length > 1) warnings.push(`Found ${exactTargets.length} exact benchmark page targets.`);
         report.status = 'ready';
         report.reason = 'Benchmark target is already prepared for the requested task URL.';
       } else {
@@ -962,7 +998,7 @@ export async function prepareUitarsTarget(options = {}) {
     }
 
     const candidateKinds = new Set(candidates.map((candidate) => candidate.kind));
-    if (candidateKinds.size > 1) {
+    if (!isolateTarget && candidateKinds.size > 1) {
       report.status = 'ambiguous';
       report.reason = `Found mixed target preparation candidates. Refusing to choose one automatically.`;
       report.actions = candidates.map((candidate) => ({
@@ -970,7 +1006,7 @@ export async function prepareUitarsTarget(options = {}) {
         status: 'blocked',
         candidateType: candidate.kind,
         target: sanitizeTarget(candidate.target),
-        navigateTo: sanitizeUrl(benchmarkUrl.href)
+        navigateTo: sanitizeUrl(candidate.navigateTo)
       }));
       return report;
     }
@@ -984,7 +1020,7 @@ export async function prepareUitarsTarget(options = {}) {
         status: 'blocked',
         candidateType: candidate.kind,
         target: sanitizeTarget(candidate.target),
-        navigateTo: sanitizeUrl(benchmarkUrl.href)
+        navigateTo: sanitizeUrl(candidate.navigateTo)
       }));
       return report;
     }
@@ -995,13 +1031,13 @@ export async function prepareUitarsTarget(options = {}) {
         status: 'pending',
         candidateType: candidate.kind,
         target: sanitizeTarget(candidate.target),
-        navigateTo: sanitizeUrl(benchmarkUrl.href)
+        navigateTo: sanitizeUrl(candidate.navigateTo)
       };
       report.actions.push(action);
 
       try {
         if (!candidate.target.webSocketDebuggerUrl) throw new Error('Target does not expose a CDP WebSocket URL.');
-        await navigateTarget(candidate.target, benchmarkUrl, { allowRemoteCdp: options.allowRemoteCdp });
+        await navigateTarget(candidate.target, candidate.navigateTo, { allowRemoteCdp: options.allowRemoteCdp });
         action.status = 'ok';
       } catch (error) {
         action.status = 'error';
@@ -1016,14 +1052,18 @@ export async function prepareUitarsTarget(options = {}) {
     const afterSearchTargets = afterPages.filter(isSearchTarget);
     const failedActions = report.actions.filter((action) => action.status !== 'ok');
 
-    if (afterExactTargets.length > 0 && afterSearchTargets.length === 0) {
+    if (afterExactTargets.length > 1) {
+      report.status = 'ambiguous';
+      report.reason = `Target preparation left ${afterExactTargets.length} exact benchmark page targets; multiple benchmark page targets prevent unique real capture. Use --isolate-target or manually clean up extra benchmark tabs.`;
+    } else if (afterExactTargets.length === 1 && afterSearchTargets.length === 0) {
       report.status = 'fixed';
       if (failedActions.length > 0) {
         report.reason = 'Exact benchmark task target is visible and no supported search target remains after target preparation.';
         warnings.push(`${failedActions.length} navigation response${failedActions.length === 1 ? '' : 's'} failed, but the exact benchmark task target became visible and no supported search target remains.`);
       } else {
-        const candidateKind = candidates[0].kind;
-        report.reason = `Prepared ${candidates.length} ${candidateKind === 'search' ? 'search page' : 'benchmark app'} target${candidates.length === 1 ? '' : 's'} for the requested task URL.`;
+        report.reason = isolateTarget
+          ? 'Isolated target preparation left exactly one benchmark task target and no supported search targets.'
+          : `Prepared ${candidates.length} ${candidates[0].kind === 'search' ? 'search page' : 'benchmark app'} target${candidates.length === 1 ? '' : 's'} for the requested task URL.`;
       }
     } else if (failedActions.length > 0) {
       report.status = 'error';
@@ -1125,7 +1165,17 @@ function validateActions(actions, errors, path) {
     if (action?.target !== undefined) validateTargets([action.target], errors, `${path}[${index}].target`);
     if (action?.navigateTo !== undefined && typeof action.navigateTo !== 'string') errors.push(`${path}[${index}].navigateTo must be a string`);
     if (action?.reason !== undefined && typeof action.reason !== 'string') errors.push(`${path}[${index}].reason must be a string`);
-    if (action?.candidateType !== undefined && !['benchmark_app_wrong_task', 'search'].includes(action.candidateType)) {
+    if (
+      action?.candidateType !== undefined
+      && ![
+        'benchmark_app_wrong_task',
+        'benchmark_app_keeper',
+        'benchmark_app_holding',
+        'search',
+        'search_keeper',
+        'search_holding'
+      ].includes(action.candidateType)
+    ) {
       errors.push(`${path}[${index}].candidateType has unsupported value ${action.candidateType}`);
     }
     inspectSensitive(action, errors, `${path}[${index}]`);

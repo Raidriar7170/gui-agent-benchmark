@@ -122,7 +122,12 @@ function promptForTask(task, benchmarkUrl) {
   ].join('\n');
 }
 
-function taskStatusFromReports(dryRunReport, fixReport = null) {
+function targetPrepareBlocksTask(targetPrepareReport) {
+  return targetPrepareReport && blockedPreflightStatuses.has(targetPrepareReport.status);
+}
+
+function taskStatusFromReports(dryRunReport, fixReport = null, targetPrepareReport = null) {
+  if (targetPrepareBlocksTask(targetPrepareReport)) return 'blocked';
   const finalReport = fixReport || dryRunReport;
   if (blockedPreflightStatuses.has(finalReport.status)) return 'blocked';
   if (finalReport.status === 'fixed' || finalReport.status === 'ready') return 'ready';
@@ -132,7 +137,7 @@ function taskStatusFromReports(dryRunReport, fixReport = null) {
 
 function traceForTask({ task, benchmarkUrl, targetPrepareReport, dryRunReport, fixReport, startedAt }) {
   const finalReport = fixReport || dryRunReport;
-  const status = taskStatusFromReports(dryRunReport, fixReport);
+  const status = taskStatusFromReports(dryRunReport, fixReport, targetPrepareReport);
   const events = [];
   if (targetPrepareReport) {
     events.push({
@@ -232,6 +237,7 @@ export async function runBenchmarkHarness(options = {}) {
       cdpEndpoint: options.cdpUrl ? sanitizeUrl(options.cdpUrl) : '',
       discoverLocalUitars: Boolean(options.discoverLocalUitars),
       prepareTarget: Boolean(options.prepareTarget),
+      isolateTarget: Boolean(options.isolateTarget),
       preflightFix: Boolean(options.preflightFix),
       confirmExplicitCdpFix: Boolean(options.confirmExplicitCdpFix),
       allowRemoteCdp: Boolean(options.allowRemoteCdp),
@@ -260,7 +266,8 @@ export async function runBenchmarkHarness(options = {}) {
     if (options.prepareTarget) {
       targetPrepareReport = await prepareUitarsTarget({
         ...preflightOptions,
-        confirmExplicitCdpFix: options.confirmExplicitCdpFix
+        confirmExplicitCdpFix: options.confirmExplicitCdpFix,
+        isolateTarget: options.isolateTarget
       });
       await writePreflightReport(sanitizeForOutput(targetPrepareReport), join(taskDir, 'target-prepare.json'));
     }
@@ -291,15 +298,17 @@ export async function runBenchmarkHarness(options = {}) {
     await writeJson(join(taskDir, 'trace.json'), trace);
     await writeJson(join(taskDir, 'run-export.json'), runExport);
 
+    const taskStatus = taskStatusFromReports(dryRunReport, fixReport, targetPrepareReport);
+    const statusReasonReport = targetPrepareBlocksTask(targetPrepareReport) ? targetPrepareReport : (fixReport || dryRunReport);
     metadata.tasks.push({
       id: task.id,
       title: task.title,
-      status: taskStatusFromReports(dryRunReport, fixReport),
+      status: taskStatus,
       benchmarkUrl: sanitizeUrl(benchmarkUrl),
       targetPrepareStatus: targetPrepareReport?.status || null,
       dryRunStatus: dryRunReport.status,
       fixStatus: fixReport?.status || null,
-      reason: sanitizeString((fixReport || dryRunReport).reason || ''),
+      reason: sanitizeString(statusReasonReport.reason || ''),
       files: {
         prompt: `tasks/${task.id}/prompt.txt`,
         targetPrepare: targetPrepareReport ? `tasks/${task.id}/target-prepare.json` : null,
