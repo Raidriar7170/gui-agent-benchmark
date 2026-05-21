@@ -155,6 +155,73 @@ npm run validate:uitars-preflight
 node scripts/validate-uitars-preflight.mjs artifacts/uitars-preflight/dry-run.json
 ```
 
+## Benchmark Harness
+
+The UI-TARS benchmark harness prepares one experiment directory per run. It
+loads and validates `public/tasks.json`, writes a prompt for each selected task,
+runs the local-browser preflight in dry-run mode, and emits a trace plus run
+export that the existing Runs dashboard importer accepts.
+
+Run all tasks with the default local benchmark base URL:
+
+```sh
+npm run uitars:harness
+```
+
+Run a focused task set into an explicit experiment directory:
+
+```sh
+npm run uitars:harness -- \
+  --output experiments/2026-05-21-uitars-harness \
+  --tasks onboarding-form,catalog-filter \
+  --base-url http://127.0.0.1:4173 \
+  --cdp-url http://127.0.0.1:9222
+```
+
+The default output path is `experiments/<timestamp>-uitars-harness`. Each
+experiment contains:
+
+```text
+metadata.json
+tasks/<task-id>/prompt.txt
+tasks/<task-id>/preflight-dry-run.json
+tasks/<task-id>/preflight-fix.json   # only when --preflight-fix is set
+tasks/<task-id>/trace.json
+tasks/<task-id>/run-export.json
+```
+
+`--tasks` defaults to `all`; otherwise pass comma-separated task ids. The
+harness combines `--base-url` with each task's `startUrl`, so
+`http://127.0.0.1:4173` becomes `http://127.0.0.1:4173/?task=<id>` for the
+current task registry.
+
+Preflight is dry-run by default. If CDP is unavailable, invalid, ambiguous, or
+returns an error, the harness still writes the blocked/error preflight report,
+records the task as `blocked` in `metadata.json`, and writes an active unjudged
+run export. Use `--preflight-fix` to also write `preflight-fix.json` and allow
+the same `Page.navigate` correction described above. Explicit CDP fix mode still
+requires `--confirm-explicit-cdp-fix`; safe local discovery can be enabled with
+`--discover-local-uitars`.
+
+Remote endpoints are refused by default. Use `--allow-remote-cdp` only for an
+intentional non-local CDP endpoint, and `--allow-remote-benchmark` only when the
+benchmark app is intentionally hosted away from localhost. Output JSON is
+sanitized before writing and excludes debugger websocket URLs, request headers,
+browser cookies, local storage, inline image payloads, API keys, tokens, and
+passwords.
+
+To inspect a harness run in the dashboard, open the benchmark app, choose the
+Runs import control, and import any `tasks/<task-id>/run-export.json` file. For
+agent traces captured later, import `trace.json` or a `{ "traces": [...] }`
+wrapper through the same control.
+
+Validate the harness without requiring UI-TARS or CDP:
+
+```sh
+npm run validate:harness
+node scripts/uitars-benchmark-harness.mjs --help
+```
+
 ## Tunnel
 
 The default model endpoint assumes a local SSH tunnel:

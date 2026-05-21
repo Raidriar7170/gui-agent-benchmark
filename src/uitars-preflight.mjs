@@ -146,13 +146,16 @@ function normalizePathname(pathname) {
 
 export function isBenchmarkTarget(target, benchmarkUrl) {
   if (targetKind(target) !== 'page') return false;
-  if (String(target.title || '').includes('GUI Agent Benchmark')) return true;
+  const expectedUrl = benchmarkUrl instanceof URL ? benchmarkUrl : new URL(benchmarkUrl);
   try {
-    const targetUrl = new URL(target.url);
-    return targetUrl.origin === benchmarkUrl.origin
-      && normalizePathname(targetUrl.pathname) === normalizePathname(benchmarkUrl.pathname);
+    const targetUrl = new URL(target.url || '');
+    const samePage = targetUrl.origin === expectedUrl.origin
+      && normalizePathname(targetUrl.pathname) === normalizePathname(expectedUrl.pathname);
+    if (!samePage) return false;
+    return expectedUrl.search ? targetUrl.search === expectedUrl.search : true;
   } catch {
-    return false;
+    if (expectedUrl.search) return false;
+    return String(target.title || '').includes('GUI Agent Benchmark');
   }
 }
 
