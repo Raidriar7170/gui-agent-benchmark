@@ -56,6 +56,105 @@ Set `UI_TARS_CONFIG` to the exact config path, or provide several paths with
 `UI_TARS_CONFIG_PATHS`. The check only verifies readability and never prints
 secret-bearing file contents.
 
+## Local Browser Preflight
+
+The reproducible UI-TARS browser preflight checks the Chrome DevTools Protocol
+targets exposed by the UI-TARS-managed browser. It reads only `/json/version`
+and `/json/list`, writes sanitized target summaries, and defaults to dry-run
+mode.
+
+Use an explicit local CDP endpoint whenever possible:
+
+```sh
+npm run uitars:preflight -- \
+  --cdp-url http://127.0.0.1:9222 \
+  --url http://127.0.0.1:4173/?task=onboarding-form \
+  --output artifacts/uitars-preflight/dry-run.json
+```
+
+`--cdp-url` can also be provided with `UI_TARS_CDP_URL`. The endpoint must be
+`localhost`, `127.0.0.1`, or `::1` by default and must not contain URL
+credentials. `--allow-remote-cdp` is required for any non-local CDP host.
+
+The benchmark URL must use `http` or `https` and must also be local by default.
+Use `--allow-remote-benchmark` or `UI_TARS_ALLOW_REMOTE_BENCHMARK=1` only when
+the benchmark app is intentionally hosted away from localhost.
+
+Optional safe local discovery is available when the exact endpoint is not known:
+
+```sh
+npm run uitars:preflight -- \
+  --discover-local-uitars \
+  --url http://127.0.0.1:4173/?task=onboarding-form
+```
+
+Discovery is intentionally narrow. It inspects the process tree for a Chrome
+process whose parent chain includes the real macOS UI-TARS app executable, such
+as `/Applications/UI TARS.app/Contents/MacOS/UI-TARS`, and whose Chrome command
+line contains both `puppeteer_dev_chrome_profile` and
+`--remote-debugging-port=0`. A process name or ancestor command merely
+containing `ui-tars`/`uitars` is not enough. The discovery path avoids
+browser-use, ordinary Puppeteer, and user Chrome profiles; it does not scan
+ports, kill processes, or touch non-UI-TARS Chrome instances.
+
+Dry-run reports use `status: "needs_fix"` when a supported Google, Bing, or
+Baidu home/search page target is present and can be rebound. To make the change,
+opt in explicitly:
+
+```sh
+npm run uitars:preflight -- \
+  --cdp-url http://127.0.0.1:9222 \
+  --url http://127.0.0.1:4173/?task=onboarding-form \
+  --fix \
+  --confirm-explicit-cdp-fix
+```
+
+`--fix` can also be enabled with `UI_TARS_PREFLIGHT_FIX=1`. When the CDP
+endpoint is explicit (`--cdp-url` or `UI_TARS_CDP_URL`), fix mode additionally
+requires `--confirm-explicit-cdp-fix` or
+`UI_TARS_CONFIRM_EXPLICIT_CDP_FIX=1`. Discovery-based fix mode does not require
+that extra confirmation after it identifies a UI-TARS app parent chain with
+confidence. Fix mode sends CDP `Page.navigate` to matching search page targets
+and never closes tabs.
+
+Report fields include:
+
+```json
+{
+  "schemaVersion": 1,
+  "source": "explicit",
+  "timestamp": "2026-05-21T00:00:00.000Z",
+  "status": "needs_fix",
+  "reason": "Found 1 supported search page target that can be navigated to the benchmark URL with --fix.",
+  "mode": { "fix": false },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=onboarding-form",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": { "endpoint": "http://127.0.0.1:9222/" },
+  "actions": [],
+  "targetsBefore": [
+    { "id": "target-1", "type": "page", "title": "Google", "url": "https://www.google.com/" }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}
+```
+
+Allowed statuses are `ready`, `needs_fix`, `fixed`, `blocked`, `ambiguous`, and
+`error`. Target output is limited to `id`, `type`, `title`, and sanitized `url`;
+it does not include debugger websocket URLs, headers, cookies, local storage,
+screenshots, base64 payloads, API keys, tokens, config, or full process command
+lines.
+
+Validate the preflight schema and sanitizer with:
+
+```sh
+npm run validate:uitars-preflight
+node scripts/validate-uitars-preflight.mjs artifacts/uitars-preflight/dry-run.json
+```
+
 ## Tunnel
 
 The default model endpoint assumes a local SSH tunnel:
