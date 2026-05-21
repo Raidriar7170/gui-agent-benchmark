@@ -1,0 +1,24 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260521061422-catalog-filter",
+  "taskId": "catalog-filter",
+  "taskTitle": "Find approved desk gear",
+  "startedAt": "2026-05-21T06:14:22.948Z",
+  "events": [
+    {
+      "timestamp": "2026-05-21T06:14:23.142Z",
+      "type": "preflight",
+      "label": "Preflight blocked",
+      "target": "catalog-filter",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "blocked",
+        "dryRunStatus": "blocked",
+        "fixStatus": null,
+        "reason": "No benchmark target or supported Google/Bing/Baidu search page target was found.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter"
+      }
+    }
+  ]
+}

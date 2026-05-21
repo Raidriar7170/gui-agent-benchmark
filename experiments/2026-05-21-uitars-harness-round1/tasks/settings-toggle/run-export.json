@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-21T06:14:23.226Z",
+  "runs": [
+    {
+      "id": "harness-20260521061422-settings-toggle",
+      "taskId": "settings-toggle",
+      "taskTitle": "Update workspace settings",
+      "startedAt": "2026-05-21T06:14:22.948Z",
+      "endedAt": null,
+      "durationMs": 275,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-21T06:14:23.223Z",
+          "type": "preflight",
+          "label": "Preflight blocked",
+          "target": "settings-toggle",
+          "path": null,
+          "value": {
+            "taskStatus": "blocked",
+            "dryRunStatus": "blocked",
+            "fixStatus": null,
+            "reason": "No benchmark target or supported Google/Bing/Baidu search page target was found.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

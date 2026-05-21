@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-21T06:14:23.307Z",
+  "runs": [
+    {
+      "id": "harness-20260521061422-ticket-review",
+      "taskId": "ticket-review",
+      "taskTitle": "Review priority support ticket",
+      "startedAt": "2026-05-21T06:14:22.948Z",
+      "endedAt": null,
+      "durationMs": 357,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-21T06:14:23.305Z",
+          "type": "preflight",
+          "label": "Preflight blocked",
+          "target": "ticket-review",
+          "path": null,
+          "value": {
+            "taskStatus": "blocked",
+            "dryRunStatus": "blocked",
+            "fixStatus": null,
+            "reason": "No benchmark target or supported Google/Bing/Baidu search page target was found.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

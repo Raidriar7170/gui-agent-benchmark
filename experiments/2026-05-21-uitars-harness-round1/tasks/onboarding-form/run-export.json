@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-21T06:14:23.058Z",
+  "runs": [
+    {
+      "id": "harness-20260521061422-onboarding-form",
+      "taskId": "onboarding-form",
+      "taskTitle": "Submit onboarding request",
+      "startedAt": "2026-05-21T06:14:22.948Z",
+      "endedAt": null,
+      "durationMs": 96,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-21T06:14:23.044Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "onboarding-form",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+Task: Update workspace settings
+
+Enable the weekly email digest, keep autosave enabled, turn off product analytics sharing, and set the timezone to America/New_York.
+
+Start URL: http://127.0.0.1:4173/?task=settings-toggle
+Max steps: 8
+
+Success criteria:
+- weekly email digest is enabled
+- autosave remains enabled
+- product analytics sharing is disabled
+- timezone is America/New_York

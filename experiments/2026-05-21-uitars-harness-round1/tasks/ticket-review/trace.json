@@ -1,0 +1,24 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260521061422-ticket-review",
+  "taskId": "ticket-review",
+  "taskTitle": "Review priority support ticket",
+  "startedAt": "2026-05-21T06:14:22.948Z",
+  "events": [
+    {
+      "timestamp": "2026-05-21T06:14:23.305Z",
+      "type": "preflight",
+      "label": "Preflight blocked",
+      "target": "ticket-review",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "blocked",
+        "dryRunStatus": "blocked",
+        "fixStatus": null,
+        "reason": "No benchmark target or supported Google/Bing/Baidu search page target was found.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+      }
+    }
+  ]
+}

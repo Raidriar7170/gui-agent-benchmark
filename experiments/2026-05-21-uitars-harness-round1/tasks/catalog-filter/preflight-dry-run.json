@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-21T06:14:23.142Z",
+  "status": "blocked",
+  "reason": "No benchmark target or supported Google/Bing/Baidu search page target was found.",
+  "mode": {
+    "fix": false
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=catalog-filter",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:61423/",
+    "version": {
+      "browser": "Chrome/148.0.7778.168",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [],
+  "targetsBefore": [
+    {
+      "id": "42D9F85BDDB7E73E3340E904C249B29E",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "2042F53FFE2A23F2AFA3E3DE868B99FE",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "A4546FE8AD0D44971C02093568BE4A56",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "10C66C6A386B69F4B83656E007B98829",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}
