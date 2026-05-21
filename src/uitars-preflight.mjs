@@ -149,13 +149,23 @@ export function isBenchmarkTarget(target, benchmarkUrl) {
   const expectedUrl = benchmarkUrl instanceof URL ? benchmarkUrl : new URL(benchmarkUrl);
   try {
     const targetUrl = new URL(target.url || '');
-    const samePage = targetUrl.origin === expectedUrl.origin
-      && normalizePathname(targetUrl.pathname) === normalizePathname(expectedUrl.pathname);
-    if (!samePage) return false;
+    if (!isBenchmarkAppTarget(target, expectedUrl)) return false;
     return expectedUrl.search ? targetUrl.search === expectedUrl.search : true;
   } catch {
     if (expectedUrl.search) return false;
     return String(target.title || '').includes('GUI Agent Benchmark');
+  }
+}
+
+export function isBenchmarkAppTarget(target, benchmarkUrl) {
+  if (targetKind(target) !== 'page') return false;
+  const expectedUrl = benchmarkUrl instanceof URL ? benchmarkUrl : new URL(benchmarkUrl);
+  try {
+    const targetUrl = new URL(target.url || '');
+    return targetUrl.origin === expectedUrl.origin
+      && normalizePathname(targetUrl.pathname) === normalizePathname(expectedUrl.pathname);
+  } catch {
+    return false;
   }
 }
 
@@ -697,6 +707,194 @@ export async function runUitarsPreflight(options = {}) {
   }
 }
 
+export async function prepareUitarsTarget(options = {}) {
+  let benchmarkUrl;
+  try {
+    benchmarkUrl = normalizeBenchmarkUrl(options.benchmarkUrl || DEFAULT_BENCHMARK_URL, {
+      allowRemoteBenchmark: options.allowRemoteBenchmark
+    });
+  } catch (error) {
+    return {
+      schemaVersion: PREFLIGHT_SCHEMA_VERSION,
+      source: options.source || 'explicit',
+      timestamp: new Date().toISOString(),
+      status: 'blocked',
+      reason: sanitizeString(error.message),
+      mode: { fix: true, prepareTarget: true },
+      benchmark: {
+        url: '',
+        origin: '',
+        path: ''
+      },
+      cdp: {
+        endpoint: ''
+      },
+      actions: [],
+      targetsBefore: [],
+      targetsAfter: [],
+      warnings: []
+    };
+  }
+
+  let source = options.source || 'explicit';
+  let endpointValue = options.cdpUrl;
+  let discoveryConfidence = '';
+  const warnings = [];
+
+  if (!endpointValue && options.discoverLocalUitars) {
+    const discovery = await discoverLocalUitarsCdpEndpoint();
+    source = discovery.source || 'discovered-local-uitars';
+    if (discovery.status !== 'ready') {
+      const report = baseReport({ source, benchmarkUrl, cdpUrl: null, fix: true });
+      report.mode.prepareTarget = true;
+      report.status = discovery.status;
+      report.reason = discovery.reason;
+      report.warnings = warnings;
+      return report;
+    }
+    endpointValue = discovery.endpoint;
+    discoveryConfidence = discovery.confidence || '';
+  }
+
+  if (!endpointValue) {
+    const report = baseReport({ source, benchmarkUrl, cdpUrl: null, fix: true });
+    report.mode.prepareTarget = true;
+    report.status = 'blocked';
+    report.reason = 'Provide --cdp-url, UI_TARS_CDP_URL, or enable --discover-local-uitars.';
+    report.warnings = warnings;
+    return report;
+  }
+
+  let cdpUrl;
+  try {
+    cdpUrl = normalizeCdpEndpoint(endpointValue, { allowRemoteCdp: options.allowRemoteCdp });
+  } catch (error) {
+    const report = baseReport({ source, benchmarkUrl, cdpUrl: null, fix: true });
+    report.mode.prepareTarget = true;
+    report.status = 'blocked';
+    report.reason = error.message;
+    report.warnings = warnings;
+    return report;
+  }
+
+  const report = baseReport({ source, benchmarkUrl, cdpUrl, fix: true });
+  report.mode.prepareTarget = true;
+
+  try {
+    const [version, targets] = await Promise.all([
+      fetchJson(makeCdpUrl(cdpUrl, '/json/version'), { timeoutMs: options.timeoutMs }),
+      fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs })
+    ]);
+    report.cdp.version = sanitizeVersion(version);
+
+    const pageTargets = Array.isArray(targets) ? targets.filter((target) => target?.type === 'page') : [];
+    report.targetsBefore = pageTargets.map(sanitizeTarget);
+    const exactTargets = pageTargets.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
+    const benchmarkAppTargets = pageTargets.filter((target) => isBenchmarkAppTarget(target, benchmarkUrl));
+    const wrongTaskTargets = benchmarkAppTargets.filter((target) => !isBenchmarkTarget(target, benchmarkUrl));
+    const searchTargets = pageTargets.filter(isSearchTarget);
+
+    const candidates = [
+      ...(exactTargets.length > 0 ? [] : wrongTaskTargets.map((target) => ({ target, kind: 'benchmark_app_wrong_task' }))),
+      ...searchTargets.map((target) => ({ target, kind: 'search' }))
+    ];
+
+    if (candidates.length === 0) {
+      if (exactTargets.length > 0) {
+        if (exactTargets.length > 1) warnings.push(`Found ${exactTargets.length} exact benchmark page targets.`);
+        report.status = 'ready';
+        report.reason = 'Benchmark target is already prepared for the requested task URL.';
+      } else {
+        report.status = 'blocked';
+        report.reason = 'No exact benchmark target, wrong-task benchmark app target, or supported Google/Bing/Baidu search target was found.';
+      }
+      return report;
+    }
+
+    const candidateKinds = new Set(candidates.map((candidate) => candidate.kind));
+    if (candidateKinds.size > 1) {
+      report.status = 'ambiguous';
+      report.reason = `Found mixed target preparation candidates. Refusing to choose one automatically.`;
+      report.actions = candidates.map((candidate) => ({
+        action: 'prepare_candidate',
+        status: 'blocked',
+        candidateType: candidate.kind,
+        target: sanitizeTarget(candidate.target),
+        navigateTo: sanitizeUrl(benchmarkUrl.href)
+      }));
+      return report;
+    }
+
+    const hasDiscoveryConfidence = source === 'discovered-local-uitars' && Boolean(discoveryConfidence);
+    if (!hasDiscoveryConfidence && !options.confirmExplicitCdpFix) {
+      report.status = 'blocked';
+      report.reason = 'Explicit CDP endpoint target preparation requires --confirm-explicit-cdp-fix or UI_TARS_CONFIRM_EXPLICIT_CDP_FIX=1.';
+      report.actions = candidates.map((candidate) => ({
+        action: 'Page.navigate',
+        status: 'blocked',
+        candidateType: candidate.kind,
+        target: sanitizeTarget(candidate.target),
+        navigateTo: sanitizeUrl(benchmarkUrl.href)
+      }));
+      return report;
+    }
+
+    for (const candidate of candidates) {
+      const action = {
+        action: 'Page.navigate',
+        status: 'pending',
+        candidateType: candidate.kind,
+        target: sanitizeTarget(candidate.target),
+        navigateTo: sanitizeUrl(benchmarkUrl.href)
+      };
+      report.actions.push(action);
+
+      try {
+        if (!candidate.target.webSocketDebuggerUrl) throw new Error('Target does not expose a CDP WebSocket URL.');
+        await navigateTarget(candidate.target, benchmarkUrl, { allowRemoteCdp: options.allowRemoteCdp });
+        action.status = 'ok';
+      } catch (error) {
+        action.status = 'error';
+        action.reason = sanitizeString(error.message);
+      }
+    }
+
+    const targetsAfter = await fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs });
+    const afterPages = Array.isArray(targetsAfter) ? targetsAfter.filter((target) => target?.type === 'page') : [];
+    report.targetsAfter = afterPages.map(sanitizeTarget);
+    const afterExactTargets = afterPages.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
+    const afterSearchTargets = afterPages.filter(isSearchTarget);
+    const failedActions = report.actions.filter((action) => action.status !== 'ok');
+
+    if (afterExactTargets.length > 0 && afterSearchTargets.length === 0) {
+      report.status = 'fixed';
+      if (failedActions.length > 0) {
+        report.reason = 'Exact benchmark task target is visible and no supported search target remains after target preparation.';
+        warnings.push(`${failedActions.length} navigation response${failedActions.length === 1 ? '' : 's'} failed, but the exact benchmark task target became visible and no supported search target remains.`);
+      } else {
+        const candidateKind = candidates[0].kind;
+        report.reason = `Prepared ${candidates.length} ${candidateKind === 'search' ? 'search page' : 'benchmark app'} target${candidates.length === 1 ? '' : 's'} for the requested task URL.`;
+      }
+    } else if (failedActions.length > 0) {
+      report.status = 'error';
+      report.reason = `${failedActions.length} target preparation navigation action${failedActions.length === 1 ? '' : 's'} failed.`;
+    } else if (afterExactTargets.length > 0) {
+      report.status = 'blocked';
+      report.reason = 'Exact benchmark task target is visible, but a supported search target still needs correction.';
+    } else {
+      report.status = 'blocked';
+      report.reason = 'Navigation completed but no exact benchmark task target was visible afterward.';
+    }
+    return report;
+  } catch (error) {
+    report.status = 'error';
+    report.reason = sanitizeString(error.message);
+    return report;
+  } finally {
+    report.warnings = warnings;
+  }
+}
+
 export async function writePreflightReport(report, outputPath) {
   const body = `${JSON.stringify(report, null, 2)}\n`;
   if (!outputPath) return body;
@@ -751,6 +949,39 @@ function validateTargets(targets, errors, path) {
   }
 }
 
+function validateActions(actions, errors, path) {
+  if (!Array.isArray(actions)) {
+    errors.push(`${path} must be an array`);
+    return;
+  }
+  const allowedKeys = new Set(['action', 'status', 'target', 'navigateTo', 'reason', 'candidateType']);
+  const allowedActions = new Set(['dry_run_match', 'prepare_candidate', 'Page.navigate']);
+  const allowedStatuses = new Set(['planned', 'pending', 'ok', 'error', 'blocked']);
+  for (const [index, action] of actions.entries()) {
+    validateObjectShape(action, errors, `${path}[${index}]`);
+    for (const key of Object.keys(action || {})) {
+      if (!allowedKeys.has(key)) errors.push(`${path}[${index}] contains unsupported field ${key}`);
+    }
+    if (typeof action?.action !== 'string') {
+      errors.push(`${path}[${index}].action must be a string`);
+    } else if (!allowedActions.has(action.action)) {
+      errors.push(`${path}[${index}].action has unsupported value ${action.action}`);
+    }
+    if (typeof action?.status !== 'string') {
+      errors.push(`${path}[${index}].status must be a string`);
+    } else if (!allowedStatuses.has(action.status)) {
+      errors.push(`${path}[${index}].status has unsupported value ${action.status}`);
+    }
+    if (action?.target !== undefined) validateTargets([action.target], errors, `${path}[${index}].target`);
+    if (action?.navigateTo !== undefined && typeof action.navigateTo !== 'string') errors.push(`${path}[${index}].navigateTo must be a string`);
+    if (action?.reason !== undefined && typeof action.reason !== 'string') errors.push(`${path}[${index}].reason must be a string`);
+    if (action?.candidateType !== undefined && !['benchmark_app_wrong_task', 'search'].includes(action.candidateType)) {
+      errors.push(`${path}[${index}].candidateType has unsupported value ${action.candidateType}`);
+    }
+    inspectSensitive(action, errors, `${path}[${index}]`);
+  }
+}
+
 export function validatePreflightReport(report) {
   const errors = [];
   validateObjectShape(report, errors, 'report');
@@ -761,9 +992,10 @@ export function validatePreflightReport(report) {
   if (!PREFLIGHT_STATUSES.has(report?.status)) errors.push(`status must be one of ${[...PREFLIGHT_STATUSES].join(', ')}`);
   validateObjectShape(report?.mode, errors, 'mode');
   if (typeof report?.mode?.fix !== 'boolean') errors.push('mode.fix must be a boolean');
+  if (report?.mode?.prepareTarget !== undefined && typeof report.mode.prepareTarget !== 'boolean') errors.push('mode.prepareTarget must be a boolean when present');
   validateObjectShape(report?.benchmark, errors, 'benchmark');
   validateObjectShape(report?.cdp, errors, 'cdp');
-  if (!Array.isArray(report?.actions)) errors.push('actions must be an array');
+  validateActions(report?.actions, errors, 'actions');
   if (!Array.isArray(report?.warnings)) errors.push('warnings must be an array');
   validateTargets(report?.targetsBefore, errors, 'targetsBefore');
   validateTargets(report?.targetsAfter, errors, 'targetsAfter');

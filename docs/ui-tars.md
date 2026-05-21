@@ -184,6 +184,7 @@ experiment contains:
 ```text
 metadata.json
 tasks/<task-id>/prompt.txt
+tasks/<task-id>/target-prepare.json   # only when --prepare-target is set
 tasks/<task-id>/preflight-dry-run.json
 tasks/<task-id>/preflight-fix.json   # only when --preflight-fix is set
 tasks/<task-id>/trace.json
@@ -202,6 +203,31 @@ run export. Use `--preflight-fix` to also write `preflight-fix.json` and allow
 the same `Page.navigate` correction described above. Explicit CDP fix mode still
 requires `--confirm-explicit-cdp-fix`; safe local discovery can be enabled with
 `--discover-local-uitars`.
+
+Use `--prepare-target` for the next round when UI-TARS already has the benchmark
+app open but the tab is still on a previous `?task=<id>` URL. Target preparation
+runs before dry-run preflight, writes `tasks/<task-id>/target-prepare.json`, and
+adds a non-step `target_prepare` trace event. It is deliberately conservative:
+an exact task URL with no open search target is reported as `ready` without
+navigation, same-origin and same-path benchmark app tabs with the wrong query
+may be navigated to the current task URL, and supported Google/Bing/Baidu search
+tabs may be navigated to the current task URL. Multiple same-type safe
+candidates can be prepared in one batch, but mixed benchmark-app and search
+candidates are reported as `ambiguous`.
+When the CDP endpoint is explicit, navigation still requires
+`--confirm-explicit-cdp-fix` or `UI_TARS_CONFIRM_EXPLICIT_CDP_FIX=1`; discovery
+with a UI-TARS app parent chain can prepare without that extra confirmation.
+
+Round2-style local run:
+
+```sh
+npm run uitars:harness -- \
+  --output experiments/round2-uitars-harness \
+  --tasks all \
+  --base-url http://127.0.0.1:4173 \
+  --discover-local-uitars \
+  --prepare-target
+```
 
 Remote endpoints are refused by default. Use `--allow-remote-cdp` only for an
 intentional non-local CDP endpoint, and `--allow-remote-benchmark` only when the

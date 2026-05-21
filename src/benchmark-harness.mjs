@@ -5,6 +5,7 @@ import { tracesToRuns } from './trace-importer.mjs';
 import { validateRun } from './runs.mjs';
 import {
   normalizeBenchmarkUrl,
+  prepareUitarsTarget,
   runUitarsPreflight,
   sanitizeUrl,
   writePreflightReport
@@ -129,9 +130,38 @@ function taskStatusFromReports(dryRunReport, fixReport = null) {
   return finalReport.status;
 }
 
-function traceForTask({ task, benchmarkUrl, dryRunReport, fixReport, startedAt }) {
+function traceForTask({ task, benchmarkUrl, targetPrepareReport, dryRunReport, fixReport, startedAt }) {
   const finalReport = fixReport || dryRunReport;
   const status = taskStatusFromReports(dryRunReport, fixReport);
+  const events = [];
+  if (targetPrepareReport) {
+    events.push({
+      timestamp: targetPrepareReport.timestamp || startedAt,
+      type: 'target_prepare',
+      label: `Target prepare ${targetPrepareReport.status}`,
+      target: task.id,
+      countsAsStep: false,
+      value: {
+        prepareStatus: targetPrepareReport.status,
+        reason: targetPrepareReport.reason || '',
+        benchmarkUrl
+      }
+    });
+  }
+  events.push({
+    timestamp: finalReport.timestamp || startedAt,
+    type: 'preflight',
+    label: `Preflight ${finalReport.status}`,
+    target: task.id,
+    countsAsStep: false,
+    value: {
+      taskStatus: status,
+      dryRunStatus: dryRunReport.status,
+      fixStatus: fixReport?.status || null,
+      reason: finalReport.reason || '',
+      benchmarkUrl
+    }
+  });
   return sanitizeForOutput({
     traceVersion: 1,
     source: 'ui-tars-benchmark-harness',
@@ -139,22 +169,7 @@ function traceForTask({ task, benchmarkUrl, dryRunReport, fixReport, startedAt }
     taskId: task.id,
     taskTitle: task.title,
     startedAt,
-    events: [
-      {
-        timestamp: finalReport.timestamp || startedAt,
-        type: 'preflight',
-        label: `Preflight ${finalReport.status}`,
-        target: task.id,
-        countsAsStep: false,
-        value: {
-          taskStatus: status,
-          dryRunStatus: dryRunReport.status,
-          fixStatus: fixReport?.status || null,
-          reason: finalReport.reason || '',
-          benchmarkUrl
-        }
-      }
-    ]
+    events
   });
 }
 
@@ -216,6 +231,7 @@ export async function runBenchmarkHarness(options = {}) {
       baseUrl: sanitizeUrl(options.baseUrl || DEFAULT_HARNESS_BASE_URL),
       cdpEndpoint: options.cdpUrl ? sanitizeUrl(options.cdpUrl) : '',
       discoverLocalUitars: Boolean(options.discoverLocalUitars),
+      prepareTarget: Boolean(options.prepareTarget),
       preflightFix: Boolean(options.preflightFix),
       confirmExplicitCdpFix: Boolean(options.confirmExplicitCdpFix),
       allowRemoteCdp: Boolean(options.allowRemoteCdp),
@@ -239,6 +255,16 @@ export async function runBenchmarkHarness(options = {}) {
       source: options.discoverLocalUitars && !options.cdpUrl ? 'discovered-local-uitars' : 'explicit',
       timeoutMs: options.timeoutMs
     };
+
+    let targetPrepareReport = null;
+    if (options.prepareTarget) {
+      targetPrepareReport = await prepareUitarsTarget({
+        ...preflightOptions,
+        confirmExplicitCdpFix: options.confirmExplicitCdpFix
+      });
+      await writePreflightReport(sanitizeForOutput(targetPrepareReport), join(taskDir, 'target-prepare.json'));
+    }
+
     const dryRunReport = await runUitarsPreflight({ ...preflightOptions, fix: false });
     await writePreflightReport(sanitizeForOutput(dryRunReport), join(taskDir, 'preflight-dry-run.json'));
 
@@ -255,6 +281,7 @@ export async function runBenchmarkHarness(options = {}) {
     const trace = traceForTask({
       task,
       benchmarkUrl: sanitizeUrl(benchmarkUrl),
+      targetPrepareReport,
       dryRunReport,
       fixReport,
       startedAt: createdAt
@@ -269,11 +296,13 @@ export async function runBenchmarkHarness(options = {}) {
       title: task.title,
       status: taskStatusFromReports(dryRunReport, fixReport),
       benchmarkUrl: sanitizeUrl(benchmarkUrl),
+      targetPrepareStatus: targetPrepareReport?.status || null,
       dryRunStatus: dryRunReport.status,
       fixStatus: fixReport?.status || null,
       reason: sanitizeString((fixReport || dryRunReport).reason || ''),
       files: {
         prompt: `tasks/${task.id}/prompt.txt`,
+        targetPrepare: targetPrepareReport ? `tasks/${task.id}/target-prepare.json` : null,
         preflightDryRun: `tasks/${task.id}/preflight-dry-run.json`,
         preflightFix: fixReport ? `tasks/${task.id}/preflight-fix.json` : null,
         trace: `tasks/${task.id}/trace.json`,

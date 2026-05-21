@@ -18,6 +18,7 @@ Options:
   --base-url <url>               Benchmark app base URL. Default: ${DEFAULT_HARNESS_BASE_URL}
   --cdp-url <url>                Explicit Chrome DevTools Protocol endpoint.
   --discover-local-uitars        Safely discover a UI-TARS child Chrome endpoint.
+  --prepare-target               Navigate safe target(s) to the task URL before dry-run preflight.
   --preflight-fix                Also write preflight-fix.json by navigating matched search targets.
   --confirm-explicit-cdp-fix     Allow fix mode when the CDP endpoint is explicit.
   --allow-remote-cdp             Allow a non-localhost CDP endpoint.
@@ -28,6 +29,7 @@ Environment:
   UI_TARS_CDP_URL                CDP endpoint when --cdp-url is omitted.
   BENCHMARK_BASE_URL             Benchmark base URL when --base-url is omitted.
   UI_TARS_DISCOVER_LOCAL=1       Enable safe local UI-TARS discovery.
+  UI_TARS_PREPARE_TARGET=1       Enable target preparation before dry-run preflight.
   UI_TARS_PREFLIGHT_FIX=1        Enable preflight fix mode.
   UI_TARS_CONFIRM_EXPLICIT_CDP_FIX=1
                                  Confirm fix mode for explicit CDP endpoints.
@@ -51,6 +53,7 @@ function parseArgs(argv) {
     baseUrl: process.env.BENCHMARK_BASE_URL || DEFAULT_HARNESS_BASE_URL,
     cdpUrl: process.env.UI_TARS_CDP_URL || '',
     discoverLocalUitars: process.env.UI_TARS_DISCOVER_LOCAL === '1',
+    prepareTarget: process.env.UI_TARS_PREPARE_TARGET === '1',
     preflightFix: process.env.UI_TARS_PREFLIGHT_FIX === '1',
     confirmExplicitCdpFix: process.env.UI_TARS_CONFIRM_EXPLICIT_CDP_FIX === '1',
     allowRemoteCdp: false,
@@ -64,6 +67,8 @@ function parseArgs(argv) {
       options.help = true;
     } else if (arg === '--discover-local-uitars') {
       options.discoverLocalUitars = true;
+    } else if (arg === '--prepare-target') {
+      options.prepareTarget = true;
     } else if (arg === '--preflight-fix') {
       options.preflightFix = true;
     } else if (arg === '--confirm-explicit-cdp-fix') {
