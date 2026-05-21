@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-21T07:37:31.934Z",
+  "runs": [
+    {
+      "id": "harness-20260521073651-catalog-filter",
+      "taskId": "catalog-filter",
+      "taskTitle": "Find approved desk gear",
+      "startedAt": "2026-05-21T07:36:51.529Z",
+      "endedAt": null,
+      "durationMs": 40402,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-21T07:37:11.816Z",
+          "type": "target_prepare",
+          "label": "Target prepare fixed",
+          "target": "catalog-filter",
+          "path": null,
+          "value": {
+            "prepareStatus": "fixed",
+            "reason": "Exact benchmark task target is visible and no supported search target remains after target preparation.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-21T07:37:31.931Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "catalog-filter",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}
