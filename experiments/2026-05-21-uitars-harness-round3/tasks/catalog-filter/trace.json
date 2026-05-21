@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260521091433-catalog-filter",
+  "taskId": "catalog-filter",
+  "taskTitle": "Find approved desk gear",
+  "startedAt": "2026-05-21T09:14:33.353Z",
+  "events": [
+    {
+      "timestamp": "2026-05-21T09:14:53.646Z",
+      "type": "target_prepare",
+      "label": "Target prepare fixed",
+      "target": "catalog-filter",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "fixed",
+        "reason": "Exact benchmark task target is visible and no supported search target remains after target preparation.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter"
+      }
+    },
+    {
+      "timestamp": "2026-05-21T09:15:13.749Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "catalog-filter",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter"
+      }
+    }
+  ]
+}

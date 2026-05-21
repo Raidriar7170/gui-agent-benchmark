@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-21T09:15:34.012Z",
+  "status": "fixed",
+  "reason": "Exact benchmark task target is visible and no supported search target remains after target preparation.",
+  "mode": {
+    "fix": true,
+    "prepareTarget": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=ticket-review",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:61423/",
+    "version": {
+      "browser": "Chrome/148.0.7778.168",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "error",
+      "candidateType": "benchmark_app_wrong_task",
+      "target": {
+        "id": "42D9F85BDDB7E73E3340E904C249B29E",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=settings-toggle"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=ticket-review",
+      "reason": "Timed out waiting for CDP Page.navigate."
+    },
+    {
+      "action": "Page.navigate",
+      "status": "error",
+      "candidateType": "benchmark_app_wrong_task",
+      "target": {
+        "id": "2042F53FFE2A23F2AFA3E3DE868B99FE",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=settings-toggle"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=ticket-review",
+      "reason": "Timed out waiting for CDP Page.navigate."
+    },
+    {
+      "action": "Page.navigate",
+      "status": "error",
+      "candidateType": "benchmark_app_wrong_task",
+      "target": {
+        "id": "A4546FE8AD0D44971C02093568BE4A56",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=settings-toggle"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=ticket-review",
+      "reason": "Timed out waiting for CDP Page.navigate."
+    },
+    {
+      "action": "Page.navigate",
+      "status": "error",
+      "candidateType": "benchmark_app_wrong_task",
+      "target": {
+        "id": "10C66C6A386B69F4B83656E007B98829",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=settings-toggle"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=ticket-review",
+      "reason": "Timed out waiting for CDP Page.navigate."
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "42D9F85BDDB7E73E3340E904C249B29E",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "2042F53FFE2A23F2AFA3E3DE868B99FE",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "A4546FE8AD0D44971C02093568BE4A56",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "10C66C6A386B69F4B83656E007B98829",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "42D9F85BDDB7E73E3340E904C249B29E",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=ticket-review"
+    },
+    {
+      "id": "2042F53FFE2A23F2AFA3E3DE868B99FE",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=ticket-review"
+    },
+    {
+      "id": "A4546FE8AD0D44971C02093568BE4A56",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=ticket-review"
+    },
+    {
+      "id": "10C66C6A386B69F4B83656E007B98829",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=ticket-review"
+    }
+  ],
+  "warnings": [
+    "4 navigation responses failed, but the exact benchmark task target became visible and no supported search target remains."
+  ]
+}
