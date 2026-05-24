@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "ticket-review",
+  "taskTitle": "Review priority support ticket",
+  "artifactBase": "experiments/2026-05-23-uitars-real-e2e",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, final capture state, and operator observations recorded during the run.",
+    "UI-TARS internal IndexedDB, private logs, and raw screenshots were not read.",
+    "Only final benchmark state is machine-captured; intermediate UI-TARS actions are marked as operator_note or derived evidence."
+  ],
+  "steps": [
+    {
+      "id": "ticket-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate passed with local validation, tunnel health, and remote read-only checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-23-real-e2e.json"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded ticket review prompt requiring call_user() on any non-benchmark page.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s03-search-start",
+      "index": 3,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "wrong_start_page",
+      "summary": "UI-TARS initially observed Google before the ticket review task page was rebound.",
+      "evidence": {
+        "kind": "operator_note",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/preflight-before-continue.json"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s04-preflight-rebind",
+      "index": 4,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind",
+      "summary": "Preflight navigated and isolated the UI-TARS-owned target to the ticket-review benchmark URL.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-23-uitars-real-e2e/task-prep/ticket-review-after-call-user/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s05-continue-prompt",
+      "index": 5,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent the continuation prompt after the ticket-review benchmark task page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "ticket-s04-preflight-rebind"
+      ]
+    },
+    {
+      "id": "ticket-s06-target-reasoned",
+      "index": 6,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "target_identification_reasoning",
+      "summary": "UI-TARS transcript indicated it reasoned about Priya Shah and INC-2048, but this recognition did not become benchmark state.",
+      "evidence": {
+        "kind": "operator_note",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/run-log.md"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s07-table-loop",
+      "index": 7,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "table_search_loop",
+      "summary": "The run looped around ticket search/list interaction and ended with no query and no selected ticket.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "table.query": "",
+        "table.selectedTicketId": "",
+        "tickets.INC-2048.reviewed": false
+      },
+      "relatedStepIds": [
+        "ticket-s06-target-reasoned"
+      ]
+    },
+    {
+      "id": "ticket-s08-capture",
+      "index": 8,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for ticket-review.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s09-evaluation",
+      "index": 9,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0 because no query, selection, or reviewed state was recorded.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0,
+        "failedCriteria": [
+          "table query identifies Priya Shah or INC-2048",
+          "INC-2048 is selected",
+          "INC-2048 is marked reviewed"
+        ]
+      }
+    },
+    {
+      "id": "ticket-s10-failure",
+      "index": 10,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is table search loop: the model reasoned about the target ticket but did not commit query, selection, or reviewed state.",
+      "failureCode": "ACT-TABLE-SEARCH-LOOP",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "ticket-s06-target-reasoned",
+          "ticket-s07-table-loop",
+          "ticket-s09-evaluation"
+        ]
+      },
+      "relatedStepIds": [
+        "ticket-s06-target-reasoned",
+        "ticket-s07-table-loop",
+        "ticket-s09-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0,
+    "primaryFailureCode": "ACT-TABLE-SEARCH-LOOP",
+    "failedCriteria": [
+      "table query identifies Priya Shah or INC-2048",
+      "INC-2048 is selected",
+      "INC-2048 is marked reviewed"
+    ]
+  }
+}

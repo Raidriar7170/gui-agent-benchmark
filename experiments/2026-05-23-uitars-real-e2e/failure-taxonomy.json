@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-e2e-failure-taxonomy",
+  "createdAt": "2026-05-23T04:11:00.573Z",
+  "taxonomy": {
+    "version": "2026-05-23",
+    "path": "docs/failure-taxonomy.md"
+  },
+  "environment": {
+    "status": "valid",
+    "finishGateReport": "artifacts/finish-gate/2026-05-23-real-e2e.json",
+    "tunnel": {
+      "localEndpoint": "http://127.0.0.1:18001",
+      "remoteProxyPort": 8001,
+      "remoteDirectVllmPort": 8000,
+      "misrouteObservedAndResolved": true,
+      "historicalCode": "ENV-TUNNEL-MISROUTE"
+    },
+    "targetBinding": {
+      "preflightRequired": true,
+      "mitigatedCode": "BIND-SEARCH-START"
+    }
+  },
+  "round": {
+    "summaryPath": "experiments/2026-05-23-uitars-real-e2e/real-run-summary.json",
+    "totalTasks": 4,
+    "capturedTasks": 4,
+    "successTasks": 0,
+    "averageScore": 0.23
+  },
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json",
+      "score": 0.17,
+      "success": false,
+      "primaryCode": "ACT-TEXT-ENTRY-STALL",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-23-uitars-real-e2e/step-traces/onboarding-form.json",
+        "primaryEvidenceStepIds": [
+          "onboarding-s06-name-entered",
+          "onboarding-s07-email-stall",
+          "onboarding-s10-failure"
+        ],
+        "timelineSummary": "After preflight rebinding, UI-TARS entered the first text field but stalled before the email and remaining form fields."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "full name is Maya Ortiz"
+        ],
+        "failedCriteria": [
+          "form is submitted",
+          "email is maya.ortiz@example.com",
+          "role is Designer",
+          "start date is 2026-06-15",
+          "notes mention Figma access"
+        ],
+        "finalState": {
+          "fullName": "Maya Ortiz",
+          "email": "",
+          "role": "",
+          "startDate": "",
+          "notes": "",
+          "submitted": false
+        },
+        "interpretation": "The model reached the benchmark page and filled the first text field, then stalled before entering the remaining form values or submitting."
+      }
+    },
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/catalog-filter/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-SELECTION-COMMIT-MISS",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-23-uitars-real-e2e/step-traces/catalog-filter.json",
+        "primaryEvidenceStepIds": [
+          "catalog-s06-filter-search",
+          "catalog-s07-selection-missing",
+          "catalog-s10-failure"
+        ],
+        "timelineSummary": "UI-TARS changed filter state but never committed the target product selection."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "selected SKU is ERGO-27",
+          "selected product is in stock",
+          "selected product category is office",
+          "selected product rating is at least 4.5"
+        ],
+        "finalState": {
+          "search": "office",
+          "category": "all",
+          "minRating": 0,
+          "inStockOnly": true,
+          "selectedSku": ""
+        },
+        "interpretation": "The model changed filters but did not commit the target product selection, leaving selectedSku empty."
+      }
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json",
+      "score": 0.75,
+      "success": false,
+      "primaryCode": "ACT-DROPDOWN-VALUE-MISS",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-23-uitars-real-e2e/step-traces/settings-toggle.json",
+        "primaryEvidenceStepIds": [
+          "settings-s06-toggles-complete",
+          "settings-s07-timezone-unchanged",
+          "settings-s10-failure"
+        ],
+        "timelineSummary": "UI-TARS completed boolean controls, then left the timezone dropdown at UTC."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "weekly email digest is enabled",
+          "autosave remains enabled",
+          "product analytics sharing is disabled"
+        ],
+        "failedCriteria": [
+          "timezone is America/New_York"
+        ],
+        "finalState": {
+          "weeklyDigest": true,
+          "autosave": true,
+          "dataSharing": false,
+          "timezone": "UTC"
+        },
+        "interpretation": "The model completed all toggle/checkbox-like controls but failed to change the timezone dropdown."
+      }
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-TABLE-SEARCH-LOOP",
+      "secondaryCodes": [
+        "ACT-SELECTION-COMMIT-MISS"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-23-uitars-real-e2e/step-traces/ticket-review.json",
+        "primaryEvidenceStepIds": [
+          "ticket-s06-target-reasoned",
+          "ticket-s07-table-loop",
+          "ticket-s10-failure"
+        ],
+        "timelineSummary": "UI-TARS reasoned about the target ticket but did not commit query, selection, or reviewed state."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "table query identifies Priya Shah or INC-2048",
+          "INC-2048 is selected",
+          "INC-2048 is marked reviewed"
+        ],
+        "finalState": {
+          "query": "",
+          "selectedTicketId": "",
+          "inc2048Reviewed": false
+        },
+        "interpretation": "The model reasoned about the target ticket but looped around search/list interaction and never selected or marked INC-2048 reviewed."
+      }
+    }
+  ],
+  "counts": {
+    "primary": {
+      "ACT-TEXT-ENTRY-STALL": 1,
+      "ACT-SELECTION-COMMIT-MISS": 1,
+      "ACT-DROPDOWN-VALUE-MISS": 1,
+      "ACT-TABLE-SEARCH-LOOP": 1
+    },
+    "secondary": {
+      "TASK-PARTIAL-PLAN": 3,
+      "ACT-SELECTION-COMMIT-MISS": 1
+    }
+  }
+}

@@ -76,6 +76,34 @@ export const TICKETS = [
   }
 ];
 
+export const INVOICES = [
+  { id: 'INV-101', vendor: 'Northwind Labs', amount: 1240, status: 'Open' },
+  { id: 'INV-117', vendor: 'Atlas Coffee', amount: 318, status: 'Open' },
+  { id: 'INV-203', vendor: 'Priya Systems', amount: 4820, status: 'Open' },
+  { id: 'INV-244', vendor: 'Bluebird Transit', amount: 760, status: 'Open' },
+  { id: 'INV-305', vendor: 'Contour Legal', amount: 2190, status: 'Open' }
+];
+
+export const INVENTORY = [
+  { sku: 'CABLE-12', name: 'USB-C Cable Pack', risk: 2, stock: 42 },
+  { sku: 'BATT-88', name: 'Battery Pack Recall Kit', risk: 9, stock: 6 },
+  { sku: 'LAMP-33', name: 'Desk Lamp', risk: 3, stock: 15 },
+  { sku: 'HUB-51', name: 'Conference Hub', risk: 7, stock: 4 }
+];
+
+export const APPROVALS = [
+  { id: 'APR-102', requester: 'Nia Carter', item: 'Database read access' },
+  { id: 'APR-144', requester: 'Omar Singh', item: 'Travel reimbursement' },
+  { id: 'APR-205', requester: 'Lena Ortiz', item: 'Vendor NDA renewal' },
+  { id: 'APR-301', requester: 'Hiro Tanaka', item: 'Laptop refresh' }
+];
+
+export const AVAILABLE_UPLOADS = [
+  'security-audit.pdf',
+  'brand-guidelines.pdf',
+  'office-map.png'
+];
+
 const initialState = {
   activeTaskId: 'onboarding-form',
   form: {
@@ -103,7 +131,38 @@ const initialState = {
     query: '',
     selectedTicketId: ''
   },
-  tickets: TICKETS
+  tickets: TICKETS,
+  modal: {
+    selectedRequestId: '',
+    dialogOpened: false,
+    confirmed: false
+  },
+  pagination: {
+    page: 1,
+    reviewedIds: []
+  },
+  inventory: {
+    sortKey: '',
+    sortDirection: 'asc',
+    selectedSku: ''
+  },
+  approvals: {
+    selectedIds: [],
+    submitted: false
+  },
+  validation: {
+    title: '',
+    owner: '',
+    dueDate: '',
+    errorShown: false,
+    submitted: false
+  },
+  upload: {
+    selectedFile: '',
+    category: '',
+    description: '',
+    submitted: false
+  }
 };
 
 export function snapshotState(value) {
@@ -146,6 +205,22 @@ export function visibleTickets(state) {
   ].some((value) => value.toLowerCase().includes(query)));
 }
 
+export function visibleInvoices(state, pageSize = 2) {
+  const page = Math.max(1, Number(state.pagination.page || 1));
+  const start = (page - 1) * pageSize;
+  return INVOICES.slice(start, start + pageSize);
+}
+
+export function sortedInventory(state) {
+  const items = snapshotState(INVENTORY);
+  if (state.inventory.sortKey === 'risk') {
+    items.sort((left, right) => state.inventory.sortDirection === 'desc'
+      ? right.risk - left.risk
+      : left.risk - right.risk);
+  }
+  return items;
+}
+
 export function findProductBySku(sku) {
   return PRODUCTS.find((product) => product.sku === sku) || null;
 }
@@ -154,3 +229,10 @@ export function findTicketById(state, id) {
   return state.tickets.find((ticket) => ticket.id === id) || null;
 }
 
+export function findInvoiceById(id) {
+  return INVOICES.find((invoice) => invoice.id === id) || null;
+}
+
+export function findInventoryBySku(sku) {
+  return INVENTORY.find((item) => item.sku === sku) || null;
+}

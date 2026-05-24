@@ -51,6 +51,82 @@
       "INC-2048 is selected",
       "INC-2048 is marked reviewed"
     ]
+  },
+  {
+    "id": "modal-confirmation",
+    "title": "Confirm access request",
+    "instruction": "Open the confirmation dialog for request REQ-77 and confirm it.",
+    "startUrl": "/?task=modal-confirmation",
+    "maxSteps": 8,
+    "successCriteria": [
+      "request REQ-77 is selected",
+      "confirmation dialog was opened",
+      "request is confirmed"
+    ]
+  },
+  {
+    "id": "pagination-review",
+    "title": "Review paginated invoice",
+    "instruction": "Go to page 2 of the invoice queue and mark invoice INV-203 reviewed.",
+    "startUrl": "/?task=pagination-review",
+    "maxSteps": 10,
+    "successCriteria": [
+      "pagination is on page 2",
+      "invoice INV-203 exists",
+      "invoice INV-203 is reviewed"
+    ]
+  },
+  {
+    "id": "sortable-inventory",
+    "title": "Select highest-risk inventory",
+    "instruction": "Sort the inventory table by risk descending, then select the Battery Pack Recall Kit.",
+    "startUrl": "/?task=sortable-inventory",
+    "maxSteps": 10,
+    "successCriteria": [
+      "inventory is sorted by risk",
+      "risk sort is descending",
+      "selected SKU is BATT-88",
+      "selected item has risk 9"
+    ]
+  },
+  {
+    "id": "multi-select-approvals",
+    "title": "Submit multiple approvals",
+    "instruction": "Select approvals APR-102 and APR-205 only, then submit the selected approvals.",
+    "startUrl": "/?task=multi-select-approvals",
+    "maxSteps": 10,
+    "successCriteria": [
+      "APR-102 is selected",
+      "APR-205 is selected",
+      "only requested approvals are selected",
+      "approvals are submitted"
+    ]
+  },
+  {
+    "id": "validation-error-recovery",
+    "title": "Recover from validation error",
+    "instruction": "Submit the empty access review form once to show validation, then enter title Quarterly access review, owner Morgan Lee, due date 2026-06-30, and submit successfully.",
+    "startUrl": "/?task=validation-error-recovery",
+    "maxSteps": 12,
+    "successCriteria": [
+      "validation error was shown before successful submit",
+      "title is Quarterly access review",
+      "owner is Morgan Lee",
+      "due date is 2026-06-30",
+      "validation form is submitted"
+    ]
+  },
+  {
+    "id": "file-upload-request",
+    "title": "Attach compliance evidence",
+    "instruction": "Attach security-audit.pdf, set category to Compliance, add description Q2 security audit evidence, and submit the upload request.",
+    "startUrl": "/?task=file-upload-request",
+    "maxSteps": 10,
+    "successCriteria": [
+      "security-audit.pdf is attached",
+      "category is Compliance",
+      "description mentions Q2 security audit evidence",
+      "upload request is submitted"
+    ]
   }
 ]
-

@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "onboarding-form",
+  "taskTitle": "Submit onboarding request",
+  "artifactBase": "experiments/2026-05-23-uitars-real-e2e",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, final capture state, and operator observations recorded during the run.",
+    "UI-TARS internal IndexedDB, private logs, and raw screenshots were not read.",
+    "Only final benchmark state is machine-captured; intermediate UI-TARS actions are marked as operator_note or derived evidence."
+  ],
+  "steps": [
+    {
+      "id": "onboarding-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate passed with local validation, tunnel health, and remote read-only checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-23-real-e2e.json"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded onboarding prompt requiring call_user() on any non-benchmark page.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-s03-search-start",
+      "index": 3,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "wrong_start_page",
+      "summary": "UI-TARS initially observed a search page rather than the onboarding task page.",
+      "evidence": {
+        "kind": "operator_note",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run/preflight-fix-after-start.json"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-s04-preflight-rebind",
+      "index": 4,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind",
+      "summary": "Preflight navigated the UI-TARS-owned target to the onboarding benchmark URL.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/preflight-fix-after-call-user.json",
+          "experiments/2026-05-23-uitars-real-e2e/task-prep/onboarding-form-attempt2-after-call-user/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-s05-continue-prompt",
+      "index": 5,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent the continuation prompt after the benchmark task page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "onboarding-s04-preflight-rebind"
+      ]
+    },
+    {
+      "id": "onboarding-s06-name-entered",
+      "index": 6,
+      "phase": "action",
+      "actor": "ui-tars",
+      "type": "text_entry",
+      "summary": "UI-TARS entered the full name field as Maya Ortiz.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "form.fullName": "Maya Ortiz"
+      }
+    },
+    {
+      "id": "onboarding-s07-email-stall",
+      "index": 7,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "repeated_click_without_text",
+      "summary": "The run stalled before entering the email field; final state kept email and all later form fields blank.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "form.email": "",
+        "form.role": "",
+        "form.startDate": "",
+        "form.notes": "",
+        "form.submitted": false
+      },
+      "relatedStepIds": [
+        "onboarding-s06-name-entered"
+      ]
+    },
+    {
+      "id": "onboarding-s08-capture",
+      "index": 8,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for onboarding attempt 2.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-s09-evaluation",
+      "index": 9,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0.17; only the full-name criterion passed.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0.17,
+        "passedCriteria": [
+          "full name is Maya Ortiz"
+        ],
+        "failedCriteria": [
+          "form is submitted",
+          "email is maya.ortiz@example.com",
+          "role is Designer",
+          "start date is 2026-06-15",
+          "notes mention Figma access"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-s10-failure",
+      "index": 10,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is text-entry stall: the model completed the first text field but did not continue through the form.",
+      "failureCode": "ACT-TEXT-ENTRY-STALL",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "onboarding-s06-name-entered",
+          "onboarding-s07-email-stall",
+          "onboarding-s09-evaluation"
+        ]
+      },
+      "relatedStepIds": [
+        "onboarding-s06-name-entered",
+        "onboarding-s07-email-stall",
+        "onboarding-s09-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0.17,
+    "primaryFailureCode": "ACT-TEXT-ENTRY-STALL",
+    "failedCriteria": [
+      "form is submitted",
+      "email is maya.ortiz@example.com",
+      "role is Designer",
+      "start date is 2026-06-15",
+      "notes mention Figma access"
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-e2e-round-summary",
+  "createdAt": "2026-05-24T04:29:43.400Z",
+  "outputDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2",
+  "totalTasks": 4,
+  "capturedTasks": 4,
+  "successTasks": 1,
+  "averageScore": 0.4375,
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "form is submitted",
+        "full name is Maya Ortiz",
+        "email is maya.ortiz@example.com",
+        "role is Designer",
+        "start date is 2026-06-15",
+        "notes mention Figma access"
+      ]
+    },
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "status": "captured",
+      "success": true,
+      "score": 1,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": []
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "status": "captured",
+      "success": false,
+      "score": 0.75,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "timezone is America/New_York"
+      ]
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "table query identifies Priya Shah or INC-2048",
+        "INC-2048 is selected",
+        "INC-2048 is marked reviewed"
+      ]
+    }
+  ]
+}

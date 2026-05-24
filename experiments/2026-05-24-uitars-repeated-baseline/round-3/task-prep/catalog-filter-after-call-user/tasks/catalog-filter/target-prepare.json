@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T04:38:44.516Z",
+  "status": "ready",
+  "reason": "Benchmark target is already prepared for the requested task URL.",
+  "mode": {
+    "fix": true,
+    "prepareTarget": true,
+    "isolateTarget": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=catalog-filter",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:61618/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [],
+  "targetsBefore": [
+    {
+      "id": "71E73DE4FC4BF0DEC1CA610B2A8CF0EF",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=catalog-filter"
+    },
+    {
+      "id": "0EB8A3D01600958839C63942980CB988",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}

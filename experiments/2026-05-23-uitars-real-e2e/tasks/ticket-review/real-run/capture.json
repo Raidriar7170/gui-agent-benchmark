@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-run-capture",
+  "captureStatus": "captured",
+  "taskId": "ticket-review",
+  "taskTitle": "Review priority support ticket",
+  "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review",
+  "startedAt": "2026-05-23T04:04:34.112Z",
+  "endedAt": "2026-05-23T04:04:34.211Z",
+  "target": {
+    "id": "658767FD7F6226694ADACF629FAB97ED",
+    "type": "page",
+    "title": "GUI Agent Benchmark",
+    "url": "http://127.0.0.1:4173/?task=ticket-review"
+  },
+  "finalState": {
+    "activeTaskId": "ticket-review",
+    "form": {
+      "fullName": "",
+      "email": "",
+      "role": "",
+      "startDate": "",
+      "notes": "",
+      "submitted": false
+    },
+    "catalog": {
+      "search": "",
+      "category": "all",
+      "minRating": 0,
+      "inStockOnly": false,
+      "selectedSku": ""
+    },
+    "settings": {
+      "weeklyDigest": false,
+      "autosave": true,
+      "dataSharing": true,
+      "timezone": "UTC"
+    },
+    "table": {
+      "query": "",
+      "selectedTicketId": ""
+    },
+    "tickets": [
+      {
+        "id": "INC-1042",
+        "requester": "Lin Chen",
+        "priority": "Medium",
+        "topic": "VPN profile reset",
+        "status": "Open",
+        "reviewed": false
+      },
+      {
+        "id": "INC-2048",
+        "requester": "Priya Shah",
+        "priority": "High",
+        "topic": "Payroll portal timeout",
+        "status": "Open",
+        "reviewed": false
+      },
+      {
+        "id": "INC-3130",
+        "requester": "Owen Brooks",
+        "priority": "Low",
+        "topic": "Printer badge mapping",
+        "status": "Waiting",
+        "reviewed": false
+      },
+      {
+        "id": "INC-4011",
+        "requester": "Rina Patel",
+        "priority": "Medium",
+        "topic": "Calendar sync delay",
+        "status": "Open",
+        "reviewed": false
+      }
+    ]
+  },
+  "evaluation": {
+    "success": false,
+    "score": 0,
+    "details": [
+      {
+        "criterion": "table query identifies Priya Shah or INC-2048",
+        "pass": false,
+        "expected": "Priya Shah or INC-2048",
+        "actual": ""
+      },
+      {
+        "criterion": "INC-2048 is selected",
+        "pass": false,
+        "expected": "INC-2048",
+        "actual": ""
+      },
+      {
+        "criterion": "INC-2048 is marked reviewed",
+        "pass": false,
+        "expected": true,
+        "actual": false
+      }
+    ],
+    "state": {
+      "activeTaskId": "ticket-review",
+      "form": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "startDate": "",
+        "notes": "",
+        "submitted": false
+      },
+      "catalog": {
+        "search": "",
+        "category": "all",
+        "minRating": 0,
+        "inStockOnly": false,
+        "selectedSku": ""
+      },
+      "settings": {
+        "weeklyDigest": false,
+        "autosave": true,
+        "dataSharing": true,
+        "timezone": "UTC"
+      },
+      "table": {
+        "query": "",
+        "selectedTicketId": ""
+      },
+      "tickets": [
+        {
+          "id": "INC-1042",
+          "requester": "Lin Chen",
+          "priority": "Medium",
+          "topic": "VPN profile reset",
+          "status": "Open",
+          "reviewed": false
+        },
+        {
+          "id": "INC-2048",
+          "requester": "Priya Shah",
+          "priority": "High",
+          "topic": "Payroll portal timeout",
+          "status": "Open",
+          "reviewed": false
+        },
+        {
+          "id": "INC-3130",
+          "requester": "Owen Brooks",
+          "priority": "Low",
+          "topic": "Printer badge mapping",
+          "status": "Waiting",
+          "reviewed": false
+        },
+        {
+          "id": "INC-4011",
+          "requester": "Rina Patel",
+          "priority": "Medium",
+          "topic": "Calendar sync delay",
+          "status": "Open",
+          "reviewed": false
+        }
+      ]
+    }
+  }
+}

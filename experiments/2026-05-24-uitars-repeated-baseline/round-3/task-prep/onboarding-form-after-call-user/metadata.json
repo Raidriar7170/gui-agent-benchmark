@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T04:31:58.636Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-repeated-baseline/round-3/task-prep/onboarding-form-after-call-user",
+  "options": {
+    "tasks": "onboarding-form",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form",
+      "targetPrepareStatus": "fixed",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/onboarding-form/prompt.txt",
+        "targetPrepare": "tasks/onboarding-form/target-prepare.json",
+        "preflightDryRun": "tasks/onboarding-form/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/onboarding-form/trace.json",
+        "runExport": "tasks/onboarding-form/run-export.json"
+      }
+    }
+  ]
+}

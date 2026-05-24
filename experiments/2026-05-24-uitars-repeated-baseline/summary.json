@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-repeated-baseline-summary",
+  "createdAt": "2026-05-24T04:54:23.299Z",
+  "outputDir": "experiments/2026-05-24-uitars-repeated-baseline",
+  "roundCount": 3,
+  "rounds": [
+    {
+      "index": 1,
+      "createdAt": "2026-05-23T04:11:00.573Z",
+      "outputDir": "experiments/2026-05-23-uitars-real-e2e",
+      "totalTasks": 4,
+      "capturedTasks": 4,
+      "successTasks": 0,
+      "averageScore": 0.23
+    },
+    {
+      "index": 2,
+      "createdAt": "2026-05-24T04:29:43.400Z",
+      "outputDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2",
+      "totalTasks": 4,
+      "capturedTasks": 4,
+      "successTasks": 1,
+      "averageScore": 0.4375
+    },
+    {
+      "index": 3,
+      "createdAt": "2026-05-24T04:54:11.671Z",
+      "outputDir": "experiments/2026-05-24-uitars-repeated-baseline/round-3",
+      "totalTasks": 4,
+      "capturedTasks": 4,
+      "successTasks": 1,
+      "averageScore": 0.5
+    }
+  ],
+  "totalTaskAttempts": 12,
+  "overall": {
+    "averageScore": 0.3892,
+    "scoreVariance": 0.1437,
+    "successRate": 0.1667
+  },
+  "tasks": [
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "attempts": 3,
+      "successCount": 2,
+      "passRate": 0.6667,
+      "meanScore": 0.6667,
+      "minScore": 0,
+      "maxScore": 1,
+      "scoreVariance": 0.2222,
+      "scores": [
+        0,
+        1,
+        1
+      ],
+      "captures": [
+        {
+          "roundIndex": 1,
+          "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/catalog-filter/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0
+        },
+        {
+          "roundIndex": 2,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run/capture.json",
+          "status": "captured",
+          "success": true,
+          "score": 1
+        },
+        {
+          "roundIndex": 3,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-3/tasks/catalog-filter/real-run/capture.json",
+          "status": "captured",
+          "success": true,
+          "score": 1
+        }
+      ]
+    },
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "attempts": 3,
+      "successCount": 0,
+      "passRate": 0,
+      "meanScore": 0.1133,
+      "minScore": 0,
+      "maxScore": 0.17,
+      "scoreVariance": 0.0064,
+      "scores": [
+        0.17,
+        0,
+        0.17
+      ],
+      "captures": [
+        {
+          "roundIndex": 1,
+          "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0.17
+        },
+        {
+          "roundIndex": 2,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0
+        },
+        {
+          "roundIndex": 3,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-3/tasks/onboarding-form/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0.17
+        }
+      ]
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "attempts": 3,
+      "successCount": 0,
+      "passRate": 0,
+      "meanScore": 0.6667,
+      "minScore": 0.5,
+      "maxScore": 0.75,
+      "scoreVariance": 0.0139,
+      "scores": [
+        0.75,
+        0.75,
+        0.5
+      ],
+      "captures": [
+        {
+          "roundIndex": 1,
+          "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0.75
+        },
+        {
+          "roundIndex": 2,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0.75
+        },
+        {
+          "roundIndex": 3,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-3/tasks/settings-toggle/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "attempts": 3,
+      "successCount": 0,
+      "passRate": 0,
+      "meanScore": 0.11,
+      "minScore": 0,
+      "maxScore": 0.33,
+      "scoreVariance": 0.0242,
+      "scores": [
+        0,
+        0,
+        0.33
+      ],
+      "captures": [
+        {
+          "roundIndex": 1,
+          "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0
+        },
+        {
+          "roundIndex": 2,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0
+        },
+        {
+          "roundIndex": 3,
+          "capturePath": "experiments/2026-05-24-uitars-repeated-baseline/round-3/tasks/ticket-review/real-run/capture.json",
+          "status": "captured",
+          "success": false,
+          "score": 0.33
+        }
+      ]
+    }
+  ],
+  "failureCriteriaDistribution": [
+    {
+      "criterion": "email is maya.ortiz@example.com",
+      "count": 3
+    },
+    {
+      "criterion": "form is submitted",
+      "count": 3
+    },
+    {
+      "criterion": "INC-2048 is marked reviewed",
+      "count": 3
+    },
+    {
+      "criterion": "INC-2048 is selected",
+      "count": 3
+    },
+    {
+      "criterion": "notes mention Figma access",
+      "count": 3
+    },
+    {
+      "criterion": "role is Designer",
+      "count": 3
+    },
+    {
+      "criterion": "start date is 2026-06-15",
+      "count": 3
+    },
+    {
+      "criterion": "timezone is America/New_York",
+      "count": 3
+    },
+    {
+      "criterion": "table query identifies Priya Shah or INC-2048",
+      "count": 2
+    },
+    {
+      "criterion": "autosave remains enabled",
+      "count": 1
+    },
+    {
+      "criterion": "full name is Maya Ortiz",
+      "count": 1
+    },
+    {
+      "criterion": "selected product category is office",
+      "count": 1
+    },
+    {
+      "criterion": "selected product is in stock",
+      "count": 1
+    },
+    {
+      "criterion": "selected product rating is at least 4.5",
+      "count": 1
+    },
+    {
+      "criterion": "selected SKU is ERGO-27",
+      "count": 1
+    }
+  ]
+}

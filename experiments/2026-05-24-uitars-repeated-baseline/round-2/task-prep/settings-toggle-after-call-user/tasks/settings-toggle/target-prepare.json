@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T04:24:43.964Z",
+  "status": "fixed",
+  "reason": "Isolated target preparation left exactly one benchmark task target and no supported search targets.",
+  "mode": {
+    "fix": true,
+    "prepareTarget": true,
+    "isolateTarget": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=settings-toggle",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:59340/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "ok",
+      "candidateType": "benchmark_app_keeper",
+      "target": {
+        "id": "A847796CA48837E3B6080C8FCAC3D908",
+        "type": "page",
+        "title": "Google",
+        "url": "http://127.0.0.1:4173/?task=settings-toggle"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "action": "Page.navigate",
+      "status": "ok",
+      "candidateType": "benchmark_app_holding",
+      "target": {
+        "id": "B9E5C8099E1284CA2AB0F5546545DAEC",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=catalog-filter"
+      },
+      "navigateTo": "about:blank"
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "A847796CA48837E3B6080C8FCAC3D908",
+      "type": "page",
+      "title": "Google",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "B9E5C8099E1284CA2AB0F5546545DAEC",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=catalog-filter"
+    },
+    {
+      "id": "4E21E0E9DD545D126D14F49C6AE7EE9A",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "A847796CA48837E3B6080C8FCAC3D908",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "B9E5C8099E1284CA2AB0F5546545DAEC",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "4E21E0E9DD545D126D14F49C6AE7EE9A",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "warnings": []
+}

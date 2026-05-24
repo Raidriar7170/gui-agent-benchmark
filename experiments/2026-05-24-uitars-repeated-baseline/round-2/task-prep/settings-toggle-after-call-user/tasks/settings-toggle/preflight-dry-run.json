@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T04:24:44.162Z",
+  "status": "ready",
+  "reason": "Benchmark target is already present and no search page target needs correction.",
+  "mode": {
+    "fix": false
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=settings-toggle",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:59340/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [],
+  "targetsBefore": [
+    {
+      "id": "A847796CA48837E3B6080C8FCAC3D908",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "B9E5C8099E1284CA2AB0F5546545DAEC",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "4E21E0E9DD545D126D14F49C6AE7EE9A",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}

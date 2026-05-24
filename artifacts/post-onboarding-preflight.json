@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-23T03:39:33.742Z",
+  "status": "needs_fix",
+  "reason": "Found 1 supported search page target that can be navigated to the benchmark URL with --fix.",
+  "mode": {
+    "fix": false
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=onboarding-form",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:57015/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "dry_run_match",
+      "status": "planned",
+      "target": {
+        "id": "48FA4DE859DC042AC76DC786DCDDD0F6",
+        "type": "page",
+        "title": "Google",
+        "url": "https://www.google.com/"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=onboarding-form"
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "48FA4DE859DC042AC76DC786DCDDD0F6",
+      "type": "page",
+      "title": "Google",
+      "url": "https://www.google.com/"
+    },
+    {
+      "id": "222F3A30DB90110F35838F0C542BA9C1",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "40DC652ECB5E8BD60F4AD74B841B6D3B",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}

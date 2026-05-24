@@ -1,4 +1,10 @@
-import { findProductBySku, findTicketById, snapshotState } from './state.mjs';
+import {
+  findInventoryBySku,
+  findInvoiceById,
+  findProductBySku,
+  findTicketById,
+  snapshotState
+} from './state.mjs';
 
 function normalize(value) {
   return String(value ?? '').trim();
@@ -66,6 +72,62 @@ function judgeTicketReview(state) {
   ], state);
 }
 
+function judgeModalConfirmation(state) {
+  return finalize([
+    makeDetail('request REQ-77 is selected', state.modal.selectedRequestId === 'REQ-77', 'REQ-77', state.modal.selectedRequestId),
+    makeDetail('confirmation dialog was opened', state.modal.dialogOpened === true, true, state.modal.dialogOpened),
+    makeDetail('request is confirmed', state.modal.confirmed === true, true, state.modal.confirmed)
+  ], state);
+}
+
+function judgePaginationReview(state) {
+  const invoice = findInvoiceById('INV-203');
+  return finalize([
+    makeDetail('pagination is on page 2', Number(state.pagination.page) === 2, 2, state.pagination.page),
+    makeDetail('invoice INV-203 exists', invoice?.id === 'INV-203', 'INV-203', invoice?.id ?? null),
+    makeDetail('invoice INV-203 is reviewed', state.pagination.reviewedIds.includes('INV-203'), true, state.pagination.reviewedIds.includes('INV-203'))
+  ], state);
+}
+
+function judgeSortableInventory(state) {
+  const item = findInventoryBySku(state.inventory.selectedSku);
+  return finalize([
+    makeDetail('inventory is sorted by risk', state.inventory.sortKey === 'risk', 'risk', state.inventory.sortKey),
+    makeDetail('risk sort is descending', state.inventory.sortDirection === 'desc', 'desc', state.inventory.sortDirection),
+    makeDetail('selected SKU is BATT-88', state.inventory.selectedSku === 'BATT-88', 'BATT-88', state.inventory.selectedSku),
+    makeDetail('selected item has risk 9', item?.risk === 9, 9, item?.risk ?? null)
+  ], state);
+}
+
+function judgeMultiSelectApprovals(state) {
+  const selected = new Set(state.approvals.selectedIds);
+  return finalize([
+    makeDetail('APR-102 is selected', selected.has('APR-102'), true, selected.has('APR-102')),
+    makeDetail('APR-205 is selected', selected.has('APR-205'), true, selected.has('APR-205')),
+    makeDetail('only requested approvals are selected', selected.size === 2, ['APR-102', 'APR-205'], state.approvals.selectedIds),
+    makeDetail('approvals are submitted', state.approvals.submitted === true, true, state.approvals.submitted)
+  ], state);
+}
+
+function judgeValidationRecovery(state) {
+  return finalize([
+    makeDetail('validation error was shown before successful submit', state.validation.errorShown === true, true, state.validation.errorShown),
+    makeDetail('title is Quarterly access review', normalize(state.validation.title) === 'Quarterly access review', 'Quarterly access review', state.validation.title),
+    makeDetail('owner is Morgan Lee', normalize(state.validation.owner) === 'Morgan Lee', 'Morgan Lee', state.validation.owner),
+    makeDetail('due date is 2026-06-30', state.validation.dueDate === '2026-06-30', '2026-06-30', state.validation.dueDate),
+    makeDetail('validation form is submitted', state.validation.submitted === true, true, state.validation.submitted)
+  ], state);
+}
+
+function judgeFileUploadRequest(state) {
+  return finalize([
+    makeDetail('security-audit.pdf is attached', state.upload.selectedFile === 'security-audit.pdf', 'security-audit.pdf', state.upload.selectedFile),
+    makeDetail('category is Compliance', state.upload.category === 'Compliance', 'Compliance', state.upload.category),
+    makeDetail('description mentions Q2 security audit evidence', normalize(state.upload.description).toLowerCase().includes('q2 security audit evidence'), 'contains Q2 security audit evidence', state.upload.description),
+    makeDetail('upload request is submitted', state.upload.submitted === true, true, state.upload.submitted)
+  ], state);
+}
+
 export function evaluateTask(taskId, state, tasks = []) {
   const knownTask = tasks.length === 0 || tasks.some((task) => task.id === taskId);
   if (!knownTask) {
@@ -78,9 +140,14 @@ export function evaluateTask(taskId, state, tasks = []) {
   if (taskId === 'catalog-filter') return judgeCatalog(state);
   if (taskId === 'settings-toggle') return judgeSettings(state);
   if (taskId === 'ticket-review') return judgeTicketReview(state);
+  if (taskId === 'modal-confirmation') return judgeModalConfirmation(state);
+  if (taskId === 'pagination-review') return judgePaginationReview(state);
+  if (taskId === 'sortable-inventory') return judgeSortableInventory(state);
+  if (taskId === 'multi-select-approvals') return judgeMultiSelectApprovals(state);
+  if (taskId === 'validation-error-recovery') return judgeValidationRecovery(state);
+  if (taskId === 'file-upload-request') return judgeFileUploadRequest(state);
 
   return finalize([
     makeDetail('task has judge implementation', false, 'implemented task id', taskId)
   ], state);
 }
-

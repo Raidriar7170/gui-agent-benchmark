@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-run-capture",
+  "captureStatus": "captured",
+  "taskId": "settings-toggle",
+  "taskTitle": "Update workspace settings",
+  "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle",
+  "startedAt": "2026-05-24T04:44:31.658Z",
+  "endedAt": "2026-05-24T04:44:31.759Z",
+  "target": {
+    "id": "71E73DE4FC4BF0DEC1CA610B2A8CF0EF",
+    "type": "page",
+    "title": "GUI Agent Benchmark",
+    "url": "http://127.0.0.1:4173/?task=settings-toggle"
+  },
+  "finalState": {
+    "activeTaskId": "settings-toggle",
+    "form": {
+      "fullName": "",
+      "email": "",
+      "role": "",
+      "startDate": "",
+      "notes": "",
+      "submitted": false
+    },
+    "catalog": {
+      "search": "",
+      "category": "all",
+      "minRating": 0,
+      "inStockOnly": false,
+      "selectedSku": ""
+    },
+    "settings": {
+      "weeklyDigest": true,
+      "autosave": false,
+      "dataSharing": false,
+      "timezone": "UTC"
+    },
+    "table": {
+      "query": "",
+      "selectedTicketId": ""
+    },
+    "tickets": [
+      {
+        "id": "INC-1042",
+        "requester": "Lin Chen",
+        "priority": "Medium",
+        "topic": "VPN profile reset",
+        "status": "Open",
+        "reviewed": false
+      },
+      {
+        "id": "INC-2048",
+        "requester": "Priya Shah",
+        "priority": "High",
+        "topic": "Payroll portal timeout",
+        "status": "Open",
+        "reviewed": false
+      },
+      {
+        "id": "INC-3130",
+        "requester": "Owen Brooks",
+        "priority": "Low",
+        "topic": "Printer badge mapping",
+        "status": "Waiting",
+        "reviewed": false
+      },
+      {
+        "id": "INC-4011",
+        "requester": "Rina Patel",
+        "priority": "Medium",
+        "topic": "Calendar sync delay",
+        "status": "Open",
+        "reviewed": false
+      }
+    ],
+    "modal": {
+      "selectedRequestId": "",
+      "dialogOpened": false,
+      "confirmed": false
+    },
+    "pagination": {
+      "page": 1,
+      "reviewedIds": []
+    },
+    "inventory": {
+      "sortKey": "",
+      "sortDirection": "asc",
+      "selectedSku": ""
+    },
+    "approvals": {
+      "selectedIds": [],
+      "submitted": false
+    },
+    "validation": {
+      "title": "",
+      "owner": "",
+      "dueDate": "",
+      "errorShown": false,
+      "submitted": false
+    },
+    "upload": {
+      "selectedFile": "",
+      "category": "",
+      "description": "",
+      "submitted": false
+    }
+  },
+  "evaluation": {
+    "success": false,
+    "score": 0.5,
+    "details": [
+      {
+        "criterion": "weekly email digest is enabled",
+        "pass": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "criterion": "autosave remains enabled",
+        "pass": false,
+        "expected": true,
+        "actual": false
+      },
+      {
+        "criterion": "product analytics sharing is disabled",
+        "pass": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "criterion": "timezone is America/New_York",
+        "pass": false,
+        "expected": "America/New_York",
+        "actual": "UTC"
+      }
+    ],
+    "state": {
+      "activeTaskId": "settings-toggle",
+      "form": {
+        "fullName": "",
+        "email": "",
+        "role": "",
+        "startDate": "",
+        "notes": "",
+        "submitted": false
+      },
+      "catalog": {
+        "search": "",
+        "category": "all",
+        "minRating": 0,
+        "inStockOnly": false,
+        "selectedSku": ""
+      },
+      "settings": {
+        "weeklyDigest": true,
+        "autosave": false,
+        "dataSharing": false,
+        "timezone": "UTC"
+      },
+      "table": {
+        "query": "",
+        "selectedTicketId": ""
+      },
+      "tickets": [
+        {
+          "id": "INC-1042",
+          "requester": "Lin Chen",
+          "priority": "Medium",
+          "topic": "VPN profile reset",
+          "status": "Open",
+          "reviewed": false
+        },
+        {
+          "id": "INC-2048",
+          "requester": "Priya Shah",
+          "priority": "High",
+          "topic": "Payroll portal timeout",
+          "status": "Open",
+          "reviewed": false
+        },
+        {
+          "id": "INC-3130",
+          "requester": "Owen Brooks",
+          "priority": "Low",
+          "topic": "Printer badge mapping",
+          "status": "Waiting",
+          "reviewed": false
+        },
+        {
+          "id": "INC-4011",
+          "requester": "Rina Patel",
+          "priority": "Medium",
+          "topic": "Calendar sync delay",
+          "status": "Open",
+          "reviewed": false
+        }
+      ],
+      "modal": {
+        "selectedRequestId": "",
+        "dialogOpened": false,
+        "confirmed": false
+      },
+      "pagination": {
+        "page": 1,
+        "reviewedIds": []
+      },
+      "inventory": {
+        "sortKey": "",
+        "sortDirection": "asc",
+        "selectedSku": ""
+      },
+      "approvals": {
+        "selectedIds": [],
+        "submitted": false
+      },
+      "validation": {
+        "title": "",
+        "owner": "",
+        "dueDate": "",
+        "errorShown": false,
+        "submitted": false
+      },
+      "upload": {
+        "selectedFile": "",
+        "category": "",
+        "description": "",
+        "submitted": false
+      }
+    }
+  }
+}

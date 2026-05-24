@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260524043158-onboarding-form",
+  "taskId": "onboarding-form",
+  "taskTitle": "Submit onboarding request",
+  "startedAt": "2026-05-24T04:31:58.636Z",
+  "events": [
+    {
+      "timestamp": "2026-05-24T04:31:58.767Z",
+      "type": "target_prepare",
+      "label": "Target prepare fixed",
+      "target": "onboarding-form",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "fixed",
+        "reason": "Isolated target preparation left exactly one benchmark task target and no supported search targets.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    },
+    {
+      "timestamp": "2026-05-24T04:31:58.912Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "onboarding-form",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    }
+  ]
+}

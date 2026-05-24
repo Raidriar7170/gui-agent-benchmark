@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-23T03:57:00.445Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-23-uitars-real-e2e/task-prep/settings-toggle-before-capture",
+  "options": {
+    "tasks": "settings-toggle",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/settings-toggle/prompt.txt",
+        "targetPrepare": "tasks/settings-toggle/target-prepare.json",
+        "preflightDryRun": "tasks/settings-toggle/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/settings-toggle/trace.json",
+        "runExport": "tasks/settings-toggle/run-export.json"
+      }
+    }
+  ]
+}

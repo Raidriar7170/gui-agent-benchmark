@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-23T03:54:16.584Z",
+  "status": "fixed",
+  "reason": "Navigated 1 search page target to the benchmark URL.",
+  "mode": {
+    "fix": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=settings-toggle",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:57015/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "ok",
+      "target": {
+        "id": "4FB60BDB45E5D0C460E8A158176E2815",
+        "type": "page",
+        "title": "Google",
+        "url": "https://www.google.com/"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=settings-toggle"
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "4FB60BDB45E5D0C460E8A158176E2815",
+      "type": "page",
+      "title": "Google",
+      "url": "https://www.google.com/"
+    },
+    {
+      "id": "0A92B0078A100DBE086533943B8BA576",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=catalog-filter"
+    },
+    {
+      "id": "765D79D746759257AD0F56B5DCF3F3F0",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "48FA4DE859DC042AC76DC786DCDDD0F6",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "222F3A30DB90110F35838F0C542BA9C1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "40DC652ECB5E8BD60F4AD74B841B6D3B",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "4FB60BDB45E5D0C460E8A158176E2815",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "0A92B0078A100DBE086533943B8BA576",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=catalog-filter"
+    },
+    {
+      "id": "765D79D746759257AD0F56B5DCF3F3F0",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "48FA4DE859DC042AC76DC786DCDDD0F6",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "222F3A30DB90110F35838F0C542BA9C1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "40DC652ECB5E8BD60F4AD74B841B6D3B",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "warnings": []
+}

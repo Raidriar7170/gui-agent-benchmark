@@ -36,13 +36,30 @@ Default endpoint:
 http://127.0.0.1:18001/v1/models
 ```
 
+For the Volcano UI-TARS deployment, bind the local port to the remote proxy:
+
+```sh
+ssh -L 18001:127.0.0.1:8001 <remote-host>
+```
+
+Do not bind `18001` to remote `8000` for UI-TARS. Port `8000` is the direct
+vLLM server; it can pass `/v1/models` but fail UI-TARS chat requests with a
+context-length error because UI-TARS sends high `max_tokens`. Port `8001` is the
+guard proxy used by this project.
+
 Override with:
 
 - `TUNNEL_MODELS_URL`
+- `TUNNEL_CHAT_URL`
+- `TUNNEL_MODEL`
 - `TUNNEL_TIMEOUT_MS`
+- `TUNNEL_COMPATIBILITY_MAX_TOKENS`
+- `TUNNEL_SKIP_COMPATIBILITY=1` to skip the chat probe and check only
+  `/v1/models`
 
-If the tunnel is unavailable, the script exits with a clear failure message. The
-benchmark UI and task validation can still be run without a live tunnel.
+If the tunnel is unavailable or points at the direct vLLM port, the script exits
+with a clear failure message. The benchmark UI and task validation can still be
+run without a live tunnel.
 
 ## Remote Read-Only Check
 
@@ -74,4 +91,3 @@ The remote check is read-only. It checks:
 Remote work must stay under `/mnt/data/minghongsun`. Do not touch colleague
 directories. For vLLM startup, use `start_vllm_cu12.sh`; do not use the older
 `start_vllm.sh`.
-

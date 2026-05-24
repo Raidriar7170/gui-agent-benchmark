@@ -534,10 +534,106 @@ try {
       assert(ambiguousTargetPrepareReport.status === 'ambiguous', 'harness target preparation should record ambiguous multiple exact targets');
       assert(ambiguousMetadata.tasks[0]?.targetPrepareStatus === 'ambiguous', 'harness metadata should preserve ambiguous target preparation status');
       assert(ambiguousMetadata.tasks[0]?.status !== 'ready', 'harness metadata task status must not be ready when target preparation is ambiguous');
-      assert(ambiguousHarness.tasks[0]?.status !== 'ready', 'harness result task status must not be ready when target preparation is ambiguous');
+    assert(ambiguousHarness.tasks[0]?.status !== 'ready', 'harness result task status must not be ready when target preparation is ambiguous');
     } finally {
       await rm(ambiguousHarnessRoot, { recursive: true, force: true });
     }
+
+    fixtureTargetLists = [
+      [{
+        id: 'delayed-navigation-target',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=onboarding-form',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-navigation-target`
+      }],
+      [{
+        id: 'delayed-navigation-target',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: '',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-navigation-target`
+      }],
+      [{
+        id: 'delayed-navigation-target',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-navigation-target`
+      }]
+    ];
+    fixtureListReads = 0;
+    const delayedNavigationPrepare = await prepareUitarsTarget({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      confirmExplicitCdpFix: true
+    });
+    fixtureTargetLists = null;
+    assert(delayedNavigationPrepare.status === 'fixed', 'target preparation should wait for Chrome to publish the navigated task URL');
+    assert(delayedNavigationPrepare.targetsAfter.some((target) => target.url === expectedCatalogUrl.href), 'delayed navigation prepare should record the exact task URL after waiting');
+    assert(validatePreflightReport(delayedNavigationPrepare).length === 0, 'delayed navigation prepare report should satisfy schema validation');
+
+    fixtureTargetLists = [
+      [
+        {
+          id: 'delayed-search-fix-target',
+          type: 'page',
+          title: 'Google',
+          url: 'https://www.google.com/',
+          webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-search-fix-target`
+        },
+        {
+          id: 'delayed-search-existing-benchmark',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=onboarding-form',
+          webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-search-existing-benchmark`
+        }
+      ],
+      [
+        {
+          id: 'delayed-search-fix-target',
+          type: 'page',
+          title: 'Google',
+          url: '',
+          webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-search-fix-target`
+        },
+        {
+          id: 'delayed-search-existing-benchmark',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=onboarding-form',
+          webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-search-existing-benchmark`
+        }
+      ],
+      [
+        {
+          id: 'delayed-search-fix-target',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=catalog-filter',
+          webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-search-fix-target`
+        },
+        {
+          id: 'delayed-search-existing-benchmark',
+          type: 'page',
+          title: 'GUI Agent Benchmark',
+          url: 'http://127.0.0.1:4173/?task=onboarding-form',
+          webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/delayed-search-existing-benchmark`
+        }
+      ]
+    ];
+    fixtureListReads = 0;
+    const delayedSearchFix = await runUitarsPreflight({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      fix: true,
+      confirmExplicitCdpFix: true
+    });
+    fixtureTargetLists = null;
+    assert(delayedSearchFix.status === 'fixed', 'preflight fix should wait for a navigated search target to publish the task URL');
+    assert(delayedSearchFix.targetsAfter.some((target) => target.url === expectedCatalogUrl.href), 'delayed search preflight fix should record the exact task URL after waiting');
+    assert(validatePreflightReport(delayedSearchFix).length === 0, 'delayed search preflight fix report should satisfy schema validation');
 
     fixtureTargetLists = [
       [{

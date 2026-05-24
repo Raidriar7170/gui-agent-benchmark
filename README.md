@@ -102,9 +102,66 @@ See `docs/judge-protocol.md` for the full schema.
 node scripts/check-local.mjs
 node scripts/check-tunnel.mjs
 node scripts/check-remote.mjs
+npm run check:finish -- --local-only
+npm run check:finish
 ```
 
-The tunnel check defaults to
-`http://127.0.0.1:18001/v1/models`. Remote checks are read-only and default to
-the `/mnt/data/minghongsun/ui-tars-vllm` project path. Configure remote access
-with environment variables documented in `docs/environment.md`.
+The tunnel check defaults to `http://127.0.0.1:18001/v1/models` and also sends a
+UI-TARS-style `/v1/chat/completions` probe with high `max_tokens`. For the
+Volcano deployment, the local tunnel must bind to the remote proxy port `8001`,
+not direct vLLM port `8000`:
+
+```sh
+ssh -L 18001:127.0.0.1:8001 <remote-host>
+```
+
+Remote checks are read-only and default to the
+`/mnt/data/minghongsun/ui-tars-vllm` project path. Configure remote access with
+environment variables documented in `docs/environment.md`.
+
+## Finish Gate
+
+Use the finish gate when deciding whether the project is actually ready rather
+than only locally valid.
+
+```sh
+npm run check:finish -- --local-only
+npm run check:finish -- --json --output artifacts/finish-gate/report.json
+```
+
+`--local-only` runs the required local closure checks: `npm run validate`,
+`npm run smoke`, and `node scripts/check-local.mjs`. The full finish gate also
+runs `node scripts/check-tunnel.mjs` and `node scripts/check-remote.mjs`, so it
+will report `not ready` until the model tunnel and remote UI-TARS health checks
+are reachable. The JSON report separates `localReady` from `integrationReady`
+to make that distinction explicit.
+
+## Real UI-TARS E2E Round
+
+Use the real-round helper to make a UI-TARS benchmark round reproducible without
+letting the benchmark scripts operate the UI-TARS GUI directly:
+
+```sh
+npm run uitars:real-round -- \
+  --output experiments/<date>-uitars-real-e2e \
+  --tasks all \
+  --base-url http://127.0.0.1:4173 \
+  --discover-local-uitars
+```
+
+It writes `round-plan.json`, `real-run-summary.json`, and `run-log.md`. The plan
+contains the standard prompts, target preflight repair commands,
+isolate-before-capture commands, and capture commands for each task. The summary
+is generated from `tasks/<task-id>/real-run*/capture.json` artifacts.
+
+Current report artifacts:
+
+- `docs/benchmark-report-2026-05-23.md`
+- `docs/benchmark-report-2026-05-24-repeated-baseline.md`
+- `docs/failure-taxonomy.md`
+- `docs/raw-uitars-trace-schema.md`
+- `docs/repeated-baseline.md`
+- `docs/step-trace-schema.md`
+- `experiments/2026-05-23-uitars-real-e2e/failure-taxonomy.json`
+- `experiments/2026-05-24-uitars-repeated-baseline/summary.json`
+- `experiments/2026-05-23-uitars-real-e2e/step-traces/<task-id>.json`

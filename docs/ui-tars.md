@@ -331,6 +331,41 @@ npm run validate:capture
 node scripts/uitars-capture-run.mjs --help
 ```
 
+## Real E2E Round
+
+The real-round helper records the repeatable workflow for a UI-TARS Local
+Browser Operator run. It does not click in UI-TARS, read UI-TARS storage, inspect
+private logs, or complete benchmark tasks for the model. Instead, it writes the
+prompts, target repair commands, isolate-before-capture commands, and capture
+commands that an operator should use for each task.
+
+```sh
+npm run uitars:real-round -- \
+  --output experiments/2026-05-23-uitars-real-e2e \
+  --tasks all \
+  --base-url http://127.0.0.1:4173 \
+  --discover-local-uitars
+```
+
+Generated files:
+
+```text
+round-plan.json         # prompts, paths, commands, required tunnel shape
+real-run-summary.json   # score/success/failure summary from capture artifacts
+run-log.md              # human-readable protocol plus task result table
+```
+
+Recommended task loop:
+
+1. Start a new UI-TARS Local Browser Operator chat.
+2. Send the task's `initialPrompt`.
+3. If UI-TARS lands on Google/search, wait for `call_user()`.
+4. Run the task's `preflightFix` and `prepareAfterCallUser` commands.
+5. Send the task's `continuePrompt` and let UI-TARS operate without manual task
+   help.
+6. After a visible judge result or the run budget, run `prepareBeforeCapture`
+   and `capture`.
+
 ## Tunnel
 
 The default model endpoint assumes a local SSH tunnel:
@@ -339,14 +374,29 @@ The default model endpoint assumes a local SSH tunnel:
 http://127.0.0.1:18001/v1/models
 ```
 
+For this deployment, `18001` must forward to remote proxy port `8001`:
+
+```sh
+ssh -L 18001:127.0.0.1:8001 <remote-host>
+```
+
+Remote port `8000` is the direct vLLM endpoint. It can pass `/v1/models`, but it
+does not rewrite UI-TARS' high `max_tokens` chat request and can fail with a
+context-length error. The proxy on `8001` is the compatibility boundary used by
+the finish gate.
+
 Verify it with:
 
 ```sh
 node scripts/check-tunnel.mjs
 ```
 
-Override the URL with `TUNNEL_MODELS_URL` when the tunnel binds a different
-local port.
+The check verifies both `/v1/models` and a non-stream
+`/v1/chat/completions` compatibility probe. Override with `TUNNEL_MODELS_URL`,
+`TUNNEL_CHAT_URL`, `TUNNEL_MODEL`, `TUNNEL_TIMEOUT_MS`, or
+`TUNNEL_COMPATIBILITY_MAX_TOKENS` when needed. Use
+`TUNNEL_SKIP_COMPATIBILITY=1` only when you intentionally want to check
+`/v1/models` without proving UI-TARS chat compatibility.
 
 ## Remote Scope
 

@@ -1,8 +1,13 @@
 import {
+  APPROVALS,
+  AVAILABLE_UPLOADS,
+  INVENTORY,
   PRODUCTS,
   createInitialState,
   snapshotState,
+  sortedInventory,
   visibleProducts,
+  visibleInvoices,
   visibleTickets
 } from '/src/state.mjs';
 import { evaluateTask } from '/src/judge.mjs';
@@ -514,6 +519,187 @@ function renderTickets() {
   `;
 }
 
+function renderModalConfirmation() {
+  const modal = state.modal;
+  workspace.innerHTML = `
+    <div class="panel-header">
+      <h2>Access Request Confirmation</h2>
+      <span class="status-pill ${modal.confirmed ? 'done' : ''}">${modal.confirmed ? 'Confirmed' : 'Pending'}</span>
+    </div>
+    <div class="stack">
+      <article class="product-card ${modal.selectedRequestId === 'REQ-77' ? 'selected' : ''}">
+        <div>
+          <h3>REQ-77</h3>
+          <p>Temporary admin access for incident response.</p>
+          <small>Requester: Ada Park · Priority: High</small>
+        </div>
+        <button type="button" data-open-confirm-request="REQ-77">Review</button>
+      </article>
+      <article class="product-card">
+        <div>
+          <h3>REQ-81</h3>
+          <p>Read-only analytics workspace.</p>
+          <small>Requester: Tomas Ivers · Priority: Low</small>
+        </div>
+        <button type="button" data-open-confirm-request="REQ-81">Review</button>
+      </article>
+    </div>
+    ${modal.dialogOpened ? `
+      <div class="modal-sheet" role="dialog" aria-label="Confirm request">
+        <div class="modal-box">
+          <h3>Confirm ${escapeHtml(modal.selectedRequestId || 'request')}</h3>
+          <p>Confirm this access request after verifying the request id.</p>
+          <div class="action-row align-left">
+            <button type="button" data-confirm-request>Confirm request</button>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+  `;
+}
+
+function renderPaginationReview() {
+  const pageSize = 2;
+  const invoices = visibleInvoices(state, pageSize);
+  const pageCount = Math.ceil(5 / pageSize);
+  workspace.innerHTML = `
+    <div class="panel-header">
+      <h2>Invoice Queue</h2>
+      <span class="status-pill">Page ${state.pagination.page} of ${pageCount}</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Invoice</th><th>Vendor</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          ${invoices.map((invoice) => `
+            <tr>
+              <td>${invoice.id}</td>
+              <td>${invoice.vendor}</td>
+              <td>$${invoice.amount}</td>
+              <td>${state.pagination.reviewedIds.includes(invoice.id) ? 'Reviewed' : invoice.status}</td>
+              <td><button type="button" data-review-invoice="${invoice.id}">${state.pagination.reviewedIds.includes(invoice.id) ? 'Reviewed' : 'Mark reviewed'}</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="action-row align-left">
+      <button type="button" data-page-delta="-1" ${state.pagination.page <= 1 ? 'disabled' : ''}>Previous</button>
+      <button type="button" data-page-delta="1" ${state.pagination.page >= pageCount ? 'disabled' : ''}>Next</button>
+    </div>
+  `;
+}
+
+function renderSortableInventory() {
+  const items = sortedInventory(state);
+  workspace.innerHTML = `
+    <div class="panel-header">
+      <h2>Inventory Risk</h2>
+      <span class="status-pill">${INVENTORY.length} items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Item</th>
+            <th><button type="button" class="link-button" data-sort-inventory-risk>Risk ${state.inventory.sortKey === 'risk' ? state.inventory.sortDirection : ''}</button></th>
+            <th>Stock</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item) => `
+            <tr class="${state.inventory.selectedSku === item.sku ? 'selected-row' : ''}">
+              <td>${item.sku}</td>
+              <td>${item.name}</td>
+              <td>${item.risk}</td>
+              <td>${item.stock}</td>
+              <td><button type="button" data-select-inventory="${item.sku}">${state.inventory.selectedSku === item.sku ? 'Selected' : 'Select'}</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderMultiSelectApprovals() {
+  const selected = new Set(state.approvals.selectedIds);
+  workspace.innerHTML = `
+    <div class="panel-header">
+      <h2>Approval Batch</h2>
+      <span class="status-pill ${state.approvals.submitted ? 'done' : ''}">${state.approvals.submitted ? 'Submitted' : `${selected.size} selected`}</span>
+    </div>
+    <div class="settings-list">
+      ${APPROVALS.map((approval) => `
+        <label class="switch-row">
+          <span><strong>${approval.id}</strong><small>${approval.requester} · ${approval.item}</small></span>
+          <input data-approval-id="${approval.id}" type="checkbox" ${selected.has(approval.id) ? 'checked' : ''}>
+        </label>
+      `).join('')}
+    </div>
+    <div class="action-row align-left">
+      <button type="button" data-submit-approvals>Submit selected approvals</button>
+    </div>
+  `;
+}
+
+function renderValidationRecovery() {
+  const validation = state.validation;
+  workspace.innerHTML = `
+    <div class="panel-header">
+      <h2>Access Review Form</h2>
+      <span class="status-pill ${validation.submitted ? 'done' : ''}">${validation.submitted ? 'Submitted' : 'Draft'}</span>
+    </div>
+    ${validation.errorShown && !validation.submitted ? '<p class="error-banner">Title, owner, and due date are required.</p>' : ''}
+    <form class="stack" id="validation-form">
+      ${field('Review title', `<input data-state-path="validation.title" value="${escapeHtml(validation.title)}" autocomplete="off">`)}
+      ${field('Owner', `<input data-state-path="validation.owner" value="${escapeHtml(validation.owner)}" autocomplete="off">`)}
+      ${field('Due date', `<input data-state-path="validation.dueDate" type="date" value="${validation.dueDate}">`)}
+      <div class="action-row align-left">
+        <button type="submit">Submit review</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderFileUploadRequest() {
+  const upload = state.upload;
+  workspace.innerHTML = `
+    <div class="panel-header">
+      <h2>Evidence Upload</h2>
+      <span class="status-pill ${upload.submitted ? 'done' : ''}">${upload.submitted ? 'Submitted' : upload.selectedFile || 'No file'}</span>
+    </div>
+    <div class="product-grid">
+      ${AVAILABLE_UPLOADS.map((file) => `
+        <article class="product-card ${upload.selectedFile === file ? 'selected' : ''}">
+          <div>
+            <h3>${file}</h3>
+            <p>Available evidence file</p>
+          </div>
+          <button type="button" data-upload-file="${file}">${upload.selectedFile === file ? 'Attached' : 'Attach'}</button>
+        </article>
+      `).join('')}
+    </div>
+    <div class="stack">
+      ${field('Category', `
+        <select data-state-path="upload.category">
+          ${['', 'Compliance', 'Finance', 'Operations'].map((category) => `
+            <option value="${category}" ${upload.category === category ? 'selected' : ''}>${category || 'Select category'}</option>
+          `).join('')}
+        </select>
+      `)}
+      ${field('Description', `<textarea data-state-path="upload.description" rows="3">${escapeHtml(upload.description)}</textarea>`)}
+      <div class="action-row align-left">
+        <button type="button" data-submit-upload>Submit upload request</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderWorkspace() {
   if (activeTaskId === 'onboarding-form') {
     renderOnboarding();
@@ -523,6 +709,18 @@ function renderWorkspace() {
     renderSettings();
   } else if (activeTaskId === 'ticket-review') {
     renderTickets();
+  } else if (activeTaskId === 'modal-confirmation') {
+    renderModalConfirmation();
+  } else if (activeTaskId === 'pagination-review') {
+    renderPaginationReview();
+  } else if (activeTaskId === 'sortable-inventory') {
+    renderSortableInventory();
+  } else if (activeTaskId === 'multi-select-approvals') {
+    renderMultiSelectApprovals();
+  } else if (activeTaskId === 'validation-error-recovery') {
+    renderValidationRecovery();
+  } else if (activeTaskId === 'file-upload-request') {
+    renderFileUploadRequest();
   }
 }
 
@@ -560,6 +758,21 @@ workspace.addEventListener('input', (event) => {
 });
 
 workspace.addEventListener('change', (event) => {
+  const approval = event.target.closest('[data-approval-id]');
+  if (approval) {
+    const selected = new Set(state.approvals.selectedIds);
+    if (approval.checked) {
+      selected.add(approval.dataset.approvalId);
+    } else {
+      selected.delete(approval.dataset.approvalId);
+    }
+    state.approvals.selectedIds = [...selected].sort();
+    markDirty();
+    renderWorkspace();
+    trackInput('approvals.selectedIds', state.approvals.selectedIds, `Set approvals ${state.approvals.selectedIds.join(', ')}`);
+    return;
+  }
+
   const target = event.target.closest('[data-state-path]');
   if (!target) return;
   const value = target.type === 'checkbox' ? target.checked : target.type === 'number' ? Number(target.value) : target.value;
@@ -601,6 +814,133 @@ workspace.addEventListener('click', (event) => {
         value: ticket.id
       });
     }
+    return;
+  }
+
+  const confirmOpenButton = event.target.closest('[data-open-confirm-request]');
+  if (confirmOpenButton) {
+    state.modal.selectedRequestId = confirmOpenButton.dataset.openConfirmRequest;
+    state.modal.dialogOpened = true;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'open_modal',
+      label: `Opened confirmation for ${state.modal.selectedRequestId}`,
+      target: 'modal.selectedRequestId',
+      value: state.modal.selectedRequestId
+    });
+    return;
+  }
+
+  if (event.target.closest('[data-confirm-request]')) {
+    state.modal.confirmed = true;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'confirm',
+      label: `Confirmed ${state.modal.selectedRequestId}`,
+      target: 'modal.confirmed',
+      value: true
+    });
+    return;
+  }
+
+  const pageButton = event.target.closest('[data-page-delta]');
+  if (pageButton) {
+    state.pagination.page = Math.min(3, Math.max(1, state.pagination.page + Number(pageButton.dataset.pageDelta)));
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'paginate',
+      label: `Moved to invoice page ${state.pagination.page}`,
+      target: 'pagination.page',
+      value: state.pagination.page
+    });
+    return;
+  }
+
+  const invoiceButton = event.target.closest('[data-review-invoice]');
+  if (invoiceButton) {
+    if (!state.pagination.reviewedIds.includes(invoiceButton.dataset.reviewInvoice)) {
+      state.pagination.reviewedIds.push(invoiceButton.dataset.reviewInvoice);
+    }
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'review',
+      label: `Marked invoice ${invoiceButton.dataset.reviewInvoice} reviewed`,
+      target: 'pagination.reviewedIds',
+      value: state.pagination.reviewedIds
+    });
+    return;
+  }
+
+  if (event.target.closest('[data-sort-inventory-risk]')) {
+    state.inventory.sortKey = 'risk';
+    state.inventory.sortDirection = state.inventory.sortDirection === 'desc' ? 'asc' : 'desc';
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'sort',
+      label: `Sorted inventory by risk ${state.inventory.sortDirection}`,
+      target: 'inventory.sortDirection',
+      value: state.inventory.sortDirection
+    });
+    return;
+  }
+
+  const inventoryButton = event.target.closest('[data-select-inventory]');
+  if (inventoryButton) {
+    state.inventory.selectedSku = inventoryButton.dataset.selectInventory;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'select_click',
+      label: `Selected inventory ${state.inventory.selectedSku}`,
+      target: 'inventory.selectedSku',
+      value: state.inventory.selectedSku
+    });
+    return;
+  }
+
+  if (event.target.closest('[data-submit-approvals]')) {
+    state.approvals.submitted = true;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'submit',
+      label: 'Submitted selected approvals',
+      target: 'approvals.submitted',
+      value: true
+    });
+    return;
+  }
+
+  const uploadButton = event.target.closest('[data-upload-file]');
+  if (uploadButton) {
+    state.upload.selectedFile = uploadButton.dataset.uploadFile;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'attach_file',
+      label: `Attached ${state.upload.selectedFile}`,
+      target: 'upload.selectedFile',
+      value: state.upload.selectedFile
+    });
+    return;
+  }
+
+  if (event.target.closest('[data-submit-upload]')) {
+    flushPendingInputs();
+    state.upload.submitted = true;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'submit',
+      label: 'Submitted upload request',
+      target: 'upload.submitted',
+      value: true
+    });
   }
 });
 
@@ -615,6 +955,33 @@ workspace.addEventListener('submit', (event) => {
       type: 'submit',
       label: 'Submitted onboarding request',
       target: '#onboarding-form',
+      value: true
+    });
+  } else if (event.target.id === 'validation-form') {
+    event.preventDefault();
+    flushPendingInputs();
+    const complete = state.validation.title.trim()
+      && state.validation.owner.trim()
+      && state.validation.dueDate;
+    if (!complete) {
+      state.validation.errorShown = true;
+      markDirty();
+      renderWorkspace();
+      trackAction({
+        type: 'validation_error',
+        label: 'Showed required-field validation error',
+        target: 'validation.errorShown',
+        value: true
+      });
+      return;
+    }
+    state.validation.submitted = true;
+    markDirty();
+    renderWorkspace();
+    trackAction({
+      type: 'submit',
+      label: 'Submitted access review form',
+      target: 'validation.submitted',
       value: true
     });
   }

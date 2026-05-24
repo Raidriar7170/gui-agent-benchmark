@@ -1,0 +1,12 @@
+Task: Find approved desk gear
+
+Search or filter the catalog to find an in-stock Office item rated at least 4.5 stars, then select the Adjustable Laptop Stand.
+
+Start URL: http://127.0.0.1:4173/?task=catalog-filter
+Max steps: 10
+
+Success criteria:
+- selected SKU is ERGO-27
+- selected product is in stock
+- selected product category is office
+- selected product rating is at least 4.5

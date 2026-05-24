@@ -1,55 +1,44 @@
 #!/usr/bin/env node
-import http from 'node:http';
-import https from 'node:https';
+import {
+  DEFAULT_TUNNEL_MODELS_URL,
+  DEFAULT_TUNNEL_TIMEOUT_MS,
+  checkTunnelHealth
+} from '../src/tunnel-health.mjs';
 
-const modelsUrl = process.env.TUNNEL_MODELS_URL || 'http://127.0.0.1:18001/v1/models';
-const timeoutMs = Number(process.env.TUNNEL_TIMEOUT_MS || 3000);
-
-function requestJson(url) {
-  return new Promise((resolve, reject) => {
-    const parsed = new URL(url);
-    const client = parsed.protocol === 'https:' ? https : http;
-    const request = client.get(parsed, { timeout: timeoutMs }, (response) => {
-      const chunks = [];
-      response.on('data', (chunk) => {
-        chunks.push(chunk);
-      });
-      response.on('end', () => {
-        const body = Buffer.concat(chunks).toString('utf8');
-        resolve({ statusCode: response.statusCode || 0, body });
-      });
-    });
-
-    request.on('timeout', () => {
-      request.destroy(new Error(`Timed out after ${timeoutMs}ms`));
-    });
-    request.on('error', reject);
-  });
-}
+const modelsUrl = process.env.TUNNEL_MODELS_URL || DEFAULT_TUNNEL_MODELS_URL;
+const chatUrl = process.env.TUNNEL_CHAT_URL || '';
+const model = process.env.TUNNEL_MODEL || '';
+const timeoutMs = Number(process.env.TUNNEL_TIMEOUT_MS || DEFAULT_TUNNEL_TIMEOUT_MS);
+const maxTokens = process.env.TUNNEL_COMPATIBILITY_MAX_TOKENS
+  ? Number(process.env.TUNNEL_COMPATIBILITY_MAX_TOKENS)
+  : undefined;
+const skipCompatibility = process.env.TUNNEL_SKIP_COMPATIBILITY === '1';
 
 try {
   console.log(`Checking tunnel models endpoint: ${modelsUrl}`);
-  const { statusCode, body } = await requestJson(modelsUrl);
-  if (statusCode < 200 || statusCode >= 300) {
-    throw new Error(`HTTP ${statusCode}: ${body.slice(0, 300)}`);
+  if (!skipCompatibility) {
+    console.log('Checking UI-TARS chat compatibility with a non-stream high max_tokens probe.');
   }
 
-  let parsed;
-  try {
-    parsed = JSON.parse(body);
-  } catch {
-    throw new Error(`Endpoint returned non-JSON response: ${body.slice(0, 120)}`);
-  }
+  const report = await checkTunnelHealth({
+    modelsUrl,
+    chatUrl,
+    model,
+    timeoutMs,
+    maxTokens,
+    skipCompatibility
+  });
 
-  if (!Array.isArray(parsed.data)) {
-    throw new Error('Endpoint JSON must include a data array.');
+  console.log(`Tunnel health check passed. Models reported: ${report.modelCount}.`);
+  console.log(`Chat compatibility: ${report.compatibility.status}.`);
+  if (report.compatibility.status === 'passed') {
+    console.log(`Compatibility model: ${report.compatibility.model}.`);
   }
-
-  const modelCount = parsed.data.length;
-  console.log(`Tunnel health check passed. Models reported: ${modelCount}.`);
 } catch (error) {
   console.error('Tunnel health check failed.');
   console.error(`- ${error.message}`);
+  console.error('For the Volcano UI-TARS deployment, bind the local tunnel to remote proxy port 8001, not direct vLLM port 8000.');
+  console.error('Example: ssh -L 18001:127.0.0.1:8001 <remote-host>');
   console.error('The rest of the local benchmark can still be validated without the tunnel.');
   process.exit(1);
 }

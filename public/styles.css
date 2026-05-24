@@ -61,6 +61,18 @@ button.danger {
   color: var(--red);
 }
 
+button.link-button {
+  min-height: 0;
+  background: transparent;
+  color: var(--blue);
+  padding: 0;
+}
+
+button.link-button:hover {
+  background: transparent;
+  color: var(--accent-strong);
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -557,6 +569,30 @@ th {
   color: var(--muted);
   margin: 0;
   padding: 18px;
+}
+
+.modal-sheet {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f3f7fb;
+  padding: 18px;
+}
+
+.modal-box {
+  max-width: 520px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.error-banner {
+  border: 1px solid #f0c4be;
+  border-radius: 8px;
+  background: #fff7f5;
+  color: var(--red);
+  padding: 10px 12px;
 }
 
 @media (max-width: 980px) {

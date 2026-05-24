@@ -28,6 +28,10 @@ function timeoutSignal(timeoutMs) {
   };
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function parseUrl(value, label) {
   try {
     return new URL(value);
@@ -135,6 +139,11 @@ async function fetchJson(url, { timeoutMs = 5000 } = {}) {
   }
 }
 
+async function fetchPageTargets(cdpUrl, { timeoutMs = 5000 } = {}) {
+  const targets = await fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs });
+  return Array.isArray(targets) ? targets.filter((target) => target?.type === 'page') : [];
+}
+
 function targetKind(target) {
   return target?.type === 'page' ? 'page' : 'other';
 }
@@ -144,11 +153,21 @@ function normalizePathname(pathname) {
   return pathname.replace(/\/+$/, '');
 }
 
+function isChromeErrorPageTitle(title, expectedUrl) {
+  const text = String(title || '').trim();
+  if (!text) return false;
+  return text === expectedUrl.hostname
+    || text === expectedUrl.host
+    || /^This site (?:can(?:'|’)t|cannot) be reached$/i.test(text)
+    || /(?:refused to connect|took too long to respond|server IP address could not be found)/i.test(text);
+}
+
 export function isBenchmarkTarget(target, benchmarkUrl) {
   if (targetKind(target) !== 'page') return false;
   const expectedUrl = benchmarkUrl instanceof URL ? benchmarkUrl : new URL(benchmarkUrl);
   try {
     const targetUrl = new URL(target.url || '');
+    if (isChromeErrorPageTitle(target.title, expectedUrl)) return false;
     if (!isBenchmarkAppTarget(target, expectedUrl)) return false;
     return expectedUrl.search ? targetUrl.search === expectedUrl.search : true;
   } catch {
@@ -193,6 +212,30 @@ export function isSearchTarget(target) {
     return /^(?:Google|Bing)$|(?:Baidu|百度)/i.test(title);
   }
   return false;
+}
+
+function isTransientNavigationTarget(target) {
+  return targetKind(target) === 'page'
+    && !String(target.url || '').trim();
+}
+
+async function fetchSettledPageTargetsAfterNavigation(cdpUrl, benchmarkUrl, options = {}) {
+  const settleTimeoutMs = Number.isFinite(Number(options.navigationSettleTimeoutMs))
+    ? Math.max(0, Number(options.navigationSettleTimeoutMs))
+    : 1500;
+  const intervalMs = Number.isFinite(Number(options.navigationSettleIntervalMs))
+    ? Math.max(25, Number(options.navigationSettleIntervalMs))
+    : 100;
+  const startedAt = Date.now();
+  let pageTargets = [];
+
+  while (true) {
+    pageTargets = await fetchPageTargets(cdpUrl, { timeoutMs: options.timeoutMs });
+    if (pageTargets.some((target) => isBenchmarkTarget(target, benchmarkUrl))) return pageTargets;
+    if (!pageTargets.some(isTransientNavigationTarget)) return pageTargets;
+    if (Date.now() - startedAt >= settleTimeoutMs) return pageTargets;
+    await sleep(Math.min(intervalMs, settleTimeoutMs - (Date.now() - startedAt)));
+  }
 }
 
 function parsePs(stdout) {
@@ -776,13 +819,12 @@ export async function runUitarsPreflight(options = {}) {
   }
 
   try {
-    const [version, targets] = await Promise.all([
+    const [version, pageTargets] = await Promise.all([
       fetchJson(makeCdpUrl(cdpUrl, '/json/version'), { timeoutMs: options.timeoutMs }),
-      fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs })
+      fetchPageTargets(cdpUrl, { timeoutMs: options.timeoutMs })
     ]);
     report.cdp.version = sanitizeVersion(version);
 
-    const pageTargets = Array.isArray(targets) ? targets.filter((target) => target?.type === 'page') : [];
     report.targetsBefore = pageTargets.map(sanitizeTarget);
     const benchmarkTargets = pageTargets.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
     const searchTargets = pageTargets.filter(isSearchTarget);
@@ -835,8 +877,11 @@ export async function runUitarsPreflight(options = {}) {
       }
     }
 
-    const targetsAfter = await fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs });
-    const afterPages = Array.isArray(targetsAfter) ? targetsAfter.filter((target) => target?.type === 'page') : [];
+    const afterPages = await fetchSettledPageTargetsAfterNavigation(cdpUrl, benchmarkUrl, {
+      timeoutMs: options.timeoutMs,
+      navigationSettleTimeoutMs: options.navigationSettleTimeoutMs,
+      navigationSettleIntervalMs: options.navigationSettleIntervalMs
+    });
     report.targetsAfter = afterPages.map(sanitizeTarget);
     const afterBenchmarkTargets = afterPages.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
     const failedActions = report.actions.filter((action) => action.status !== 'ok');
@@ -939,13 +984,12 @@ export async function prepareUitarsTarget(options = {}) {
   report.mode.isolateTarget = Boolean(options.isolateTarget);
 
   try {
-    const [version, targets] = await Promise.all([
+    const [version, pageTargets] = await Promise.all([
       fetchJson(makeCdpUrl(cdpUrl, '/json/version'), { timeoutMs: options.timeoutMs }),
-      fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs })
+      fetchPageTargets(cdpUrl, { timeoutMs: options.timeoutMs })
     ]);
     report.cdp.version = sanitizeVersion(version);
 
-    const pageTargets = Array.isArray(targets) ? targets.filter((target) => target?.type === 'page') : [];
     report.targetsBefore = pageTargets.map(sanitizeTarget);
     const exactTargets = pageTargets.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
     const benchmarkAppTargets = pageTargets.filter((target) => isBenchmarkAppTarget(target, benchmarkUrl));
@@ -1045,8 +1089,11 @@ export async function prepareUitarsTarget(options = {}) {
       }
     }
 
-    const targetsAfter = await fetchJson(makeCdpUrl(cdpUrl, '/json/list'), { timeoutMs: options.timeoutMs });
-    const afterPages = Array.isArray(targetsAfter) ? targetsAfter.filter((target) => target?.type === 'page') : [];
+    const afterPages = await fetchSettledPageTargetsAfterNavigation(cdpUrl, benchmarkUrl, {
+      timeoutMs: options.timeoutMs,
+      navigationSettleTimeoutMs: options.navigationSettleTimeoutMs,
+      navigationSettleIntervalMs: options.navigationSettleIntervalMs
+    });
     report.targetsAfter = afterPages.map(sanitizeTarget);
     const afterExactTargets = afterPages.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
     const afterSearchTargets = afterPages.filter(isSearchTarget);

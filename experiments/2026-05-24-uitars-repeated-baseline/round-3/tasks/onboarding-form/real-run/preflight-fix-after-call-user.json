@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T04:31:58.713Z",
+  "status": "fixed",
+  "reason": "Navigated 1 search page target to the benchmark URL.",
+  "mode": {
+    "fix": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=onboarding-form",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:60852/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "ok",
+      "target": {
+        "id": "961AEAD70B78781D5A5F17EDCD753C97",
+        "type": "page",
+        "title": "Google",
+        "url": "https://www.google.com/"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=onboarding-form"
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "961AEAD70B78781D5A5F17EDCD753C97",
+      "type": "page",
+      "title": "Google",
+      "url": "https://www.google.com/"
+    },
+    {
+      "id": "CD94093E1559BDA50744AFC94DD6EFA3",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "961AEAD70B78781D5A5F17EDCD753C97",
+      "type": "page",
+      "title": "127.0.0.1",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "CD94093E1559BDA50744AFC94DD6EFA3",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "warnings": []
+}

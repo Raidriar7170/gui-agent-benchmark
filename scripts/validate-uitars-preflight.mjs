@@ -5,6 +5,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   PREFLIGHT_SCHEMA_VERSION,
+  isBenchmarkTarget,
   validatePreflightReport
 } from '../src/uitars-preflight.mjs';
 
@@ -133,6 +134,17 @@ const topLevelKeys = collectObjectKeys(report);
 assert(!topLevelKeys.includes('webSocketDebuggerUrl'), 'report must not expose webSocketDebuggerUrl fields', errors);
 
 if (!reportPath) {
+  assert(
+    !isBenchmarkTarget({
+      id: 'chrome-error',
+      type: 'page',
+      title: '127.0.0.1',
+      url: 'http://127.0.0.1:4173/?task=onboarding-form'
+    }, 'http://127.0.0.1:4173/?task=onboarding-form'),
+    'Chrome error pages at the requested URL must not count as ready benchmark targets',
+    errors
+  );
+
   const leakedReport = structuredClone(report);
   leakedReport.cdp.webSocketDebuggerUrl = 'ws://127.0.0.1:9222/devtools/page/1';
   assert(

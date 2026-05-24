@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-repeated-baseline-failure-taxonomy",
+  "createdAt": "2026-05-24T04:54:23.299Z",
+  "taxonomy": {
+    "version": "2026-05-24",
+    "path": "docs/failure-taxonomy.md"
+  },
+  "baseline": {
+    "summaryPath": "experiments/2026-05-24-uitars-repeated-baseline/summary.json",
+    "roundCount": 3,
+    "totalTaskAttempts": 12,
+    "successRate": 0.1667,
+    "averageScore": 0.3892,
+    "scoreVariance": 0.1437
+  },
+  "environment": {
+    "modelEndpoint": "http://127.0.0.1:18001/v1",
+    "remoteProxyPort": 8001,
+    "targetBindingIssuesObserved": [
+      "BIND-SEARCH-START",
+      "BIND-EMPTY-TARGET",
+      "BIND-ACTIVE-TARGET-MISMATCH",
+      "ACT-UNSUPPORTED-HOTKEY"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "catalog-filter",
+      "scores": [
+        0,
+        1,
+        1
+      ],
+      "passRate": 0.6667,
+      "meanScore": 0.6667,
+      "primaryCode": "ACT-SELECTION-COMMIT-MISS",
+      "stabilityFinding": "Initial failure did not persist after target preparation stabilized; rounds 2 and 3 fully passed."
+    },
+    {
+      "id": "settings-toggle",
+      "scores": [
+        0.75,
+        0.75,
+        0.5
+      ],
+      "passRate": 0,
+      "meanScore": 0.6667,
+      "primaryCode": "ACT-DROPDOWN-VALUE-MISS",
+      "stabilityFinding": "Boolean controls are mostly reliable, but timezone selection remains the repeated blocker."
+    },
+    {
+      "id": "onboarding-form",
+      "scores": [
+        0.17,
+        0,
+        0.17
+      ],
+      "passRate": 0,
+      "meanScore": 0.1133,
+      "primaryCode": "ACT-TEXT-ENTRY-STALL",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "stabilityFinding": "The model does not reliably continue from the first field through the complete form and submit flow."
+    },
+    {
+      "id": "ticket-review",
+      "scores": [
+        0,
+        0,
+        0.33
+      ],
+      "passRate": 0,
+      "meanScore": 0.11,
+      "primaryCode": "ACT-TABLE-SEARCH-LOOP",
+      "secondaryCodes": [
+        "ACT-SELECTION-COMMIT-MISS"
+      ],
+      "stabilityFinding": "Round 3 identified INC-2048 in the query, but did not select the row or mark the ticket reviewed."
+    }
+  ]
+}

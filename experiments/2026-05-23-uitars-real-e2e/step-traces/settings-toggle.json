@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "settings-toggle",
+  "taskTitle": "Update workspace settings",
+  "artifactBase": "experiments/2026-05-23-uitars-real-e2e",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, final capture state, and operator observations recorded during the run.",
+    "UI-TARS internal IndexedDB, private logs, and raw screenshots were not read.",
+    "Only final benchmark state is machine-captured; intermediate UI-TARS actions are marked as operator_note or derived evidence."
+  ],
+  "steps": [
+    {
+      "id": "settings-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate passed with local validation, tunnel health, and remote read-only checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-23-real-e2e.json"
+        ]
+      }
+    },
+    {
+      "id": "settings-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded settings prompt requiring call_user() on any non-benchmark page.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "settings-s03-search-start",
+      "index": 3,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "wrong_start_page",
+      "summary": "UI-TARS needed target rebinding before the settings benchmark page was active.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/preflight-fix-after-call-user.json"
+        ]
+      }
+    },
+    {
+      "id": "settings-s04-preflight-rebind",
+      "index": 4,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind",
+      "summary": "Preflight navigated and isolated the UI-TARS-owned target to the settings benchmark URL.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-23-uitars-real-e2e/task-prep/settings-toggle-after-call-user/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "settings-s05-continue-prompt",
+      "index": 5,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent the continuation prompt after the settings benchmark task page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "settings-s04-preflight-rebind"
+      ]
+    },
+    {
+      "id": "settings-s06-toggles-complete",
+      "index": 6,
+      "phase": "action",
+      "actor": "ui-tars",
+      "type": "toggle_controls",
+      "summary": "UI-TARS completed the boolean settings: weekly digest true, autosave true, data sharing false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "settings.weeklyDigest": true,
+        "settings.autosave": true,
+        "settings.dataSharing": false
+      }
+    },
+    {
+      "id": "settings-s07-timezone-unchanged",
+      "index": 7,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "dropdown_value_not_changed",
+      "summary": "Timezone remained UTC rather than America/New_York.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "settings.timezone": "UTC",
+        "expected": "America/New_York"
+      },
+      "relatedStepIds": [
+        "settings-s06-toggles-complete"
+      ]
+    },
+    {
+      "id": "settings-s08-capture",
+      "index": 8,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for settings-toggle.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "settings-s09-evaluation",
+      "index": 9,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0.75; all boolean controls passed and timezone failed.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0.75,
+        "passedCriteria": [
+          "weekly email digest is enabled",
+          "autosave remains enabled",
+          "product analytics sharing is disabled"
+        ],
+        "failedCriteria": [
+          "timezone is America/New_York"
+        ]
+      }
+    },
+    {
+      "id": "settings-s10-failure",
+      "index": 10,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is dropdown value miss: the model handled toggles but did not change the timezone select value.",
+      "failureCode": "ACT-DROPDOWN-VALUE-MISS",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "settings-s06-toggles-complete",
+          "settings-s07-timezone-unchanged",
+          "settings-s09-evaluation"
+        ]
+      },
+      "relatedStepIds": [
+        "settings-s06-toggles-complete",
+        "settings-s07-timezone-unchanged",
+        "settings-s09-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0.75,
+    "primaryFailureCode": "ACT-DROPDOWN-VALUE-MISS",
+    "failedCriteria": [
+      "timezone is America/New_York"
+    ]
+  }
+}

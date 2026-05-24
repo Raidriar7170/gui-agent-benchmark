@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-23T03:47:24.048Z",
+  "runs": [
+    {
+      "id": "trace-20260523034723948-1-qgv5mc",
+      "taskId": "onboarding-form",
+      "taskTitle": "Submit onboarding request",
+      "startedAt": "2026-05-23T03:47:23.948Z",
+      "endedAt": "2026-05-23T03:47:24.048Z",
+      "durationMs": 100,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-23T03:47:24.048Z",
+          "type": "real_run_capture",
+          "label": "Real run capture",
+          "target": null,
+          "path": null,
+          "value": {
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form",
+            "captureStatus": "captured"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [
+        {
+          "timestamp": "2026-05-23T03:47:24.048Z",
+          "label": "Final state",
+          "state": {
+            "activeTaskId": "onboarding-form",
+            "form": {
+              "fullName": "Maya Ortiz",
+              "email": "",
+              "role": "",
+              "startDate": "",
+              "notes": "",
+              "submitted": false
+            },
+            "catalog": {
+              "search": "",
+              "category": "all",
+              "minRating": 0,
+              "inStockOnly": false,
+              "selectedSku": ""
+            },
+            "settings": {
+              "weeklyDigest": false,
+              "autosave": true,
+              "dataSharing": true,
+              "timezone": "UTC"
+            },
+            "table": {
+              "query": "",
+              "selectedTicketId": ""
+            },
+            "tickets": [
+              {
+                "id": "INC-1042",
+                "requester": "Lin Chen",
+                "priority": "Medium",
+                "topic": "VPN profile reset",
+                "status": "Open",
+                "reviewed": false
+              },
+              {
+                "id": "INC-2048",
+                "requester": "Priya Shah",
+                "priority": "High",
+                "topic": "Payroll portal timeout",
+                "status": "Open",
+                "reviewed": false
+              },
+              {
+                "id": "INC-3130",
+                "requester": "Owen Brooks",
+                "priority": "Low",
+                "topic": "Printer badge mapping",
+                "status": "Waiting",
+                "reviewed": false
+              },
+              {
+                "id": "INC-4011",
+                "requester": "Rina Patel",
+                "priority": "Medium",
+                "topic": "Calendar sync delay",
+                "status": "Open",
+                "reviewed": false
+              }
+            ]
+          }
+        }
+      ],
+      "evaluation": {
+        "success": false,
+        "score": 0.17,
+        "details": [
+          {
+            "criterion": "form is submitted",
+            "pass": false,
+            "expected": true,
+            "actual": false
+          },
+          {
+            "criterion": "full name is Maya Ortiz",
+            "pass": true,
+            "expected": "Maya Ortiz",
+            "actual": "Maya Ortiz"
+          },
+          {
+            "criterion": "email is maya.ortiz@example.com",
+            "pass": false,
+            "expected": "maya.ortiz@example.com",
+            "actual": ""
+          },
+          {
+            "criterion": "role is Designer",
+            "pass": false,
+            "expected": "Designer",
+            "actual": ""
+          },
+          {
+            "criterion": "start date is 2026-06-15",
+            "pass": false,
+            "expected": "2026-06-15",
+            "actual": ""
+          },
+          {
+            "criterion": "notes mention Figma access",
+            "pass": false,
+            "expected": "contains Figma access",
+            "actual": ""
+          }
+        ],
+        "state": {
+          "activeTaskId": "onboarding-form",
+          "form": {
+            "fullName": "Maya Ortiz",
+            "email": "",
+            "role": "",
+            "startDate": "",
+            "notes": "",
+            "submitted": false
+          },
+          "catalog": {
+            "search": "",
+            "category": "all",
+            "minRating": 0,
+            "inStockOnly": false,
+            "selectedSku": ""
+          },
+          "settings": {
+            "weeklyDigest": false,
+            "autosave": true,
+            "dataSharing": true,
+            "timezone": "UTC"
+          },
+          "table": {
+            "query": "",
+            "selectedTicketId": ""
+          },
+          "tickets": [
+            {
+              "id": "INC-1042",
+              "requester": "Lin Chen",
+              "priority": "Medium",
+              "topic": "VPN profile reset",
+              "status": "Open",
+              "reviewed": false
+            },
+            {
+              "id": "INC-2048",
+              "requester": "Priya Shah",
+              "priority": "High",
+              "topic": "Payroll portal timeout",
+              "status": "Open",
+              "reviewed": false
+            },
+            {
+              "id": "INC-3130",
+              "requester": "Owen Brooks",
+              "priority": "Low",
+              "topic": "Printer badge mapping",
+              "status": "Waiting",
+              "reviewed": false
+            },
+            {
+              "id": "INC-4011",
+              "requester": "Rina Patel",
+              "priority": "Medium",
+              "topic": "Calendar sync delay",
+              "status": "Open",
+              "reviewed": false
+            }
+          ]
+        }
+      },
+      "success": false,
+      "score": 0.17,
+      "failureReason": "form is submitted"
+    }
+  ]
+}

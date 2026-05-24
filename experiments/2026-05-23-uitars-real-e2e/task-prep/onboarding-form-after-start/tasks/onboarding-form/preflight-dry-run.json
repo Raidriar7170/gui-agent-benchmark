@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-23T03:40:21.715Z",
+  "status": "ready",
+  "reason": "Benchmark target is already present and no search page target needs correction.",
+  "mode": {
+    "fix": false
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=onboarding-form",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:57015/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [],
+  "targetsBefore": [
+    {
+      "id": "48FA4DE859DC042AC76DC786DCDDD0F6",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "222F3A30DB90110F35838F0C542BA9C1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "40DC652ECB5E8BD60F4AD74B841B6D3B",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}

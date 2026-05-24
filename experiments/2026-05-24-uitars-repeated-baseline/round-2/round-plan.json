@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-e2e-round-plan",
+  "createdAt": "2026-05-24T04:29:43.399Z",
+  "outputDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2",
+  "baseUrl": "http://127.0.0.1:4173",
+  "options": {
+    "discoverLocalUitars": true,
+    "isolateTarget": true
+  },
+  "tunnel": {
+    "localPort": 18001,
+    "remoteProxyPort": 8001,
+    "remoteDirectVllmPort": 8000,
+    "modelsUrl": "http://127.0.0.1:18001/v1/models",
+    "sshCommand": "ssh -L 18001:127.0.0.1:8001 <remote-host>"
+  },
+  "preflightCommand": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2 --tasks 'onboarding-form,catalog-filter,settings-toggle,ticket-review' --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form",
+      "initialPrompt": "Benchmark task. If the current page is Google or anything other than the GUI Agent Benchmark onboarding-form task page, immediately use call_user() and do nothing else. If the onboarding-form task page is visible, Create an onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request. Click Evaluate and stop after the judge result is visible.",
+      "continuePrompt": "Continue now. The browser is now on the GUI Agent Benchmark onboarding-form task page. Complete the task: Create an onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request. Click Evaluate and stop after the judge result is visible.",
+      "paths": {
+        "realRunDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run",
+        "preflightFixAfterCallUser": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUserOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/onboarding-form-after-call-user",
+        "prepareBeforeCaptureOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/onboarding-form-before-capture",
+        "capture": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run/capture.json"
+      },
+      "commands": {
+        "preflightFix": "npm run uitars:preflight -- --discover-local-uitars --url 'http://127.0.0.1:4173/?task=onboarding-form' --fix --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUser": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/onboarding-form-after-call-user --tasks onboarding-form --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "prepareBeforeCapture": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/onboarding-form-before-capture --tasks onboarding-form --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "capture": "npm run uitars:capture -- --task onboarding-form --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/onboarding-form/real-run --base-url http://127.0.0.1:4173 --discover-local-uitars"
+      },
+      "manualSteps": [
+        "Start a new UI-TARS Local Browser Operator chat.",
+        "Send initialPrompt and wait for call_user() if UI-TARS opens Google or another wrong page.",
+        "Run commands.preflightFix, then commands.prepareAfterCallUser.",
+        "Send continuePrompt and let UI-TARS operate without manual task help.",
+        "After the time budget or visible judge result, run commands.prepareBeforeCapture and commands.capture."
+      ]
+    },
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter",
+      "initialPrompt": "Benchmark task. If the current page is Google or anything other than the GUI Agent Benchmark catalog-filter task page, immediately use call_user() and do nothing else. If the catalog-filter task page is visible, Search or filter the catalog to find an in-stock Office item rated at least 4.5 stars, then select the Adjustable Laptop Stand. Click Evaluate and stop after the judge result is visible.",
+      "continuePrompt": "Continue now. The browser is now on the GUI Agent Benchmark catalog-filter task page. Complete the task: Search or filter the catalog to find an in-stock Office item rated at least 4.5 stars, then select the Adjustable Laptop Stand. Click Evaluate and stop after the judge result is visible.",
+      "paths": {
+        "realRunDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run",
+        "preflightFixAfterCallUser": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUserOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/catalog-filter-after-call-user",
+        "prepareBeforeCaptureOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/catalog-filter-before-capture",
+        "capture": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run/capture.json"
+      },
+      "commands": {
+        "preflightFix": "npm run uitars:preflight -- --discover-local-uitars --url 'http://127.0.0.1:4173/?task=catalog-filter' --fix --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUser": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/catalog-filter-after-call-user --tasks catalog-filter --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "prepareBeforeCapture": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/catalog-filter-before-capture --tasks catalog-filter --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "capture": "npm run uitars:capture -- --task catalog-filter --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/catalog-filter/real-run --base-url http://127.0.0.1:4173 --discover-local-uitars"
+      },
+      "manualSteps": [
+        "Start a new UI-TARS Local Browser Operator chat.",
+        "Send initialPrompt and wait for call_user() if UI-TARS opens Google or another wrong page.",
+        "Run commands.preflightFix, then commands.prepareAfterCallUser.",
+        "Send continuePrompt and let UI-TARS operate without manual task help.",
+        "After the time budget or visible judge result, run commands.prepareBeforeCapture and commands.capture."
+      ]
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle",
+      "initialPrompt": "Benchmark task. If the current page is Google or anything other than the GUI Agent Benchmark settings-toggle task page, immediately use call_user() and do nothing else. If the settings-toggle task page is visible, Enable the weekly email digest, keep autosave enabled, turn off product analytics sharing, and set the timezone to America/New_York. Click Evaluate and stop after the judge result is visible.",
+      "continuePrompt": "Continue now. The browser is now on the GUI Agent Benchmark settings-toggle task page. Complete the task: Enable the weekly email digest, keep autosave enabled, turn off product analytics sharing, and set the timezone to America/New_York. Click Evaluate and stop after the judge result is visible.",
+      "paths": {
+        "realRunDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run",
+        "preflightFixAfterCallUser": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUserOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/settings-toggle-after-call-user",
+        "prepareBeforeCaptureOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/settings-toggle-before-capture",
+        "capture": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run/capture.json"
+      },
+      "commands": {
+        "preflightFix": "npm run uitars:preflight -- --discover-local-uitars --url 'http://127.0.0.1:4173/?task=settings-toggle' --fix --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUser": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/settings-toggle-after-call-user --tasks settings-toggle --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "prepareBeforeCapture": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/settings-toggle-before-capture --tasks settings-toggle --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "capture": "npm run uitars:capture -- --task settings-toggle --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/settings-toggle/real-run --base-url http://127.0.0.1:4173 --discover-local-uitars"
+      },
+      "manualSteps": [
+        "Start a new UI-TARS Local Browser Operator chat.",
+        "Send initialPrompt and wait for call_user() if UI-TARS opens Google or another wrong page.",
+        "Run commands.preflightFix, then commands.prepareAfterCallUser.",
+        "Send continuePrompt and let UI-TARS operate without manual task help.",
+        "After the time budget or visible judge result, run commands.prepareBeforeCapture and commands.capture."
+      ]
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review",
+      "initialPrompt": "Benchmark task. If the current page is Google or anything other than the GUI Agent Benchmark ticket-review task page, immediately use call_user() and do nothing else. If the ticket-review task page is visible, Find Priya Shah's INC-2048 support ticket in the review queue and mark it reviewed. Click Evaluate and stop after the judge result is visible.",
+      "continuePrompt": "Continue now. The browser is now on the GUI Agent Benchmark ticket-review task page. Complete the task: Find Priya Shah's INC-2048 support ticket in the review queue and mark it reviewed. Click Evaluate and stop after the judge result is visible.",
+      "paths": {
+        "realRunDir": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run",
+        "preflightFixAfterCallUser": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUserOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/ticket-review-after-call-user",
+        "prepareBeforeCaptureOutput": "experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/ticket-review-before-capture",
+        "capture": "experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run/capture.json"
+      },
+      "commands": {
+        "preflightFix": "npm run uitars:preflight -- --discover-local-uitars --url 'http://127.0.0.1:4173/?task=ticket-review' --fix --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run/preflight-fix-after-call-user.json",
+        "prepareAfterCallUser": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/ticket-review-after-call-user --tasks ticket-review --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "prepareBeforeCapture": "npm run uitars:harness -- --output experiments/2026-05-24-uitars-repeated-baseline/round-2/task-prep/ticket-review-before-capture --tasks ticket-review --base-url http://127.0.0.1:4173 --discover-local-uitars --prepare-target --isolate-target",
+        "capture": "npm run uitars:capture -- --task ticket-review --output experiments/2026-05-24-uitars-repeated-baseline/round-2/tasks/ticket-review/real-run --base-url http://127.0.0.1:4173 --discover-local-uitars"
+      },
+      "manualSteps": [
+        "Start a new UI-TARS Local Browser Operator chat.",
+        "Send initialPrompt and wait for call_user() if UI-TARS opens Google or another wrong page.",
+        "Run commands.preflightFix, then commands.prepareAfterCallUser.",
+        "Send continuePrompt and let UI-TARS operate without manual task help.",
+        "After the time budget or visible judge result, run commands.prepareBeforeCapture and commands.capture."
+      ]
+    }
+  ]
+}

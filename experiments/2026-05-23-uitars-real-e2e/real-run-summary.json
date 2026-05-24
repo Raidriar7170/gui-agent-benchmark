@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-e2e-round-summary",
+  "createdAt": "2026-05-23T04:11:00.573Z",
+  "outputDir": "experiments/2026-05-23-uitars-real-e2e",
+  "totalTasks": 4,
+  "capturedTasks": 4,
+  "successTasks": 0,
+  "averageScore": 0.23,
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "status": "captured",
+      "success": false,
+      "score": 0.17,
+      "captureCount": 2,
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/onboarding-form/real-run-attempt2/capture.json",
+      "selectedCaptureDir": "real-run-attempt2",
+      "failedCriteria": [
+        "form is submitted",
+        "email is maya.ortiz@example.com",
+        "role is Designer",
+        "start date is 2026-06-15",
+        "notes mention Figma access"
+      ]
+    },
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/catalog-filter/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "selected SKU is ERGO-27",
+        "selected product is in stock",
+        "selected product category is office",
+        "selected product rating is at least 4.5"
+      ]
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "status": "captured",
+      "success": false,
+      "score": 0.75,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/settings-toggle/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "timezone is America/New_York"
+      ]
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-23-uitars-real-e2e/tasks/ticket-review/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "table query identifies Priya Shah or INC-2048",
+        "INC-2048 is selected",
+        "INC-2048 is marked reviewed"
+      ]
+    }
+  ]
+}

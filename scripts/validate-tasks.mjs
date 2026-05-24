@@ -28,6 +28,31 @@ function makePassingState(taskId) {
     state.table.query = 'Priya Shah';
     state.table.selectedTicketId = 'INC-2048';
     state.tickets.find((ticket) => ticket.id === 'INC-2048').reviewed = true;
+  } else if (taskId === 'modal-confirmation') {
+    state.modal.selectedRequestId = 'REQ-77';
+    state.modal.dialogOpened = true;
+    state.modal.confirmed = true;
+  } else if (taskId === 'pagination-review') {
+    state.pagination.page = 2;
+    state.pagination.reviewedIds.push('INV-203');
+  } else if (taskId === 'sortable-inventory') {
+    state.inventory.sortKey = 'risk';
+    state.inventory.sortDirection = 'desc';
+    state.inventory.selectedSku = 'BATT-88';
+  } else if (taskId === 'multi-select-approvals') {
+    state.approvals.selectedIds = ['APR-102', 'APR-205'];
+    state.approvals.submitted = true;
+  } else if (taskId === 'validation-error-recovery') {
+    state.validation.errorShown = true;
+    state.validation.title = 'Quarterly access review';
+    state.validation.owner = 'Morgan Lee';
+    state.validation.dueDate = '2026-06-30';
+    state.validation.submitted = true;
+  } else if (taskId === 'file-upload-request') {
+    state.upload.selectedFile = 'security-audit.pdf';
+    state.upload.category = 'Compliance';
+    state.upload.description = 'Q2 security audit evidence';
+    state.upload.submitted = true;
   }
 
   return state;
@@ -35,6 +60,10 @@ function makePassingState(taskId) {
 
 const tasks = await loadTasks();
 const errors = validateTasks(tasks);
+
+if (tasks.length !== 10) {
+  errors.push(`expected 10 benchmark tasks, found ${tasks.length}`);
+}
 
 for (const task of tasks) {
   const initialResult = evaluateTask(task.id, createInitialState(task.id), tasks);
@@ -57,4 +86,3 @@ if (errors.length > 0) {
 }
 
 console.log(`Task validation passed: ${tasks.length} tasks, ${tasks.reduce((sum, task) => sum + task.successCriteria.length, 0)} criteria.`);
-
