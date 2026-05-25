@@ -10,6 +10,14 @@ preflight repair, step-trace attribution, and failure taxonomy artifacts.
 judge API、UI-TARS 捕获流程、目标页 preflight 修复、step trace 归因和失败
 taxonomy 串成一条可复核的证据链。
 
+## TL;DR
+
+This project builds a deterministic benchmark and evidence-chain harness for GUI
+agents. The current expanded round captured all 10 planned UI-TARS-style browser
+tasks, with 0 full successes and an average score of 0.206. That result is
+diagnostic rather than leaderboard-style: it shows capture and environment
+readiness are closed, while failures concentrate in GUI interaction primitives.
+
 ## Navigation / 导航
 
 - [Project Positioning / 项目定位](#project-positioning--项目定位)
@@ -68,6 +76,11 @@ Latest expanded round:
 | Planned tasks | Captured tasks | Full successes | Average score |
 |---:|---:|---:|---:|
 | 10 | 10 | 0 | 0.206 |
+
+The 0/10 full-success result is not presented as a leaderboard conclusion. It
+is meaningful for diagnosing primitive-level failures because the expanded round
+now has complete capture coverage, so missing evidence is no longer the primary
+explanation for task failure.
 
 Primary finding: capture completeness and environment readiness can be closed,
 while task success remains limited by GUI interaction primitives such as
@@ -128,6 +141,7 @@ report, and finish gate need to agree.
 This project is intentionally zero-dependency. Use Node.js 18 or newer.
 
 ```sh
+npm run validate:oracle-baseline
 npm run validate
 npm run smoke
 npm start
@@ -177,9 +191,10 @@ runs. Keep public examples generic, and put setup guidance in
 | [docs/benchmark-report-2026-05-25-expanded-real-round.md](docs/benchmark-report-2026-05-25-expanded-real-round.md) | Report narrative and primitive-level analysis |
 | [experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json](experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json) | Machine-readable 10-task summary |
 | [experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json](experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json) | Failure-code mapping with task evidence |
-| `experiments/2026-05-24-uitars-expanded-real-round/step-traces/<task-id>.json` | Derived timeline attribution per task |
-| `experiments/2026-05-24-uitars-expanded-real-round/tasks/<task-id>/real-run/` | Per-task capture bundle |
+| `experiments/2026-05-24-uitars-expanded-real-round/step-traces/{task-id}.json` | Derived timeline attribution per task |
+| `experiments/2026-05-24-uitars-expanded-real-round/tasks/{task-id}/real-run/` | Per-task capture bundle |
 | [artifacts/finish-gate/2026-05-25-expanded-real-round.json](artifacts/finish-gate/2026-05-25-expanded-real-round.json) | Local plus integration readiness result |
+| [src/oracle-baseline.mjs](src/oracle-baseline.mjs) and [scripts/validate-oracle-baseline.mjs](scripts/validate-oracle-baseline.mjs) | Scripted P0 oracle baseline proving task and judge solvability through UI actions |
 
 Per-task capture bundles contain:
 
@@ -232,10 +247,13 @@ Supported formats:
 
 ## Next Steps / 下一步
 
-1. Add a scripted oracle baseline to prove all deterministic tasks are solvable.
-2. Preserve raw UI-TARS action traces and referenced screenshots for real runs.
-3. Repeat the expanded 10-task round and report variance.
-4. Generate a visual dashboard or GIF from existing evidence artifacts.
+1. P0: Keep the scripted browser oracle baseline green as tasks evolve; it
+   proves all deterministic tasks are solvable through the same UI and judge
+   path.
+2. P1: Preserve raw UI-TARS action traces and referenced screenshots for real
+   runs.
+3. P2: Repeat the expanded 10-task round and report variance.
+4. P3: Generate a visual dashboard or GIF from existing evidence artifacts.
 
 ## Further Reading / 延伸阅读
 

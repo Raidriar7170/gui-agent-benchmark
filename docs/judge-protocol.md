@@ -72,6 +72,18 @@ Judges return:
 `score` is the fraction of criteria met, rounded to two decimals. `success` is
 true only when every criterion passes. The judge does not mutate the state.
 
+## Scripted Oracle Baseline
+
+The scripted oracle baseline drives the browser app through UI-level actions
+and then evaluates each task through `window.__BENCH__.evaluate(taskId)`. It is
+a task-and-judge solvability check, not a GUI-agent score.
+
+Validate it with:
+
+```sh
+npm run validate:oracle-baseline
+```
+
 ## Run Schema
 
 Recorded runs are stored under `gui-agent-benchmark:runs:v1` in browser
