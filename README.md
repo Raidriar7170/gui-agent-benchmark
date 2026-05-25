@@ -1,87 +1,91 @@
-# GUI Agent Benchmark / UI-TARS Evidence Chain
+# GUI Agent Benchmark
 
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18-blue.svg)](https://nodejs.org/)
-[![Validation](https://img.shields.io/badge/validation-passing-brightgreen.svg)](#verification)
-[![Expanded Round](https://img.shields.io/badge/expanded%20round-10%2F10%20captured-purple.svg)](#key-results)
-[![Finish Gate](https://img.shields.io/badge/full%20finish%20gate-ready-success.svg)](#finish-gate)
+[![Validate](https://github.com/Raidriar7170/gui-agent-benchmark/actions/workflows/validate.yml/badge.svg)](https://github.com/Raidriar7170/gui-agent-benchmark/actions/workflows/validate.yml)
 
-**A deterministic GUI-agent benchmark and evidence-chain workspace for studying
-UI-TARS browser-agent failures under reproducible, verification-gated
-conditions.**
+A deterministic browser benchmark for studying where GUI agents fail. The
+workspace combines local tasks, judge APIs, UI-TARS capture helpers, target
+preflight repair, step-trace attribution, and failure taxonomy artifacts.
 
-一个面向 GUI Agent / UI-TARS 的本地评测与证据链项目：它提供可控网页任务、纯
-judge 协议、真实 UI-TARS capture 流程、preflight target-binding 修复、step
-trace 归因、failure taxonomy 和 full finish gate，用来回答“Agent 到底失败在
-哪些 GUI primitive 上”。
+一个用于分析 GUI Agent 失败原因的确定性浏览器评测工作区。它把本地任务、
+judge API、UI-TARS 捕获流程、目标页 preflight 修复、step trace 归因和失败
+taxonomy 串成一条可复核的证据链。
 
----
+## Navigation / 导航
 
-## Motivation / 为什么需要这个项目
+- [Project Positioning / 项目定位](#project-positioning--项目定位)
+- [Goals / 目标](#goals--目标)
+- [Evidence Boundary / 证据边界](#evidence-boundary--证据边界)
+- [Current Results / 当前结果](#current-results--当前结果)
+- [Run Locally / 本地运行](#run-locally--本地运行)
+- [Evidence Map / 证据地图](#evidence-map--证据地图)
 
-GUI-agent demos often stop at a final success/failure label. That is not enough
-when an agent misses a task because the browser target was wrong, the model
-tunnel was misrouted, the UI-TARS child Chrome was stale, or the model simply
-failed to commit a GUI action.
+## Project Positioning / 项目定位
 
-这个项目把“跑一次 GUI Agent”拆成可验证的 evidence chain：环境是否 ready、目标
-tab 是否正确、capture 是否完整、summary 是否和 artifacts 一致、失败是否能追溯
-到具体 GUI primitive。
+Most GUI-agent demos end at a final success or failure label. This project keeps
+the evidence chain intact so failures can be separated into environment setup,
+browser target binding, capture completeness, final judge state, and GUI
+interaction primitives.
 
-| Problem | Naive Benchmark | This Workspace |
-|---|:-:|:-:|
-| Wrong browser target | Blends into task failure | Preflight creates, activates, and isolates the benchmark tab |
-| Missing capture | Hidden behind aggregate metrics | Requires `10/10 captured` before expanded-round closure |
-| UI-TARS action opacity | Hard to audit | Adds derived step traces and explicit evidence limitations |
-| Local-only readiness | Easy to overclaim | Separates `localReady` from `integrationReady` in finish gate |
-| Primitive-level analysis | Often anecdotal | Links failure taxonomy to per-task capture and timeline evidence |
+大多数 GUI Agent demo 只给出“成功/失败”的最终标签。这个项目更关心失败发生在
+哪里：是环境没准备好、浏览器目标页绑定错误、capture 缺失、最终状态没有达到
+judge 标准，还是模型没有完成某个具体 GUI 操作。
 
----
+| This project is | This project is not |
+|---|---|
+| A reproducible GUI-agent benchmark harness | A UI-TARS leaderboard |
+| A failure-analysis workspace with preserved artifacts | A claim that UI-TARS is generally weak |
+| A deterministic local browser app with judge criteria | A paper-grade statistical benchmark yet |
+| A way to compare capture, trace, and taxonomy evidence | A substitute for raw action-level telemetry |
 
-## Key Results / 核心结果
+## Goals / 目标
 
-The latest expanded real round is:
+| Goal | 中文说明 |
+|---|---|
+| Keep runs reproducible | 用确定性任务和 judge criteria 避免“看起来像成功”的主观判断 |
+| Preserve the full evidence chain | 为每个任务保留 capture、trace、summary、taxonomy 和 finish-gate 证据 |
+| Explain primitive-level failures | 说明失败集中在哪些 GUI primitive，而不是只汇报 aggregate score |
+| Avoid overclaiming | 当前证据用于 qualitative failure analysis，不用于 leaderboard 式结论 |
 
+## Evidence Boundary / 证据边界
+
+The expanded step traces are derived timeline attributions. They link preflight
+reports, operator prompts, final capture state, benchmark evaluation, and the
+finish gate, but they are not raw UI-TARS action transcripts.
+
+Raw UI-TARS action-level logs, screenshots, browser private storage, and
+model-internal logs were not captured for the expanded round. The current
+evidence supports qualitative failure analysis, not leaderboard-style claims.
+
+扩展轮次里的 step traces 是基于现有 artifact 重建的时间线归因，不是原始
+UI-TARS action transcript。当前证据适合解释失败模式和 primitive 难点，但还
+不足以做排行榜式模型能力结论。
+
+## Current Results / 当前结果
+
+Latest expanded round:
 `experiments/2026-05-24-uitars-expanded-real-round/`
 
-| Metric | Value |
-|---|---:|
-| Planned tasks | 10 |
-| Captured tasks | 10 |
-| Missing captures | 0 |
-| Full task successes | 0 |
-| Average score | 0.206 |
-| Step traces | 10 expanded traces |
-| Finish gate | `ready=true`, `localReady=true`, `integrationReady=true` |
+| Planned tasks | Captured tasks | Full successes | Average score |
+|---:|---:|---:|---:|
+| 10 | 10 | 0 | 0.206 |
 
-Primary finding: **capture completeness and environment readiness can be
-closed, while task success remains blocked by GUI interaction primitives.**
+Primary finding: capture completeness and environment readiness can be closed,
+while task success remains limited by GUI interaction primitives such as
+dropdown value commit, table selection, modal confirmation, pagination, sorting,
+multi-select submission, validation recovery, and upload workflow completion.
 
-The expanded run shows that failures from the original 4-task round generalize
-to a broader 10-task set. The hardest primitives were:
+核心结论：capture 完整性和环境 readiness 已经可以闭环，但任务成功率仍然受限于
+具体 GUI interaction primitive，例如下拉框值提交、表格选择、modal 确认、分页、
+排序、多选提交、validation recovery 和上传流程完成。
 
-- **Dropdown value commit:** toggles worked, but timezone/category dropdowns
-  stayed unchanged.
-- **Table/list selection commit:** search or visible target reasoning did not
-  turn into selected row/item state.
-- **Compound state changes:** modal confirmation, pagination, sorting, and
-  multi-select flows scored 0 or near 0.
-- **Multi-step form completion:** partial text entry happened, but required
-  fields and submit actions were left incomplete.
-
-The easiest primitive in the current evidence is simple boolean toggling:
-`settings-toggle` completed the checkbox-like controls before failing on the
-timezone dropdown.
-
----
-
-## Expanded Round Task Matrix
+## Task Matrix / 任务矩阵
 
 | Task | Score | Main failed primitive |
 |---|---:|---|
 | `onboarding-form` | 0.33 | Text-entry continuation and submit |
 | `catalog-filter` | 0 | Filter/search to selected item commit |
 | `settings-toggle` | 0.75 | Dropdown value commit |
-| `ticket-review` | 0 | Table search/selection/review commit |
+| `ticket-review` | 0 | Table search, selection, and review commit |
 | `modal-confirmation` | 0 | Modal open and confirm sequence |
 | `pagination-review` | 0.33 | Page navigation and row action |
 | `sortable-inventory` | 0 | Sort commit and row selection |
@@ -89,216 +93,53 @@ timezone dropdown.
 | `validation-error-recovery` | 0.4 | Validation recovery after error |
 | `file-upload-request` | 0.25 | Upload form dropdown and submit |
 
----
+The original 4-task failure patterns persisted in the expanded 10-task set:
+text-entry stalls, dropdown commit misses, and search/table selection failures
+all reappeared. The strongest partial success was simple boolean toggling in
+`settings-toggle`.
 
-## Architecture / 系统架构
+原始 4 个任务中的失败模式延续到了扩展后的 10 个任务：文本输入中断、下拉框提交
+失败、搜索/表格选择无法落到最终状态等问题仍然反复出现。目前最稳定的部分成功是
+`settings-toggle` 里的简单布尔开关操作。
 
-```text
-controlled benchmark app
-        |
-        v
-deterministic task state + judge protocol
-        |
-        +-------------------------+
-        |                         |
-        v                         v
-browser run recorder        UI-TARS real-round helper
-                                  |
-                                  v
-                         preflight target binding
-                   create / activate / isolate correct tab
-                                  |
-                                  v
-                         per-task capture bundle
-                 capture.json / trace.json / run-export.json
-                                  |
-                                  v
-                     real-run-summary.json consistency checks
-                                  |
-                                  v
-                 failure taxonomy + derived step-trace evidence
-                                  |
-                                  v
-                         full finish gate artifact
-```
-
-Core design principles:
-
-- **Deterministic tasks:** every task has explicit state, judge criteria, score,
-  and success result.
-- **Evidence first:** expanded closure requires summary, capture, trace,
-  run-export, taxonomy, report, and finish-gate artifacts to agree.
-- **Target-binding hardening:** preflight handles empty targets, active-target
-  mismatch, stale UI-TARS child Chrome, and Chrome error pages.
-- **No raw-action overclaiming:** expanded step traces are derived timeline
-  attribution, not raw UI-TARS action transcripts.
-
----
-
-## Project Structure / 项目结构
+## Evidence Chain / 证据链
 
 ```text
-gui-agent-benchmark/
-├── public/                         # Browser benchmark UI and task definitions
-├── src/
-│   ├── judge.mjs                   # Deterministic scoring logic
-│   ├── runs.mjs                    # Browser run recording schema
-│   ├── uitars-preflight.mjs        # Target discovery, repair, activation
-│   ├── uitars-real-round.mjs       # Real-round planning and validation
-│   ├── step-trace.mjs              # Step-trace schema and taxonomy links
-│   └── finish-gate.mjs             # Local + integration readiness gate
-├── scripts/                        # CLI runners and validators
-├── docs/
-│   ├── benchmark-report-2026-05-25-expanded-real-round.md
-│   ├── failure-taxonomy.md
-│   ├── step-trace-schema.md
-│   └── raw-uitars-trace-schema.md
-├── experiments/
-│   └── 2026-05-24-uitars-expanded-real-round/
-│       ├── real-run-summary.json
-│       ├── failure-taxonomy.json
-│       ├── step-traces/<task-id>.json
-│       └── tasks/<task-id>/real-run/
-│           ├── capture.json
-│           ├── trace.json
-│           └── run-export.json
-├── artifacts/
-│   └── finish-gate/2026-05-25-expanded-real-round.json
-├── server.mjs
-└── package.json
+deterministic task
+  -> UI-TARS attempt
+  -> preflight target check
+  -> capture.json / trace.json / run-export.json
+  -> real-run-summary.json
+  -> step trace
+  -> failure taxonomy
+  -> finish gate
 ```
 
----
+The design goal is to make every result auditable. A task is not treated as
+closed just because a model run happened; the summary, capture bundle, taxonomy,
+report, and finish gate need to agree.
 
-## Quick Start / 快速开始
+设计目标是让每个结论都能回到 artifact 核验。一次模型运行本身不等于任务闭环；
+只有 summary、capture bundle、taxonomy、report 和 finish gate 相互一致时，才把
+这次结果当作可靠证据。
 
-### 1. Install and validate
+## Run Locally / 本地运行
+
+This project is intentionally zero-dependency. Use Node.js 18 or newer.
 
 ```sh
 npm run validate
 npm run smoke
-```
-
-Expected validation highlights:
-
-```text
-Task validation passed: 10 tasks, 40 criteria.
-Real round validation passed.
-Step trace validation passed: 14 traces linked to failure taxonomy.
-Finish gate validation passed: 5 checks, local-only and integration modes covered.
-```
-
-### 2. Start the benchmark app
-
-```sh
 npm start
 ```
 
-The app defaults to:
+The local benchmark app defaults to:
 
 ```text
 http://127.0.0.1:4173
 ```
 
-### 3. Run a real UI-TARS round plan
-
-```sh
-npm run uitars:real-round -- \
-  --output experiments/<date>-uitars-real-e2e \
-  --tasks all \
-  --base-url http://127.0.0.1:4173 \
-  --discover-local-uitars
-```
-
-The helper writes:
-
-- `round-plan.json`
-- `real-run-summary.json`
-- `run-log.md`
-- per-task preflight, capture, trace, and run-export artifacts
-
----
-
-## Verification
-
-The current evidence-chain state has been checked with:
-
-```sh
-npm run validate
-npm run smoke
-UI_TARS_REMOTE_HOST=115.190.60.96 \
-UI_TARS_REMOTE_PORT=2222 \
-UI_TARS_REMOTE_USER=root \
-UI_TARS_REMOTE_KEY=/Users/raidriar/.ssh/id_volcano \
-npm run check:finish -- --json --output artifacts/finish-gate/2026-05-25-expanded-real-round.json
-```
-
-Latest expected full-gate state:
-
-```text
-ready=true
-localReady=true
-integrationReady=true
-```
-
----
-
-## Finish Gate
-
-Use the finish gate when deciding whether the project is actually ready rather
-than only locally valid.
-
-```sh
-npm run check:finish -- --local-only
-npm run check:finish -- --json --output artifacts/finish-gate/report.json
-```
-
-`--local-only` runs:
-
-- `npm run validate`
-- `npm run smoke`
-- `node scripts/check-local.mjs`
-
-The full gate also runs:
-
-- `node scripts/check-tunnel.mjs`
-- `node scripts/check-remote.mjs`
-
-For the Volcano UI-TARS deployment, the model tunnel must bind local `18001` to
-remote proxy port `8001`, not direct vLLM port `8000`.
-
-```sh
-UI_TARS_REMOTE_HOST=115.190.60.96 \
-UI_TARS_REMOTE_PORT=2222 \
-UI_TARS_REMOTE_USER=root \
-UI_TARS_REMOTE_KEY=/Users/raidriar/.ssh/id_volcano \
-npm run check:finish -- --json --output artifacts/finish-gate/2026-05-25-expanded-real-round.json
-```
-
-Current full gate artifact:
-
-`artifacts/finish-gate/2026-05-25-expanded-real-round.json`
-
----
-
-## Evidence Artifacts / 证据链
-
-| Artifact | Purpose |
-|---|---|
-| `docs/benchmark-report-2026-05-25-expanded-real-round.md` | Report-ready narrative and primitive analysis |
-| `experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json` | Machine-readable 10-task summary |
-| `experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json` | Task-to-failure-code taxonomy with timeline links |
-| `experiments/2026-05-24-uitars-expanded-real-round/step-traces/<task-id>.json` | Derived timeline attribution for each expanded task |
-| `experiments/2026-05-24-uitars-expanded-real-round/tasks/<task-id>/real-run/capture.json` | Final benchmark state and judge result |
-| `experiments/2026-05-24-uitars-expanded-real-round/tasks/<task-id>/real-run/trace.json` | Capture trace artifact |
-| `experiments/2026-05-24-uitars-expanded-real-round/tasks/<task-id>/real-run/run-export.json` | Importable run export |
-| `artifacts/finish-gate/2026-05-25-expanded-real-round.json` | Full local + integration readiness result |
-
----
-
-## Benchmark API
-
-The browser app exposes a small deterministic API:
+The browser app exposes:
 
 ```js
 window.__BENCH__ = {
@@ -314,19 +155,55 @@ window.__BENCH__ = {
 }
 ```
 
-`evaluate(taskId)` returns:
+See [docs/judge-protocol.md](docs/judge-protocol.md) for the judge schema.
 
-```js
-{ success, score, details, state }
+## UI-TARS Integration / UI-TARS 集成
+
+Real UI-TARS runs are optional and environment-specific. Do not commit private
+connection details, deployment notes, credentials, browser storage, or raw model
+logs.
+
+真实 UI-TARS 运行是可选能力，并且依赖本地/远端环境。不要把私有连接信息、部署
+细节、凭证、浏览器存储或原始模型日志写进提交内容。
+
+Use local environment variables or local-only configuration for integration
+runs. Keep public examples generic, and put setup guidance in
+[docs/environment.md](docs/environment.md).
+
+## Evidence Map / 证据地图
+
+| Artifact | Purpose |
+|---|---|
+| [docs/benchmark-report-2026-05-25-expanded-real-round.md](docs/benchmark-report-2026-05-25-expanded-real-round.md) | Report narrative and primitive-level analysis |
+| [experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json](experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json) | Machine-readable 10-task summary |
+| [experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json](experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json) | Failure-code mapping with task evidence |
+| `experiments/2026-05-24-uitars-expanded-real-round/step-traces/<task-id>.json` | Derived timeline attribution per task |
+| `experiments/2026-05-24-uitars-expanded-real-round/tasks/<task-id>/real-run/` | Per-task capture bundle |
+| [artifacts/finish-gate/2026-05-25-expanded-real-round.json](artifacts/finish-gate/2026-05-25-expanded-real-round.json) | Local plus integration readiness result |
+
+Per-task capture bundles contain:
+
+```text
+capture.json
+trace.json
+run-export.json
 ```
 
-See `docs/judge-protocol.md` for the full schema.
+## Project Layout / 项目结构
 
----
+```text
+public/       browser benchmark UI and task definitions
+src/          judge, run, preflight, trace, and finish-gate modules
+scripts/      CLI runners and validators
+docs/         reports, schemas, and setup notes
+experiments/  captured benchmark rounds and evidence bundles
+artifacts/    generated readiness reports
+.github/      GitHub Actions validation workflow
+```
 
-## Trace Import
+## Trace Import / Trace 导入
 
-The Import control accepts existing run exports and external trace payloads:
+The benchmark UI can import existing run exports and external trace payloads:
 
 ```json
 {
@@ -353,27 +230,18 @@ Supported formats:
 - JSONL where each non-empty line is one complete trace object
 - existing `{ "runs": [ ... ] }` exports
 
----
+## Next Steps / 下一步
 
-## Evidence Limitations / 证据限制
+1. Add a scripted oracle baseline to prove all deterministic tasks are solvable.
+2. Preserve raw UI-TARS action traces and referenced screenshots for real runs.
+3. Repeat the expanded 10-task round and report variance.
+4. Generate a visual dashboard or GIF from existing evidence artifacts.
 
-The expanded step traces are **derived timeline attributions**. They link
-preflight reports, operator prompts, final capture state, benchmark evaluation,
-and the finish gate, but they are not raw UI-TARS action transcripts.
+## Further Reading / 延伸阅读
 
-Raw UI-TARS action-level logs, screenshots, browser private storage, and
-model-internal logs were not captured for the expanded round. Future repeated
-rounds should preserve raw UI-TARS action traces before making timing,
-action-count, or low-level policy claims.
-
----
-
-## Related Reports
-
-- `docs/benchmark-report-2026-05-23.md`
-- `docs/benchmark-report-2026-05-24-repeated-baseline.md`
-- `docs/benchmark-report-2026-05-25-expanded-real-round.md`
-- `docs/failure-taxonomy.md`
-- `docs/repeated-baseline.md`
-- `docs/step-trace-schema.md`
-- `docs/raw-uitars-trace-schema.md`
+- [Expanded real round report](docs/benchmark-report-2026-05-25-expanded-real-round.md)
+- [Repeated baseline report](docs/benchmark-report-2026-05-24-repeated-baseline.md)
+- [Failure taxonomy](docs/failure-taxonomy.md)
+- [Step trace schema](docs/step-trace-schema.md)
+- [Raw UI-TARS trace schema](docs/raw-uitars-trace-schema.md)
+- [Environment setup](docs/environment.md)
