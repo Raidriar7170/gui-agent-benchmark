@@ -1,0 +1,14 @@
+Task: Submit onboarding request
+
+Create an onboarding request for Maya Ortiz using maya.ortiz@example.com, role Designer, start date 2026-06-15, and notes that include Figma access. Submit the request.
+
+Start URL: http://127.0.0.1:4173/?task=onboarding-form
+Max steps: 12
+
+Success criteria:
+- form is submitted
+- full name is Maya Ortiz
+- email is maya.ortiz@example.com
+- role is Designer
+- start date is 2026-06-15
+- notes mention Figma access

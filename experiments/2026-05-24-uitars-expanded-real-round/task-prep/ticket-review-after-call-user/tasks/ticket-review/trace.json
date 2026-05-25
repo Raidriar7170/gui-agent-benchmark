@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260524053140-ticket-review",
+  "taskId": "ticket-review",
+  "taskTitle": "Review priority support ticket",
+  "startedAt": "2026-05-24T05:31:40.209Z",
+  "events": [
+    {
+      "timestamp": "2026-05-24T05:31:40.314Z",
+      "type": "target_prepare",
+      "label": "Target prepare ready",
+      "target": "ticket-review",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "ready",
+        "reason": "Benchmark target is already prepared for the requested task URL.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+      }
+    },
+    {
+      "timestamp": "2026-05-24T05:31:40.397Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "ticket-review",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+      }
+    }
+  ]
+}

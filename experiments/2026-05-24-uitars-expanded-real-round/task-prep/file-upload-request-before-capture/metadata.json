@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-25T02:57:15.556Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/file-upload-request-before-capture",
+  "options": {
+    "tasks": "file-upload-request",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "file-upload-request",
+      "title": "Attach compliance evidence",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=file-upload-request",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/file-upload-request/prompt.txt",
+        "targetPrepare": "tasks/file-upload-request/target-prepare.json",
+        "preflightDryRun": "tasks/file-upload-request/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/file-upload-request/trace.json",
+        "runExport": "tasks/file-upload-request/run-export.json"
+      }
+    }
+  ]
+}

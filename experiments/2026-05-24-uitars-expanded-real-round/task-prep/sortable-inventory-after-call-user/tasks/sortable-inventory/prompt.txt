@@ -1,0 +1,12 @@
+Task: Select highest-risk inventory
+
+Sort the inventory table by risk descending, then select the Battery Pack Recall Kit.
+
+Start URL: http://127.0.0.1:4173/?task=sortable-inventory
+Max steps: 10
+
+Success criteria:
+- inventory is sorted by risk
+- risk sort is descending
+- selected SKU is BATT-88
+- selected item has risk 9

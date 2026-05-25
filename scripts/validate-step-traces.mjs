@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import {
   STEP_TRACE_SCHEMA_VERSION,
+  validateReconstructedStepTraceEvidence,
   summarizeStepTrace,
   validateStepTrace,
   validateTimelineTaxonomyLinks
@@ -71,37 +72,107 @@ assert(
   'validator should reject non-contiguous step indexes'
 );
 
-const experimentDir = 'experiments/2026-05-23-uitars-real-e2e';
-const tracesDir = join(experimentDir, 'step-traces');
-const taxonomyPath = join(experimentDir, 'failure-taxonomy.json');
-
-const traceFiles = (await readdir(tracesDir)).filter((file) => file.endsWith('.json')).sort();
-assert(traceFiles.length === 4, 'real round should contain exactly four step trace files');
-
-const traces = [];
-for (const file of traceFiles) {
-  const path = join(tracesDir, file);
-  const trace = await readJson(path);
-  const traceErrors = validateStepTrace(trace);
-  for (const error of traceErrors) errors.push(`${path}: ${error}`);
-  traces.push(trace);
-
-  const summary = summarizeStepTrace(trace);
-  assert(summary.stepCount >= 5, `${path} should have at least five timeline steps`);
-  assert(summary.failureCodes.includes(trace.final.primaryFailureCode), `${path} summary should include the primary failure code`);
-  assert(summary.evidenceKinds.length > 0, `${path} summary should expose evidence kinds`);
-}
-
-const taskIds = traces.map((trace) => trace.taskId).sort();
+const validReconstructedTrace = structuredClone(validTrace);
+validReconstructedTrace.evidenceLimitations = [
+  'Raw UI-TARS action transcript was not captured; this trace is derived from final capture and preflight artifacts.'
+];
 assert(
-  taskIds.join(',') === 'catalog-filter,onboarding-form,settings-toggle,ticket-review',
-  `unexpected trace task ids: ${taskIds.join(',')}`
+  validateReconstructedStepTraceEvidence(validReconstructedTrace).length === 0,
+  'reconstructed trace policy should accept explicit raw transcript limitations'
 );
 
-const taxonomy = await readJson(taxonomyPath);
-for (const error of validateTimelineTaxonomyLinks({ taxonomy, traces })) {
-  errors.push(`${taxonomyPath}: ${error}`);
+const invalidReconstructedTrace = structuredClone(validReconstructedTrace);
+invalidReconstructedTrace.evidenceLimitations = ['Synthetic fixture.'];
+invalidReconstructedTrace.steps[0].evidence.kind = 'transcript_observation';
+const reconstructedErrors = validateReconstructedStepTraceEvidence(invalidReconstructedTrace);
+assert(
+  reconstructedErrors.some((error) => error.includes('raw UI-TARS action transcript')),
+  'reconstructed trace policy should require raw transcript limitation text'
+);
+assert(
+  reconstructedErrors.some((error) => error.includes('transcript_observation')),
+  'reconstructed trace policy should reject transcript_observation evidence'
+);
+
+async function validateExperiment({
+  experimentDir,
+  expectedTaskIds,
+  expectedTraceCount,
+  enforceReconstructedEvidencePolicy = false
+}) {
+  const tracesDir = join(experimentDir, 'step-traces');
+  const taxonomyPath = join(experimentDir, 'failure-taxonomy.json');
+
+  let traceFiles = [];
+  try {
+    traceFiles = (await readdir(tracesDir)).filter((file) => file.endsWith('.json')).sort();
+  } catch (error) {
+    errors.push(`${tracesDir}: ${error.message}`);
+    return 0;
+  }
+  assert(traceFiles.length === expectedTraceCount, `${experimentDir} should contain exactly ${expectedTraceCount} step trace files`);
+
+  const traces = [];
+  for (const file of traceFiles) {
+    const path = join(tracesDir, file);
+    const trace = await readJson(path);
+    const traceErrors = validateStepTrace(trace);
+    for (const error of traceErrors) errors.push(`${path}: ${error}`);
+    if (enforceReconstructedEvidencePolicy) {
+      for (const error of validateReconstructedStepTraceEvidence(trace)) {
+        errors.push(`${path}: ${error}`);
+      }
+    }
+    traces.push(trace);
+
+    const summary = summarizeStepTrace(trace);
+    assert(summary.stepCount >= 5, `${path} should have at least five timeline steps`);
+    assert(summary.failureCodes.includes(trace.final.primaryFailureCode), `${path} summary should include the primary failure code`);
+    assert(summary.evidenceKinds.length > 0, `${path} summary should expose evidence kinds`);
+  }
+
+  const taskIds = traces.map((trace) => trace.taskId).sort();
+  assert(
+    taskIds.join(',') === expectedTaskIds.sort().join(','),
+    `${experimentDir} unexpected trace task ids: ${taskIds.join(',')}`
+  );
+
+  let taxonomy;
+  try {
+    taxonomy = await readJson(taxonomyPath);
+  } catch (error) {
+    errors.push(`${taxonomyPath}: ${error.message}`);
+    return traces.length;
+  }
+  for (const error of validateTimelineTaxonomyLinks({ taxonomy, traces, experimentDir })) {
+    errors.push(`${taxonomyPath}: ${error}`);
+  }
+  return traces.length;
 }
+
+const validatedTraceCount = await validateExperiment({
+  experimentDir: 'experiments/2026-05-23-uitars-real-e2e',
+  expectedTaskIds: ['catalog-filter', 'onboarding-form', 'settings-toggle', 'ticket-review'],
+  expectedTraceCount: 4
+});
+
+const expandedTraceCount = await validateExperiment({
+  experimentDir: 'experiments/2026-05-24-uitars-expanded-real-round',
+  expectedTaskIds: [
+    'onboarding-form',
+    'catalog-filter',
+    'settings-toggle',
+    'ticket-review',
+    'modal-confirmation',
+    'pagination-review',
+    'sortable-inventory',
+    'multi-select-approvals',
+    'validation-error-recovery',
+    'file-upload-request'
+  ],
+  expectedTraceCount: 10,
+  enforceReconstructedEvidencePolicy: true
+});
 
 if (errors.length > 0) {
   console.error('Step trace validation failed:');
@@ -109,4 +180,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Step trace validation passed: ${traceFiles.length} traces linked to failure taxonomy.`);
+console.log(`Step trace validation passed: ${validatedTraceCount + expandedTraceCount} traces linked to failure taxonomy.`);

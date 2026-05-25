@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:32:02.521Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/ticket-review-before-capture",
+  "options": {
+    "tasks": "ticket-review",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/ticket-review/prompt.txt",
+        "targetPrepare": "tasks/ticket-review/target-prepare.json",
+        "preflightDryRun": "tasks/ticket-review/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/ticket-review/trace.json",
+        "runExport": "tasks/ticket-review/run-export.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Task: Confirm access request
+
+Open the confirmation dialog for request REQ-77 and confirm it.
+
+Start URL: http://127.0.0.1:4173/?task=modal-confirmation
+Max steps: 8
+
+Success criteria:
+- request REQ-77 is selected
+- confirmation dialog was opened
+- request is confirmed

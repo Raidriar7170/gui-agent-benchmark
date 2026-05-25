@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T05:46:19.335Z",
+  "status": "ready",
+  "reason": "Benchmark target is already prepared for the requested task URL.",
+  "mode": {
+    "fix": true,
+    "prepareTarget": true,
+    "isolateTarget": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=validation-error-recovery",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:52135/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [],
+  "targetsBefore": [
+    {
+      "id": "6738151C96707FFC2B770BC7640E233A",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=validation-error-recovery"
+    },
+    {
+      "id": "4C638BC86FDA10E1406032DE30B0E203",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [],
+  "warnings": []
+}

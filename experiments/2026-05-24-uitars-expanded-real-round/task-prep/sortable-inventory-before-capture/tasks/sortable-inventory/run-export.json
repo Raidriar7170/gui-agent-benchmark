@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:41:10.012Z",
+  "runs": [
+    {
+      "id": "harness-20260524054109-sortable-inventory",
+      "taskId": "sortable-inventory",
+      "taskTitle": "Select highest-risk inventory",
+      "startedAt": "2026-05-24T05:41:09.825Z",
+      "endedAt": null,
+      "durationMs": 184,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:41:09.927Z",
+          "type": "target_prepare",
+          "label": "Target prepare ready",
+          "target": "sortable-inventory",
+          "path": null,
+          "value": {
+            "prepareStatus": "ready",
+            "reason": "Benchmark target is already prepared for the requested task URL.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=sortable-inventory"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:41:10.009Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "sortable-inventory",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=sortable-inventory"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

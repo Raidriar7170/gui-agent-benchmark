@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:48:02.199Z",
+  "runs": [
+    {
+      "id": "harness-20260524054802-validation-error-recovery",
+      "taskId": "validation-error-recovery",
+      "taskTitle": "Recover from validation error",
+      "startedAt": "2026-05-24T05:48:02.008Z",
+      "endedAt": null,
+      "durationMs": 188,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:48:02.109Z",
+          "type": "target_prepare",
+          "label": "Target prepare ready",
+          "target": "validation-error-recovery",
+          "path": null,
+          "value": {
+            "prepareStatus": "ready",
+            "reason": "Benchmark target is already prepared for the requested task URL.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=validation-error-recovery"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:48:02.196Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "validation-error-recovery",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=validation-error-recovery"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

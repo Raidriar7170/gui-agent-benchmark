@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:25:24.681Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/catalog-filter-after-call-user",
+  "options": {
+    "tasks": "catalog-filter",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=catalog-filter",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/catalog-filter/prompt.txt",
+        "targetPrepare": "tasks/catalog-filter/target-prepare.json",
+        "preflightDryRun": "tasks/catalog-filter/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/catalog-filter/trace.json",
+        "runExport": "tasks/catalog-filter/run-export.json"
+      }
+    }
+  ]
+}

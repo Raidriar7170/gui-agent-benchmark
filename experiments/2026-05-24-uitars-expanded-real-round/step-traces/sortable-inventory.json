@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "sortable-inventory",
+  "taskTitle": "Select highest-risk inventory",
+  "artifactBase": "experiments/2026-05-24-uitars-expanded-real-round",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, preflight reports, final capture state, and operator-authored prompts.",
+    "Raw UI-TARS action transcript, screenshots, browser private storage, and model-internal logs were not captured for this expanded round.",
+    "Intermediate action steps therefore use capture_final_state, preflight_report, operator_note-compatible prompt artifacts, and derived attribution rather than transcript_observation evidence."
+  ],
+  "steps": [
+    {
+      "id": "sortable-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate artifact is linked for this expanded round, including local validation, smoke, tunnel, and remote checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-25-expanded-real-round.json"
+        ]
+      }
+    },
+    {
+      "id": "sortable-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded initial prompt for sortable-inventory; non-benchmark pages required call_user() before proceeding.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "sortable-s03-target-preflight",
+      "index": 3,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind_or_prepare",
+      "summary": "Preflight and preparation artifacts document the benchmark target repair/isolation path before capture.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/sortable-inventory-after-call-user/metadata.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/sortable-inventory-before-capture/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "sortable-s04-continue-prompt",
+      "index": 4,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent continuation prompt once the sortable-inventory benchmark page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "sortable-s03-target-preflight"
+      ]
+    },
+    {
+      "id": "sortable-s05-progress",
+      "index": 5,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "no_task_state_progress",
+      "summary": "Final capture confirms the sortable-inventory task page was active. No judge criteria passed before capture.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "inventory.sortKey": "",
+        "inventory.sortDirection": "asc",
+        "inventory.selectedSku": "",
+        "expectedSku": "BATT-88"
+      }
+    },
+    {
+      "id": "sortable-s06-missing-state",
+      "index": 6,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "required_state_missing",
+      "summary": "sortKey stayed empty, sortDirection stayed asc, and selectedSku stayed empty.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "inventory.sortKey": "",
+        "inventory.sortDirection": "asc",
+        "inventory.selectedSku": "",
+        "expectedSku": "BATT-88"
+      },
+      "relatedStepIds": [
+        "sortable-s05-progress"
+      ]
+    },
+    {
+      "id": "sortable-s07-capture",
+      "index": 7,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for sortable-inventory.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "sortable-s08-evaluation",
+      "index": 8,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0; success was false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0,
+        "passedCriteria": [],
+        "failedCriteria": [
+          "inventory is sorted by risk",
+          "risk sort is descending",
+          "selected SKU is BATT-88",
+          "selected item has risk 9"
+        ]
+      }
+    },
+    {
+      "id": "sortable-s09-failure",
+      "index": 9,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is sort commit: the model did not commit the risk-descending sort before selecting the target item.",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "sortable-s05-progress",
+          "sortable-s06-missing-state",
+          "sortable-s08-evaluation"
+        ]
+      },
+      "failureCode": "ACT-SORT-COMMIT-MISS",
+      "relatedStepIds": [
+        "sortable-s05-progress",
+        "sortable-s06-missing-state",
+        "sortable-s08-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0,
+    "primaryFailureCode": "ACT-SORT-COMMIT-MISS",
+    "failedCriteria": [
+      "inventory is sorted by risk",
+      "risk sort is descending",
+      "selected SKU is BATT-88",
+      "selected item has risk 9"
+    ]
+  }
+}

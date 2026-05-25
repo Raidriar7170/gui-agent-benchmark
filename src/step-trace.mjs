@@ -31,6 +31,15 @@ const allowedEvidenceKinds = new Set([
   'derived'
 ]);
 
+const reconstructedEvidenceKinds = new Set([
+  'artifact',
+  'capture_final_state',
+  'operator_note',
+  'preflight_report',
+  'finish_gate',
+  'derived'
+]);
+
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
@@ -121,6 +130,37 @@ export function validateStepTrace(trace) {
   return errors;
 }
 
+export function validateReconstructedStepTraceEvidence(trace) {
+  const errors = [];
+  pushIf(errors, !isPlainObject(trace), 'trace must be an object');
+  if (!isPlainObject(trace)) return errors;
+
+  const limitations = Array.isArray(trace.evidenceLimitations)
+    ? trace.evidenceLimitations.join(' ')
+    : '';
+  pushIf(
+    errors,
+    !/raw UI-TARS action transcript/i.test(limitations),
+    'evidenceLimitations must explicitly state that raw UI-TARS action transcript evidence is missing'
+  );
+  pushIf(
+    errors,
+    !/(not captured|were not captured|was not captured|not raw|derived|reconstructed)/i.test(limitations),
+    'evidenceLimitations must identify reconstructed or non-raw evidence'
+  );
+
+  if (Array.isArray(trace.steps)) {
+    trace.steps.forEach((step, index) => {
+      const kind = step?.evidence?.kind;
+      if (!reconstructedEvidenceKinds.has(kind)) {
+        errors.push(`steps[${index}].evidence.kind cannot be ${kind} for reconstructed step traces`);
+      }
+    });
+  }
+
+  return errors;
+}
+
 export function summarizeStepTrace(trace) {
   const steps = Array.isArray(trace?.steps) ? trace.steps : [];
   const failureCodes = [...new Set(steps
@@ -140,7 +180,7 @@ export function summarizeStepTrace(trace) {
   };
 }
 
-export function validateTimelineTaxonomyLinks({ taxonomy, traces }) {
+export function validateTimelineTaxonomyLinks({ taxonomy, traces, experimentDir = 'experiments/2026-05-23-uitars-real-e2e' }) {
   const errors = [];
   pushIf(errors, !isPlainObject(taxonomy), 'taxonomy must be an object');
   if (!isPlainObject(taxonomy)) return errors;
@@ -163,7 +203,7 @@ export function validateTimelineTaxonomyLinks({ taxonomy, traces }) {
         pushIf(errors, !stepIds.has(stepId), `${label}.timelineAttribution references missing step ${stepId}`);
       }
     }
-    pushIf(errors, task.timelineAttribution.tracePath !== `experiments/2026-05-23-uitars-real-e2e/step-traces/${task.id}.json`, `${label}.timelineAttribution.tracePath must point to the task step trace`);
+    pushIf(errors, task.timelineAttribution.tracePath !== `${experimentDir}/step-traces/${task.id}.json`, `${label}.timelineAttribution.tracePath must point to the task step trace`);
     pushIf(errors, trace.final.primaryFailureCode !== task.primaryCode, `${label} primaryCode must match trace final.primaryFailureCode`);
     const failureStepCodes = new Set(trace.steps
       .filter((step) => step.phase === 'failure' || step.type === 'failure_attribution')

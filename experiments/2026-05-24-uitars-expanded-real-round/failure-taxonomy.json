@@ -1,0 +1,432 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-expanded-real-round-failure-taxonomy",
+  "createdAt": "2026-05-25T02:58:35.335Z",
+  "taxonomy": {
+    "version": "2026-05-25-expanded-real-round",
+    "path": "docs/failure-taxonomy.md"
+  },
+  "environment": {
+    "status": "valid",
+    "finishGateReport": "artifacts/finish-gate/2026-05-25-expanded-real-round.json",
+    "tunnel": {
+      "localEndpoint": "http://127.0.0.1:18001",
+      "remoteProxyPort": 8001,
+      "remoteDirectVllmPort": 8000
+    },
+    "targetBinding": {
+      "preflightRequired": true,
+      "mitigations": [
+        "BIND-EMPTY-TARGET",
+        "BIND-ACTIVE-TARGET-MISMATCH",
+        "BIND-STALE-CHILD-CHROME",
+        "BIND-CHROME-ERROR-PAGE"
+      ]
+    }
+  },
+  "evidenceLimitations": [
+    "Expanded step traces are timeline attributions derived from artifacts, not raw UI-TARS action transcripts.",
+    "Raw UI-TARS action-level logs should be preserved in a future repeated round before making timing or action-count claims."
+  ],
+  "round": {
+    "summaryPath": "experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json",
+    "totalTasks": 10,
+    "capturedTasks": 10,
+    "successTasks": 0,
+    "averageScore": 0.206,
+    "reportPath": "docs/benchmark-report-2026-05-25-expanded-real-round.md"
+  },
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/onboarding-form/real-run/capture.json",
+      "score": 0.33,
+      "success": false,
+      "primaryCode": "ACT-TEXT-ENTRY-STALL",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/onboarding-form.json",
+        "primaryEvidenceStepIds": [
+          "onboarding-s05-progress",
+          "onboarding-s06-missing-state",
+          "onboarding-s09-failure"
+        ],
+        "timelineSummary": "Name and email were entered, but role/date/notes and submit remained incomplete."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "full name is Maya Ortiz",
+          "email is maya.ortiz@example.com"
+        ],
+        "failedCriteria": [
+          "form is submitted",
+          "role is Designer",
+          "start date is 2026-06-15",
+          "notes mention Figma access"
+        ],
+        "finalState": {
+          "form.fullName": "Maya Ortiz",
+          "form.email": "maya.ortiz@example.com",
+          "form.role": "",
+          "form.startDate": "",
+          "form.notes": "",
+          "form.submitted": false
+        },
+        "interpretation": "Primary failure is text-entry continuation: the model began the form but did not continue through all required fields and submit."
+      }
+    },
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-SELECTION-COMMIT-MISS",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/catalog-filter.json",
+        "primaryEvidenceStepIds": [
+          "catalog-s05-progress",
+          "catalog-s06-missing-state",
+          "catalog-s09-failure"
+        ],
+        "timelineSummary": "Search text was entered, but product filters and the requested item selection were not committed."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "selected SKU is ERGO-27",
+          "selected product is in stock",
+          "selected product category is office",
+          "selected product rating is at least 4.5"
+        ],
+        "finalState": {
+          "catalog.search": "office",
+          "catalog.category": "all",
+          "catalog.minRating": 0,
+          "catalog.inStockOnly": false,
+          "catalog.selectedSku": ""
+        },
+        "interpretation": "Primary failure is selection commit: the model changed visible search state but did not commit the target catalog item."
+      }
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/settings-toggle/real-run/capture.json",
+      "score": 0.75,
+      "success": false,
+      "primaryCode": "ACT-DROPDOWN-VALUE-MISS",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/settings-toggle.json",
+        "primaryEvidenceStepIds": [
+          "settings-s05-progress",
+          "settings-s06-missing-state",
+          "settings-s09-failure"
+        ],
+        "timelineSummary": "Boolean settings were changed correctly, while timezone stayed at UTC."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "weekly email digest is enabled",
+          "autosave remains enabled",
+          "product analytics sharing is disabled"
+        ],
+        "failedCriteria": [
+          "timezone is America/New_York"
+        ],
+        "finalState": {
+          "settings.weeklyDigest": true,
+          "settings.autosave": true,
+          "settings.dataSharing": false,
+          "settings.timezone": "UTC",
+          "expectedTimezone": "America/New_York"
+        },
+        "interpretation": "Primary failure is dropdown value commit: toggle primitives succeeded while the timezone dropdown did not change."
+      }
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/ticket-review/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-TABLE-SEARCH-LOOP",
+      "secondaryCodes": [
+        "ACT-SELECTION-COMMIT-MISS"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/ticket-review.json",
+        "primaryEvidenceStepIds": [
+          "ticket-s05-progress",
+          "ticket-s06-missing-state",
+          "ticket-s09-failure"
+        ],
+        "timelineSummary": "The ticket queue remained unqueried, unselected, and unreviewed."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "table query identifies Priya Shah or INC-2048",
+          "INC-2048 is selected",
+          "INC-2048 is marked reviewed"
+        ],
+        "finalState": {
+          "table.query": "",
+          "table.selectedTicketId": "",
+          "tickets.INC-2048.reviewed": false
+        },
+        "interpretation": "Primary failure is table search/list loop: the model did not turn the target ticket instruction into committed table state."
+      }
+    },
+    {
+      "id": "modal-confirmation",
+      "title": "Confirm access request",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/modal-confirmation/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-MODAL-CONFIRMATION-MISS",
+      "secondaryCodes": [
+        "ACT-SELECTION-COMMIT-MISS"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/modal-confirmation.json",
+        "primaryEvidenceStepIds": [
+          "modal-s05-progress",
+          "modal-s06-missing-state",
+          "modal-s09-failure"
+        ],
+        "timelineSummary": "The request was not selected and the confirmation dialog sequence did not begin."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "request REQ-77 is selected",
+          "confirmation dialog was opened",
+          "request is confirmed"
+        ],
+        "finalState": {
+          "modal.selectedRequestId": "",
+          "modal.dialogOpened": false,
+          "modal.confirmed": false,
+          "expectedRequestId": "REQ-77"
+        },
+        "interpretation": "Primary failure is modal confirmation: the model did not open and confirm the requested dialog flow."
+      }
+    },
+    {
+      "id": "pagination-review",
+      "title": "Review paginated invoice",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/capture.json",
+      "score": 0.33,
+      "success": false,
+      "primaryCode": "ACT-PAGINATION-NAV-MISS",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/pagination-review.json",
+        "primaryEvidenceStepIds": [
+          "pagination-s05-progress",
+          "pagination-s06-missing-state",
+          "pagination-s09-failure"
+        ],
+        "timelineSummary": "The invoice existed in the app data, but the page stayed at 1 and no invoice was reviewed."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "invoice INV-203 exists"
+        ],
+        "failedCriteria": [
+          "pagination is on page 2",
+          "invoice INV-203 is reviewed"
+        ],
+        "finalState": {
+          "pagination.page": 1,
+          "pagination.reviewedIds": [],
+          "expectedPage": 2,
+          "expectedReviewedId": "INV-203"
+        },
+        "interpretation": "Primary failure is pagination navigation: the model did not navigate to the required page before the row action."
+      }
+    },
+    {
+      "id": "sortable-inventory",
+      "title": "Select highest-risk inventory",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-SORT-COMMIT-MISS",
+      "secondaryCodes": [
+        "ACT-SELECTION-COMMIT-MISS"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/sortable-inventory.json",
+        "primaryEvidenceStepIds": [
+          "sortable-s05-progress",
+          "sortable-s06-missing-state",
+          "sortable-s09-failure"
+        ],
+        "timelineSummary": "Risk sort stayed default and the target inventory SKU was not selected."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "inventory is sorted by risk",
+          "risk sort is descending",
+          "selected SKU is BATT-88",
+          "selected item has risk 9"
+        ],
+        "finalState": {
+          "inventory.sortKey": "",
+          "inventory.sortDirection": "asc",
+          "inventory.selectedSku": "",
+          "expectedSku": "BATT-88"
+        },
+        "interpretation": "Primary failure is sort commit: the model did not commit the risk-descending sort before selecting the target item."
+      }
+    },
+    {
+      "id": "multi-select-approvals",
+      "title": "Submit multiple approvals",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/multi-select-approvals/real-run/capture.json",
+      "score": 0,
+      "success": false,
+      "primaryCode": "ACT-MULTI-SELECT-MISS",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/multi-select-approvals.json",
+        "primaryEvidenceStepIds": [
+          "multiselect-s05-progress",
+          "multiselect-s06-missing-state",
+          "multiselect-s09-failure"
+        ],
+        "timelineSummary": "No requested approvals were selected and the approval set was not submitted."
+      },
+      "evidence": {
+        "passedCriteria": [],
+        "failedCriteria": [
+          "APR-102 is selected",
+          "APR-205 is selected",
+          "only requested approvals are selected",
+          "approvals are submitted"
+        ],
+        "finalState": {
+          "approvals.selectedIds": [],
+          "approvals.submitted": false,
+          "expectedIds": [
+            "APR-102",
+            "APR-205"
+          ]
+        },
+        "interpretation": "Primary failure is multi-select commit: the model did not select the requested pair and submit the set."
+      }
+    },
+    {
+      "id": "validation-error-recovery",
+      "title": "Recover from validation error",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/capture.json",
+      "score": 0.4,
+      "success": false,
+      "primaryCode": "ACT-VALIDATION-RECOVERY-PARTIAL",
+      "secondaryCodes": [
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/validation-error-recovery.json",
+        "primaryEvidenceStepIds": [
+          "validation-s05-progress",
+          "validation-s06-missing-state",
+          "validation-s09-failure"
+        ],
+        "timelineSummary": "Validation was triggered and title was filled, but owner/date/submit remained incomplete."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "validation error was shown before successful submit",
+          "title is Quarterly access review"
+        ],
+        "failedCriteria": [
+          "owner is Morgan Lee",
+          "due date is 2026-06-30",
+          "validation form is submitted"
+        ],
+        "finalState": {
+          "validation.errorShown": true,
+          "validation.title": "Quarterly access review",
+          "validation.owner": "",
+          "validation.dueDate": "",
+          "validation.submitted": false
+        },
+        "interpretation": "Primary failure is validation recovery: the model handled the first part of the recovery flow but did not complete the required fields and submit."
+      }
+    },
+    {
+      "id": "file-upload-request",
+      "title": "Attach compliance evidence",
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/capture.json",
+      "score": 0.25,
+      "success": false,
+      "primaryCode": "ACT-DROPDOWN-VALUE-MISS",
+      "secondaryCodes": [
+        "ACT-FILE-UPLOAD-MISS",
+        "TASK-PARTIAL-PLAN"
+      ],
+      "timelineAttribution": {
+        "tracePath": "experiments/2026-05-24-uitars-expanded-real-round/step-traces/file-upload-request.json",
+        "primaryEvidenceStepIds": [
+          "upload-s05-progress",
+          "upload-s06-missing-state",
+          "upload-s09-failure"
+        ],
+        "timelineSummary": "The file was attached, but category, description, and submit remained incomplete."
+      },
+      "evidence": {
+        "passedCriteria": [
+          "security-audit.pdf is attached"
+        ],
+        "failedCriteria": [
+          "category is Compliance",
+          "description mentions Q2 security audit evidence",
+          "upload request is submitted"
+        ],
+        "finalState": {
+          "upload.selectedFile": "security-audit.pdf",
+          "upload.category": "",
+          "upload.description": "",
+          "upload.submitted": false,
+          "expectedCategory": "Compliance"
+        },
+        "interpretation": "Primary failure is dropdown/upload workflow completion: file attachment succeeded but the category dropdown and remaining submit path did not."
+      }
+    }
+  ],
+  "counts": {
+    "primary": {
+      "ACT-TEXT-ENTRY-STALL": 1,
+      "ACT-SELECTION-COMMIT-MISS": 1,
+      "ACT-DROPDOWN-VALUE-MISS": 2,
+      "ACT-TABLE-SEARCH-LOOP": 1,
+      "ACT-MODAL-CONFIRMATION-MISS": 1,
+      "ACT-PAGINATION-NAV-MISS": 1,
+      "ACT-SORT-COMMIT-MISS": 1,
+      "ACT-MULTI-SELECT-MISS": 1,
+      "ACT-VALIDATION-RECOVERY-PARTIAL": 1
+    },
+    "secondary": {
+      "TASK-PARTIAL-PLAN": 7,
+      "ACT-SELECTION-COMMIT-MISS": 3,
+      "ACT-FILE-UPLOAD-MISS": 1
+    }
+  }
+}

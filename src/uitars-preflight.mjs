@@ -126,14 +126,27 @@ function makeCdpUrl(endpoint, path) {
   return url;
 }
 
-async function fetchJson(url, { timeoutMs = 5000 } = {}) {
+async function fetchJson(url, { timeoutMs = 5000, method = 'GET' } = {}) {
   const timeout = timeoutSignal(timeoutMs);
   try {
-    const response = await fetch(url, { signal: timeout.signal });
+    const response = await fetch(url, { method, signal: timeout.signal });
     if (!response.ok) {
       throw new Error(`${url.pathname} returned HTTP ${response.status}`);
     }
     return await response.json();
+  } finally {
+    timeout.clear();
+  }
+}
+
+async function fetchText(url, { timeoutMs = 5000, method = 'GET' } = {}) {
+  const timeout = timeoutSignal(timeoutMs);
+  try {
+    const response = await fetch(url, { method, signal: timeout.signal });
+    if (!response.ok) {
+      throw new Error(`${url.pathname} returned HTTP ${response.status}`);
+    }
+    return await response.text();
   } finally {
     timeout.clear();
   }
@@ -276,21 +289,25 @@ function extractUserDataDir(command) {
   return null;
 }
 
-export async function discoverLocalUitarsCdpEndpoint() {
-  let stdout;
+async function readDevToolsActivePort(profileDir) {
+  return readFile(`${profileDir}/DevToolsActivePort`, 'utf8');
+}
+
+async function probeCdpEndpoint(endpoint, { timeoutMs = 2000 } = {}) {
   try {
-    ({ stdout } = await execFileAsync('ps', ['-axo', 'pid=,ppid=,command='], {
-      timeout: 5000,
-      maxBuffer: 1024 * 1024 * 8
-    }));
+    const cdpUrl = normalizeCdpEndpoint(endpoint);
+    await fetchJson(makeCdpUrl(cdpUrl, '/json/version'), { timeoutMs });
+    return { ok: true };
   } catch (error) {
     return {
-      status: 'blocked',
-      reason: `Unable to inspect local process tree: ${error.message}`
+      ok: false,
+      reason: sanitizeString(error instanceof Error ? error.message : String(error))
     };
   }
+}
 
-  const processes = parsePs(stdout);
+export async function resolveLocalUitarsCdpEndpointFromPs(options = {}) {
+  const processes = parsePs(options.psStdout || '');
   const processMap = new Map(processes.map((processInfo) => [processInfo.pid, processInfo]));
   const candidates = processes.filter((processInfo) => {
     const command = processInfo.command;
@@ -307,45 +324,88 @@ export async function discoverLocalUitarsCdpEndpoint() {
       reason: 'No UI-TARS child Chrome with a Puppeteer profile and remote-debugging-port=0 was found.'
     };
   }
-  if (candidates.length > 1) {
+
+  const readPort = options.readDevToolsActivePort || readDevToolsActivePort;
+  const probeEndpoint = options.probeCdpEndpoint || ((endpoint) => probeCdpEndpoint(endpoint, {
+    timeoutMs: options.probeTimeoutMs
+  }));
+  const liveCandidates = [];
+  const skippedReasons = [];
+
+  for (const candidate of candidates) {
+    const profileDir = extractUserDataDir(candidate.command);
+    if (!profileDir || !profileDir.includes('puppeteer_dev_chrome_profile')) {
+      skippedReasons.push(`pid ${candidate.pid}: no safe Puppeteer profile path`);
+      continue;
+    }
+
+    let portFile;
+    try {
+      portFile = await readPort(profileDir);
+    } catch {
+      skippedReasons.push(`pid ${candidate.pid}: no readable DevToolsActivePort file`);
+      continue;
+    }
+
+    const port = Number(String(portFile).split(/\r?\n/)[0]);
+    if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+      skippedReasons.push(`pid ${candidate.pid}: invalid DevToolsActivePort value`);
+      continue;
+    }
+
+    const endpoint = `http://127.0.0.1:${port}`;
+    const probe = await probeEndpoint(endpoint);
+    if (probe?.ok) {
+      liveCandidates.push({
+        pid: candidate.pid,
+        endpoint,
+        profileDir
+      });
+    } else {
+      skippedReasons.push(`pid ${candidate.pid}: ${sanitizeString(probe?.reason || 'CDP endpoint did not answer /json/version')}`);
+    }
+  }
+
+  if (liveCandidates.length === 0) {
+    return {
+      status: 'blocked',
+      reason: skippedReasons.length > 0
+        ? `No live UI-TARS child Chrome CDP endpoint was found. ${skippedReasons.join('; ')}.`
+        : 'No live UI-TARS child Chrome CDP endpoint was found.'
+    };
+  }
+  if (liveCandidates.length > 1) {
     return {
       status: 'ambiguous',
-      reason: `Found ${candidates.length} matching UI-TARS child Chrome processes. Provide --cdp-url explicitly.`
-    };
-  }
-
-  const profileDir = extractUserDataDir(candidates[0].command);
-  if (!profileDir || !profileDir.includes('puppeteer_dev_chrome_profile')) {
-    return {
-      status: 'blocked',
-      reason: 'Matching UI-TARS child Chrome did not expose a safe Puppeteer profile path.'
-    };
-  }
-
-  let portFile;
-  try {
-    portFile = await readFile(`${profileDir}/DevToolsActivePort`, 'utf8');
-  } catch {
-    return {
-      status: 'blocked',
-      reason: 'Matching UI-TARS child Chrome has no readable DevToolsActivePort file.'
-    };
-  }
-
-  const port = Number(portFile.split(/\r?\n/)[0]);
-  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-    return {
-      status: 'blocked',
-      reason: 'DevToolsActivePort did not contain a valid local port.'
+      reason: `Found ${liveCandidates.length} live matching UI-TARS child Chrome processes. Provide --cdp-url explicitly.`
     };
   }
 
   return {
     status: 'ready',
-    endpoint: `http://127.0.0.1:${port}`,
+    endpoint: liveCandidates[0].endpoint,
     source: 'discovered-local-uitars',
-    confidence: 'ui-tars-app-parent-chain'
+    confidence: candidates.length > 1
+      ? 'ui-tars-app-parent-chain-live-cdp-filtered'
+      : 'ui-tars-app-parent-chain'
   };
+}
+
+export async function discoverLocalUitarsCdpEndpoint() {
+  let stdout;
+  try {
+    ({ stdout } = await execFileAsync('ps', ['-axo', 'pid=,ppid=,command='], {
+      timeout: 5000,
+      maxBuffer: 1024 * 1024 * 8
+    }));
+  } catch (error) {
+    return {
+      status: 'blocked',
+      reason: `Unable to inspect local process tree: ${error.message}`
+    };
+  }
+
+  return resolveLocalUitarsCdpEndpointFromPs({ psStdout: stdout });
 }
 
 class CdpWebSocket {
@@ -656,6 +716,36 @@ async function navigateTarget(target, navigateTo, { allowRemoteCdp = false } = {
   }
 }
 
+async function createPageTarget(cdpUrl, navigateTo, { timeoutMs = 5000 } = {}) {
+  const url = makeCdpUrl(cdpUrl, '/json/new');
+  url.search = `?${encodeURIComponent(navigateTo instanceof URL ? navigateTo.href : String(navigateTo))}`;
+  return fetchJson(url, { timeoutMs, method: 'PUT' });
+}
+
+async function activateTarget(cdpUrl, target, { timeoutMs = 5000 } = {}) {
+  if (!target?.id) throw new Error('Target id is required for activation.');
+  await fetchText(makeCdpUrl(cdpUrl, `/json/activate/${encodeURIComponent(target.id)}`), { timeoutMs });
+}
+
+async function recordActivation(report, cdpUrl, target, options = {}) {
+  const action = {
+    action: 'Target.activateTarget',
+    status: 'pending',
+    candidateType: 'benchmark_app_keeper',
+    target: sanitizeTarget(target)
+  };
+  report.actions.push(action);
+  try {
+    await activateTarget(cdpUrl, target, { timeoutMs: options.timeoutMs });
+    action.status = 'ok';
+  } catch (error) {
+    action.status = 'error';
+    action.reason = sanitizeString(error.message);
+    report.warnings.push(`Exact benchmark target is visible, but activation failed: ${action.reason}`);
+  }
+  return action;
+}
+
 export async function captureBenchmarkBenchState(options = {}) {
   let benchmarkUrl;
   try {
@@ -840,9 +930,57 @@ export async function runUitarsPreflight(options = {}) {
       if (benchmarkTargets.length > 0) {
         report.status = 'ready';
         report.reason = 'Benchmark target is already present and no search page target needs correction.';
+      } else if (!fix) {
+        report.status = 'needs_fix';
+        report.reason = 'No benchmark target or supported search page target was found; --fix can create a benchmark target.';
+        report.actions = [{
+          action: 'Target.createTarget',
+          status: 'planned',
+          candidateType: 'new_target',
+          navigateTo: sanitizeUrl(benchmarkUrl.href)
+        }];
       } else {
-        report.status = 'blocked';
-        report.reason = 'No benchmark target or supported Google/Bing/Baidu search page target was found.';
+        const action = {
+          action: 'Target.createTarget',
+          status: 'pending',
+          candidateType: 'new_target',
+          navigateTo: sanitizeUrl(benchmarkUrl.href)
+        };
+        report.actions.push(action);
+        try {
+          const createdTarget = await createPageTarget(cdpUrl, benchmarkUrl.href, {
+            timeoutMs: options.timeoutMs
+          });
+          action.target = sanitizeTarget(createdTarget);
+          action.status = 'ok';
+        } catch (error) {
+          action.status = 'error';
+          action.reason = sanitizeString(error.message);
+        }
+
+        const afterPages = await fetchSettledPageTargetsAfterNavigation(cdpUrl, benchmarkUrl, {
+          timeoutMs: options.timeoutMs,
+          navigationSettleTimeoutMs: options.navigationSettleTimeoutMs,
+          navigationSettleIntervalMs: options.navigationSettleIntervalMs
+        });
+        report.targetsAfter = afterPages.map(sanitizeTarget);
+        const afterBenchmarkTargets = afterPages.filter((target) => isBenchmarkTarget(target, benchmarkUrl));
+        if (afterBenchmarkTargets.length === 1 && action.status === 'ok') {
+          await recordActivation(report, cdpUrl, afterBenchmarkTargets[0], {
+            timeoutMs: options.timeoutMs
+          });
+          report.status = 'fixed';
+          report.reason = 'Created and activated a benchmark target for the requested task URL.';
+        } else if (afterBenchmarkTargets.length > 1) {
+          report.status = 'ambiguous';
+          report.reason = `Preflight fix left ${afterBenchmarkTargets.length} benchmark page targets; multiple benchmark page targets prevent unique real capture. Use target isolation or manually clean up extra benchmark tabs.`;
+        } else if (action.status !== 'ok') {
+          report.status = 'error';
+          report.reason = 'Target creation failed.';
+        } else {
+          report.status = 'blocked';
+          report.reason = 'Target creation completed but no benchmark target was visible afterward.';
+        }
       }
       return report;
     }
@@ -1009,6 +1147,9 @@ export async function prepareUitarsTarget(options = {}) {
       ...searchTargets.map((target) => ({ target, kind: 'search', navigateTo: benchmarkUrl.href }))
     ];
 
+    const createTargetCandidate = pageTargets.length === 0
+      ? [{ target: null, kind: 'new_target', navigateTo: benchmarkUrl.href }]
+      : [];
     const isolateKeeperTarget = exactTargets[0] || wrongTaskTargets[0] || searchTargets[0] || null;
     const alreadyIsolated = exactTargets.length === 1 && benchmarkAppTargets.length === 1 && searchTargets.length === 0;
     const isolateCandidates = isolateKeeperTarget && !alreadyIsolated
@@ -1026,9 +1167,9 @@ export async function prepareUitarsTarget(options = {}) {
               navigateTo: 'about:blank'
             }))
         ]
-      : [];
+      : createTargetCandidate;
 
-    const candidates = isolateTarget ? isolateCandidates : defaultCandidates;
+    const candidates = isolateTarget ? isolateCandidates : [...createTargetCandidate, ...defaultCandidates];
 
     if (candidates.length === 0) {
       if (exactTargets.length > 0) {
@@ -1071,17 +1212,24 @@ export async function prepareUitarsTarget(options = {}) {
 
     for (const candidate of candidates) {
       const action = {
-        action: 'Page.navigate',
+        action: candidate.kind === 'new_target' ? 'Target.createTarget' : 'Page.navigate',
         status: 'pending',
         candidateType: candidate.kind,
-        target: sanitizeTarget(candidate.target),
         navigateTo: sanitizeUrl(candidate.navigateTo)
       };
+      if (candidate.target) action.target = sanitizeTarget(candidate.target);
       report.actions.push(action);
 
       try {
-        if (!candidate.target.webSocketDebuggerUrl) throw new Error('Target does not expose a CDP WebSocket URL.');
-        await navigateTarget(candidate.target, candidate.navigateTo, { allowRemoteCdp: options.allowRemoteCdp });
+        if (candidate.kind === 'new_target') {
+          const createdTarget = await createPageTarget(cdpUrl, candidate.navigateTo, {
+            timeoutMs: options.timeoutMs
+          });
+          action.target = sanitizeTarget(createdTarget);
+        } else {
+          if (!candidate.target.webSocketDebuggerUrl) throw new Error('Target does not expose a CDP WebSocket URL.');
+          await navigateTarget(candidate.target, candidate.navigateTo, { allowRemoteCdp: options.allowRemoteCdp });
+        }
         action.status = 'ok';
       } catch (error) {
         action.status = 'error';
@@ -1103,10 +1251,14 @@ export async function prepareUitarsTarget(options = {}) {
       report.status = 'ambiguous';
       report.reason = `Target preparation left ${afterExactTargets.length} exact benchmark page targets; multiple benchmark page targets prevent unique real capture. Use --isolate-target or manually clean up extra benchmark tabs.`;
     } else if (afterExactTargets.length === 1 && afterSearchTargets.length === 0) {
+      await recordActivation(report, cdpUrl, afterExactTargets[0], {
+        timeoutMs: options.timeoutMs
+      });
       report.status = 'fixed';
-      if (failedActions.length > 0) {
+      const failedPreparationActions = report.actions.filter((action) => action.status !== 'ok' && action.action !== 'Target.activateTarget');
+      if (failedPreparationActions.length > 0) {
         report.reason = 'Exact benchmark task target is visible and no supported search target remains after target preparation.';
-        warnings.push(`${failedActions.length} navigation response${failedActions.length === 1 ? '' : 's'} failed, but the exact benchmark task target became visible and no supported search target remains.`);
+        warnings.push(`${failedPreparationActions.length} navigation response${failedPreparationActions.length === 1 ? '' : 's'} failed, but the exact benchmark task target became visible and no supported search target remains.`);
       } else {
         report.reason = isolateTarget
           ? 'Isolated target preparation left exactly one benchmark task target and no supported search targets.'
@@ -1192,7 +1344,7 @@ function validateActions(actions, errors, path) {
     return;
   }
   const allowedKeys = new Set(['action', 'status', 'target', 'navigateTo', 'reason', 'candidateType']);
-  const allowedActions = new Set(['dry_run_match', 'prepare_candidate', 'Page.navigate']);
+  const allowedActions = new Set(['dry_run_match', 'prepare_candidate', 'Page.navigate', 'Target.createTarget', 'Target.activateTarget']);
   const allowedStatuses = new Set(['planned', 'pending', 'ok', 'error', 'blocked']);
   for (const [index, action] of actions.entries()) {
     validateObjectShape(action, errors, `${path}[${index}]`);
@@ -1220,7 +1372,8 @@ function validateActions(actions, errors, path) {
         'benchmark_app_holding',
         'search',
         'search_keeper',
-        'search_holding'
+        'search_holding',
+        'new_target'
       ].includes(action.candidateType)
     ) {
       errors.push(`${path}[${index}].candidateType has unsupported value ${action.candidateType}`);

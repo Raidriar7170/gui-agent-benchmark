@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "pagination-review",
+  "taskTitle": "Review paginated invoice",
+  "artifactBase": "experiments/2026-05-24-uitars-expanded-real-round",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, preflight reports, final capture state, and operator-authored prompts.",
+    "Raw UI-TARS action transcript, screenshots, browser private storage, and model-internal logs were not captured for this expanded round.",
+    "Intermediate action steps therefore use capture_final_state, preflight_report, operator_note-compatible prompt artifacts, and derived attribution rather than transcript_observation evidence."
+  ],
+  "steps": [
+    {
+      "id": "pagination-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate artifact is linked for this expanded round, including local validation, smoke, tunnel, and remote checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-25-expanded-real-round.json"
+        ]
+      }
+    },
+    {
+      "id": "pagination-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded initial prompt for pagination-review; non-benchmark pages required call_user() before proceeding.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "pagination-s03-target-preflight",
+      "index": 3,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind_or_prepare",
+      "summary": "Preflight and preparation artifacts document the benchmark target repair/isolation path before capture.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/pagination-review-after-call-user/metadata.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/pagination-review-before-capture/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "pagination-s04-continue-prompt",
+      "index": 4,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent continuation prompt once the pagination-review benchmark page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "pagination-s03-target-preflight"
+      ]
+    },
+    {
+      "id": "pagination-s05-progress",
+      "index": 5,
+      "phase": "action",
+      "actor": "ui-tars",
+      "type": "partial_progress_observed",
+      "summary": "Judge confirmed the target invoice exists in the benchmark data.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "pagination.page": 1,
+        "pagination.reviewedIds": [],
+        "expectedPage": 2,
+        "expectedReviewedId": "INV-203"
+      }
+    },
+    {
+      "id": "pagination-s06-missing-state",
+      "index": 6,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "required_state_missing",
+      "summary": "Pagination stayed on page 1 and reviewedIds stayed empty.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "pagination.page": 1,
+        "pagination.reviewedIds": [],
+        "expectedPage": 2,
+        "expectedReviewedId": "INV-203"
+      },
+      "relatedStepIds": [
+        "pagination-s05-progress"
+      ]
+    },
+    {
+      "id": "pagination-s07-capture",
+      "index": 7,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for pagination-review.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "pagination-s08-evaluation",
+      "index": 8,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0.33; success was false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0.33,
+        "passedCriteria": [
+          "invoice INV-203 exists"
+        ],
+        "failedCriteria": [
+          "pagination is on page 2",
+          "invoice INV-203 is reviewed"
+        ]
+      }
+    },
+    {
+      "id": "pagination-s09-failure",
+      "index": 9,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is pagination navigation: the model did not navigate to the required page before the row action.",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "pagination-s05-progress",
+          "pagination-s06-missing-state",
+          "pagination-s08-evaluation"
+        ]
+      },
+      "failureCode": "ACT-PAGINATION-NAV-MISS",
+      "relatedStepIds": [
+        "pagination-s05-progress",
+        "pagination-s06-missing-state",
+        "pagination-s08-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0.33,
+    "primaryFailureCode": "ACT-PAGINATION-NAV-MISS",
+    "failedCriteria": [
+      "pagination is on page 2",
+      "invoice INV-203 is reviewed"
+    ]
+  }
+}

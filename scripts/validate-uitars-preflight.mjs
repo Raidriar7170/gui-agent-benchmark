@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import {
   PREFLIGHT_SCHEMA_VERSION,
   isBenchmarkTarget,
+  resolveLocalUitarsCdpEndpointFromPs,
   validatePreflightReport
 } from '../src/uitars-preflight.mjs';
 
@@ -134,6 +135,25 @@ const topLevelKeys = collectObjectKeys(report);
 assert(!topLevelKeys.includes('webSocketDebuggerUrl'), 'report must not expose webSocketDebuggerUrl fields', errors);
 
 if (!reportPath) {
+  const discovery = await resolveLocalUitarsCdpEndpointFromPs({
+    psStdout: [
+      '100 1 /Applications/UI TARS.app/Contents/MacOS/UI-TARS',
+      '200 100 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=0 --user-data-dir=/tmp/puppeteer_dev_chrome_profile-stale',
+      '300 100 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=0 --user-data-dir=/tmp/puppeteer_dev_chrome_profile-live'
+    ].join('\n'),
+    readDevToolsActivePort: async (profileDir) => {
+      if (profileDir.endsWith('stale')) return '57015\n/devtools/browser/stale';
+      if (profileDir.endsWith('live')) return '58846\n/devtools/browser/live';
+      throw new Error(`unexpected profile dir ${profileDir}`);
+    },
+    probeCdpEndpoint: async (endpoint) => {
+      if (endpoint === 'http://127.0.0.1:58846') return { ok: true };
+      return { ok: false, reason: 'connect ECONNREFUSED' };
+    }
+  });
+  assert(discovery.status === 'ready', 'discovery should ignore stale UI-TARS child Chrome endpoints when one live endpoint remains', errors);
+  assert(discovery.endpoint === 'http://127.0.0.1:58846', `discovery should choose the live endpoint, got ${discovery.endpoint}`, errors);
+
   assert(
     !isBenchmarkTarget({
       id: 'chrome-error',

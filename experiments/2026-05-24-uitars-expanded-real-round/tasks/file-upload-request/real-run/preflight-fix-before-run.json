@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T18:27:55.117Z",
+  "status": "blocked",
+  "reason": "No UI-TARS child Chrome with a Puppeteer profile and remote-debugging-port=0 was found.",
+  "mode": {
+    "fix": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=file-upload-request",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": ""
+  },
+  "actions": [],
+  "targetsBefore": [],
+  "targetsAfter": [],
+  "warnings": []
+}

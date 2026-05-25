@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:37:42.391Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/pagination-review-before-capture",
+  "options": {
+    "tasks": "pagination-review",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "pagination-review",
+      "title": "Review paginated invoice",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/pagination-review/prompt.txt",
+        "targetPrepare": "tasks/pagination-review/target-prepare.json",
+        "preflightDryRun": "tasks/pagination-review/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/pagination-review/trace.json",
+        "runExport": "tasks/pagination-review/run-export.json"
+      }
+    }
+  ]
+}

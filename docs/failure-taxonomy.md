@@ -38,6 +38,12 @@ useful evidence.
 | `ACT-SELECTION-COMMIT-MISS` | Interaction primitive | P1 | Model identifies or clicks a selectable item, but benchmark state does not record the selection. | `selectedSku`, `selectedTicketId`, or equivalent state remains empty. |
 | `ACT-DROPDOWN-VALUE-MISS` | Interaction primitive | P1 | Model opens or targets a dropdown/select but leaves the target value unchanged. | Boolean toggles succeed while select value remains the default. |
 | `ACT-TABLE-SEARCH-LOOP` | Interaction primitive | P1 | Model loops on table/list search or scrolling and does not commit the target row. | Query and selected row state remain empty after repeated search/list actions. |
+| `ACT-MODAL-CONFIRMATION-MISS` | Interaction primitive | P1 | Model does not complete an open-dialog plus confirm sequence. | `dialogOpened` and `confirmed` remain false. |
+| `ACT-PAGINATION-NAV-MISS` | Interaction primitive | P1 | Model does not navigate to the required page before acting on an item. | Page remains at the default while requested row/action state is unchanged. |
+| `ACT-SORT-COMMIT-MISS` | Interaction primitive | P1 | Model does not commit the requested table sort before selecting an item. | Sort key/direction remain default and selected item remains empty. |
+| `ACT-MULTI-SELECT-MISS` | Interaction primitive | P1 | Model fails to select the requested set of items and submit them. | Selected ids remain empty or differ from the requested set. |
+| `ACT-VALIDATION-RECOVERY-PARTIAL` | Interaction primitive | P1 | Model triggers or observes validation but does not complete the recovery form and submit. | Error state is shown or one field is filled, while required fields or submit remain missing. |
+| `ACT-FILE-UPLOAD-MISS` | Interaction primitive | P1 | Model fails to attach the requested file-like input and submit the upload request. | Upload selected file, category, description, or submitted state remains missing. |
 | `TASK-PARTIAL-PLAN` | Task execution | P2 | Model performs some relevant subtasks but omits necessary filters, values, submit, or evaluate action. | Score is nonzero or state is partially changed, but required criteria remain unmet. |
 
 ## Round-Level Use
@@ -98,3 +104,38 @@ Round 3 also exposed `BIND-EMPTY-TARGET`,
 `BIND-ACTIVE-TARGET-MISMATCH`, and `ACT-UNSUPPORTED-HOTKEY` while recovering
 `ticket-review`. Those binding failures are useful run-quality evidence, but
 the task score still comes from the final benchmark state.
+
+## Expanded Real Round Findings
+
+The 2026-05-25 expanded real round covers 10 captured attempts from a
+planned 10-task set:
+`experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json`.
+It is paired with the expanded report
+`docs/benchmark-report-2026-05-25-expanded-real-round.md`, full finish gate
+`artifacts/finish-gate/2026-05-25-expanded-real-round.json`, per-task step
+traces under
+`experiments/2026-05-24-uitars-expanded-real-round/step-traces/`, and machine
+taxonomy artifact
+`experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json`.
+
+| Task | Stable pattern | Primary code |
+| --- | --- | --- |
+| `onboarding-form` | First fields filled, but role/date/notes/submit remain incomplete. | `ACT-TEXT-ENTRY-STALL`, `TASK-PARTIAL-PLAN` |
+| `catalog-filter` | Search text was entered, but filters and item selection were not committed. | `ACT-SELECTION-COMMIT-MISS` |
+| `settings-toggle` | Boolean controls succeeded, timezone remained `UTC`. | `ACT-DROPDOWN-VALUE-MISS` |
+| `ticket-review` | Required ticket was not queried, selected, or reviewed. | `ACT-TABLE-SEARCH-LOOP`, `ACT-SELECTION-COMMIT-MISS` |
+| `modal-confirmation` | Dialog for `REQ-77` was not opened or confirmed. | `ACT-MODAL-CONFIRMATION-MISS` |
+| `pagination-review` | Page stayed at 1 and `INV-203` was not reviewed. | `ACT-PAGINATION-NAV-MISS` |
+| `sortable-inventory` | Risk sort stayed default and target SKU was not selected. | `ACT-SORT-COMMIT-MISS` |
+| `multi-select-approvals` | Requested approval ids were not selected or submitted. | `ACT-MULTI-SELECT-MISS` |
+| `validation-error-recovery` | Validation error was triggered and title filled, but owner/date/submit remained missing. | `ACT-VALIDATION-RECOVERY-PARTIAL` |
+| `file-upload-request` | `security-audit.pdf` was attached, then the run looped on category dropdown and did not enter description or submit. | `ACT-DROPDOWN-VALUE-MISS`, `ACT-FILE-UPLOAD-MISS`, `TASK-PARTIAL-PLAN` |
+
+The upload attempt is a useful split case: the file attachment primitive
+worked, but the upload workflow still failed because the category dropdown,
+description field, and submit action were not completed.
+
+Expanded step traces are reconstructed timeline attributions from preflight,
+operator prompt, final capture, and finish-gate artifacts. They intentionally
+mark this evidence limitation in `evidenceLimitations`; raw UI-TARS action
+transcripts were not captured for this round.

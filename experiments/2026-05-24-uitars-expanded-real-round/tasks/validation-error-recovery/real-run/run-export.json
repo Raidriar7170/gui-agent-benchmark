@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:48:02.497Z",
+  "runs": [
+    {
+      "id": "trace-20260524054802391-1-8l3gqk",
+      "taskId": "validation-error-recovery",
+      "taskTitle": "Recover from validation error",
+      "startedAt": "2026-05-24T05:48:02.391Z",
+      "endedAt": "2026-05-24T05:48:02.497Z",
+      "durationMs": 106,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:48:02.497Z",
+          "type": "real_run_capture",
+          "label": "Real run capture",
+          "target": null,
+          "path": null,
+          "value": {
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=validation-error-recovery",
+            "captureStatus": "captured"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [
+        {
+          "timestamp": "2026-05-24T05:48:02.497Z",
+          "label": "Final state",
+          "state": {
+            "activeTaskId": "validation-error-recovery",
+            "form": {
+              "fullName": "",
+              "email": "",
+              "role": "",
+              "startDate": "",
+              "notes": "",
+              "submitted": false
+            },
+            "catalog": {
+              "search": "",
+              "category": "all",
+              "minRating": 0,
+              "inStockOnly": false,
+              "selectedSku": ""
+            },
+            "settings": {
+              "weeklyDigest": false,
+              "autosave": true,
+              "dataSharing": true,
+              "timezone": "UTC"
+            },
+            "table": {
+              "query": "",
+              "selectedTicketId": ""
+            },
+            "tickets": [
+              {
+                "id": "INC-1042",
+                "requester": "Lin Chen",
+                "priority": "Medium",
+                "topic": "VPN profile reset",
+                "status": "Open",
+                "reviewed": false
+              },
+              {
+                "id": "INC-2048",
+                "requester": "Priya Shah",
+                "priority": "High",
+                "topic": "Payroll portal timeout",
+                "status": "Open",
+                "reviewed": false
+              },
+              {
+                "id": "INC-3130",
+                "requester": "Owen Brooks",
+                "priority": "Low",
+                "topic": "Printer badge mapping",
+                "status": "Waiting",
+                "reviewed": false
+              },
+              {
+                "id": "INC-4011",
+                "requester": "Rina Patel",
+                "priority": "Medium",
+                "topic": "Calendar sync delay",
+                "status": "Open",
+                "reviewed": false
+              }
+            ],
+            "modal": {
+              "selectedRequestId": "",
+              "dialogOpened": false,
+              "confirmed": false
+            },
+            "pagination": {
+              "page": 1,
+              "reviewedIds": []
+            },
+            "inventory": {
+              "sortKey": "",
+              "sortDirection": "asc",
+              "selectedSku": ""
+            },
+            "approvals": {
+              "selectedIds": [],
+              "submitted": false
+            },
+            "validation": {
+              "title": "Quarterly access review",
+              "owner": "",
+              "dueDate": "",
+              "errorShown": true,
+              "submitted": false
+            },
+            "upload": {
+              "selectedFile": "",
+              "category": "",
+              "description": "",
+              "submitted": false
+            }
+          }
+        }
+      ],
+      "evaluation": {
+        "success": false,
+        "score": 0.4,
+        "details": [
+          {
+            "criterion": "validation error was shown before successful submit",
+            "pass": true,
+            "expected": true,
+            "actual": true
+          },
+          {
+            "criterion": "title is Quarterly access review",
+            "pass": true,
+            "expected": "Quarterly access review",
+            "actual": "Quarterly access review"
+          },
+          {
+            "criterion": "owner is Morgan Lee",
+            "pass": false,
+            "expected": "Morgan Lee",
+            "actual": ""
+          },
+          {
+            "criterion": "due date is 2026-06-30",
+            "pass": false,
+            "expected": "2026-06-30",
+            "actual": ""
+          },
+          {
+            "criterion": "validation form is submitted",
+            "pass": false,
+            "expected": true,
+            "actual": false
+          }
+        ],
+        "state": {
+          "activeTaskId": "validation-error-recovery",
+          "form": {
+            "fullName": "",
+            "email": "",
+            "role": "",
+            "startDate": "",
+            "notes": "",
+            "submitted": false
+          },
+          "catalog": {
+            "search": "",
+            "category": "all",
+            "minRating": 0,
+            "inStockOnly": false,
+            "selectedSku": ""
+          },
+          "settings": {
+            "weeklyDigest": false,
+            "autosave": true,
+            "dataSharing": true,
+            "timezone": "UTC"
+          },
+          "table": {
+            "query": "",
+            "selectedTicketId": ""
+          },
+          "tickets": [
+            {
+              "id": "INC-1042",
+              "requester": "Lin Chen",
+              "priority": "Medium",
+              "topic": "VPN profile reset",
+              "status": "Open",
+              "reviewed": false
+            },
+            {
+              "id": "INC-2048",
+              "requester": "Priya Shah",
+              "priority": "High",
+              "topic": "Payroll portal timeout",
+              "status": "Open",
+              "reviewed": false
+            },
+            {
+              "id": "INC-3130",
+              "requester": "Owen Brooks",
+              "priority": "Low",
+              "topic": "Printer badge mapping",
+              "status": "Waiting",
+              "reviewed": false
+            },
+            {
+              "id": "INC-4011",
+              "requester": "Rina Patel",
+              "priority": "Medium",
+              "topic": "Calendar sync delay",
+              "status": "Open",
+              "reviewed": false
+            }
+          ],
+          "modal": {
+            "selectedRequestId": "",
+            "dialogOpened": false,
+            "confirmed": false
+          },
+          "pagination": {
+            "page": 1,
+            "reviewedIds": []
+          },
+          "inventory": {
+            "sortKey": "",
+            "sortDirection": "asc",
+            "selectedSku": ""
+          },
+          "approvals": {
+            "selectedIds": [],
+            "submitted": false
+          },
+          "validation": {
+            "title": "Quarterly access review",
+            "owner": "",
+            "dueDate": "",
+            "errorShown": true,
+            "submitted": false
+          },
+          "upload": {
+            "selectedFile": "",
+            "category": "",
+            "description": "",
+            "submitted": false
+          }
+        }
+      },
+      "success": false,
+      "score": 0.4,
+      "failureReason": "owner is Morgan Lee"
+    }
+  ]
+}

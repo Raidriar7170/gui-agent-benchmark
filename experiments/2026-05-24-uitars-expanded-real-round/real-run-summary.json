@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-real-e2e-round-summary",
+  "createdAt": "2026-05-25T02:58:35.335Z",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round",
+  "totalTasks": 10,
+  "capturedTasks": 10,
+  "successTasks": 0,
+  "averageScore": 0.206,
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "status": "captured",
+      "success": false,
+      "score": 0.33,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/onboarding-form/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "form is submitted",
+        "role is Designer",
+        "start date is 2026-06-15",
+        "notes mention Figma access"
+      ]
+    },
+    {
+      "id": "catalog-filter",
+      "title": "Find approved desk gear",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "selected SKU is ERGO-27",
+        "selected product is in stock",
+        "selected product category is office",
+        "selected product rating is at least 4.5"
+      ]
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "status": "captured",
+      "success": false,
+      "score": 0.75,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/settings-toggle/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "timezone is America/New_York"
+      ]
+    },
+    {
+      "id": "ticket-review",
+      "title": "Review priority support ticket",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/ticket-review/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "table query identifies Priya Shah or INC-2048",
+        "INC-2048 is selected",
+        "INC-2048 is marked reviewed"
+      ]
+    },
+    {
+      "id": "modal-confirmation",
+      "title": "Confirm access request",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/modal-confirmation/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "request REQ-77 is selected",
+        "confirmation dialog was opened",
+        "request is confirmed"
+      ]
+    },
+    {
+      "id": "pagination-review",
+      "title": "Review paginated invoice",
+      "status": "captured",
+      "success": false,
+      "score": 0.33,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/pagination-review/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "pagination is on page 2",
+        "invoice INV-203 is reviewed"
+      ]
+    },
+    {
+      "id": "sortable-inventory",
+      "title": "Select highest-risk inventory",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/sortable-inventory/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "inventory is sorted by risk",
+        "risk sort is descending",
+        "selected SKU is BATT-88",
+        "selected item has risk 9"
+      ]
+    },
+    {
+      "id": "multi-select-approvals",
+      "title": "Submit multiple approvals",
+      "status": "captured",
+      "success": false,
+      "score": 0,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/multi-select-approvals/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "APR-102 is selected",
+        "APR-205 is selected",
+        "only requested approvals are selected",
+        "approvals are submitted"
+      ]
+    },
+    {
+      "id": "validation-error-recovery",
+      "title": "Recover from validation error",
+      "status": "captured",
+      "success": false,
+      "score": 0.4,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "owner is Morgan Lee",
+        "due date is 2026-06-30",
+        "validation form is submitted"
+      ]
+    },
+    {
+      "id": "file-upload-request",
+      "title": "Attach compliance evidence",
+      "status": "captured",
+      "success": false,
+      "score": 0.25,
+      "captureCount": 1,
+      "capturePath": "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/capture.json",
+      "selectedCaptureDir": "real-run",
+      "failedCriteria": [
+        "category is Compliance",
+        "description mentions Q2 security audit evidence",
+        "upload request is submitted"
+      ]
+    }
+  ]
+}

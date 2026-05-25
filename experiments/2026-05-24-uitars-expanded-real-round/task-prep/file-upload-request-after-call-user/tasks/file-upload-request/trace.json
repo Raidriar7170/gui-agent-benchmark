@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260525025302-file-upload-request",
+  "taskId": "file-upload-request",
+  "taskTitle": "Attach compliance evidence",
+  "startedAt": "2026-05-25T02:53:02.470Z",
+  "events": [
+    {
+      "timestamp": "2026-05-25T02:53:02.566Z",
+      "type": "target_prepare",
+      "label": "Target prepare ready",
+      "target": "file-upload-request",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "ready",
+        "reason": "Benchmark target is already prepared for the requested task URL.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=file-upload-request"
+      }
+    },
+    {
+      "timestamp": "2026-05-25T02:53:02.650Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "file-upload-request",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=file-upload-request"
+      }
+    }
+  ]
+}

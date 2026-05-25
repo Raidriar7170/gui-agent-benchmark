@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "validation-error-recovery",
+  "taskTitle": "Recover from validation error",
+  "artifactBase": "experiments/2026-05-24-uitars-expanded-real-round",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, preflight reports, final capture state, and operator-authored prompts.",
+    "Raw UI-TARS action transcript, screenshots, browser private storage, and model-internal logs were not captured for this expanded round.",
+    "Intermediate action steps therefore use capture_final_state, preflight_report, operator_note-compatible prompt artifacts, and derived attribution rather than transcript_observation evidence."
+  ],
+  "steps": [
+    {
+      "id": "validation-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate artifact is linked for this expanded round, including local validation, smoke, tunnel, and remote checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-25-expanded-real-round.json"
+        ]
+      }
+    },
+    {
+      "id": "validation-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded initial prompt for validation-error-recovery; non-benchmark pages required call_user() before proceeding.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "validation-s03-target-preflight",
+      "index": 3,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind_or_prepare",
+      "summary": "Preflight and preparation artifacts document the benchmark target repair/isolation path before capture.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/validation-error-recovery-after-call-user/metadata.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/validation-error-recovery-before-capture/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "validation-s04-continue-prompt",
+      "index": 4,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent continuation prompt once the validation-error-recovery benchmark page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "validation-s03-target-preflight"
+      ]
+    },
+    {
+      "id": "validation-s05-progress",
+      "index": 5,
+      "phase": "action",
+      "actor": "ui-tars",
+      "type": "partial_progress_observed",
+      "summary": "Final state shows validation error observed and title filled correctly.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "validation.errorShown": true,
+        "validation.title": "Quarterly access review",
+        "validation.owner": "",
+        "validation.dueDate": "",
+        "validation.submitted": false
+      }
+    },
+    {
+      "id": "validation-s06-missing-state",
+      "index": 6,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "required_state_missing",
+      "summary": "Owner and due date stayed empty and the form was not submitted.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "validation.errorShown": true,
+        "validation.title": "Quarterly access review",
+        "validation.owner": "",
+        "validation.dueDate": "",
+        "validation.submitted": false
+      },
+      "relatedStepIds": [
+        "validation-s05-progress"
+      ]
+    },
+    {
+      "id": "validation-s07-capture",
+      "index": 7,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for validation-error-recovery.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "validation-s08-evaluation",
+      "index": 8,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0.4; success was false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/validation-error-recovery/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0.4,
+        "passedCriteria": [
+          "validation error was shown before successful submit",
+          "title is Quarterly access review"
+        ],
+        "failedCriteria": [
+          "owner is Morgan Lee",
+          "due date is 2026-06-30",
+          "validation form is submitted"
+        ]
+      }
+    },
+    {
+      "id": "validation-s09-failure",
+      "index": 9,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is validation recovery: the model handled the first part of the recovery flow but did not complete the required fields and submit.",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "validation-s05-progress",
+          "validation-s06-missing-state",
+          "validation-s08-evaluation"
+        ]
+      },
+      "failureCode": "ACT-VALIDATION-RECOVERY-PARTIAL",
+      "relatedStepIds": [
+        "validation-s05-progress",
+        "validation-s06-missing-state",
+        "validation-s08-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0.4,
+    "primaryFailureCode": "ACT-VALIDATION-RECOVERY-PARTIAL",
+    "failedCriteria": [
+      "owner is Morgan Lee",
+      "due date is 2026-06-30",
+      "validation form is submitted"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:34:55.380Z",
+  "runs": [
+    {
+      "id": "harness-20260524053455-modal-confirmation",
+      "taskId": "modal-confirmation",
+      "taskTitle": "Confirm access request",
+      "startedAt": "2026-05-24T05:34:55.198Z",
+      "endedAt": null,
+      "durationMs": 179,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:34:55.295Z",
+          "type": "target_prepare",
+          "label": "Target prepare ready",
+          "target": "modal-confirmation",
+          "path": null,
+          "value": {
+            "prepareStatus": "ready",
+            "reason": "Benchmark target is already prepared for the requested task URL.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=modal-confirmation"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:34:55.377Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "modal-confirmation",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=modal-confirmation"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

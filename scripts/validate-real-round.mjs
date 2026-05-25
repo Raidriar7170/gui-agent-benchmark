@@ -5,11 +5,14 @@ import { tmpdir } from 'node:os';
 import { spawn } from 'node:child_process';
 
 import { loadTasks } from '../src/task-registry.mjs';
+import { RUNS_SCHEMA_VERSION } from '../src/runs.mjs';
+import { tracesToRuns } from '../src/trace-importer.mjs';
 import {
   REAL_ROUND_SCHEMA_VERSION,
   formatRealRoundRunLog,
   planRealRound,
-  summarizeRealRound
+  summarizeRealRound,
+  validateRealRoundArtifacts
 } from '../src/uitars-real-round.mjs';
 
 const errors = [];
@@ -41,8 +44,11 @@ function capture({ score, success, selectedTicketId = '', reviewed = false }) {
   return {
     schemaVersion: 1,
     source: 'ui-tars-real-run-capture',
+    captureStatus: 'captured',
     capturedAt: '2026-05-23T00:00:00.000Z',
     taskId: 'ticket-review',
+    taskTitle: 'Review priority support ticket',
+    benchmarkUrl: 'http://127.0.0.1:4173/?task=ticket-review',
     finalState: {
       activeTaskId: 'ticket-review',
       table: { query: selectedTicketId, selectedTicketId },
@@ -67,6 +73,40 @@ function capture({ score, success, selectedTicketId = '', reviewed = false }) {
       ]
     }
   };
+}
+
+async function writeCaptureBundle(capturePath, captureArtifact, tasks) {
+  const dir = capturePath.slice(0, capturePath.lastIndexOf('/'));
+  const trace = {
+    traceVersion: 1,
+    source: 'ui-tars-real-run-capture',
+    taskId: captureArtifact.taskId,
+    taskTitle: 'Review priority support ticket',
+    startedAt: '2026-05-23T00:00:00.000Z',
+    endedAt: '2026-05-23T00:00:01.000Z',
+    events: [
+      {
+        timestamp: '2026-05-23T00:00:01.000Z',
+        type: 'real_run_capture',
+        label: 'Real run capture',
+        countsAsStep: false,
+        value: {
+          benchmarkUrl: 'http://127.0.0.1:4173/?task=ticket-review',
+          captureStatus: 'captured'
+        }
+      }
+    ],
+    finalState: captureArtifact.finalState,
+    evaluation: captureArtifact.evaluation
+  };
+  const runExport = {
+    schemaVersion: RUNS_SCHEMA_VERSION,
+    exportedAt: '2026-05-23T00:00:01.000Z',
+    runs: tracesToRuns([trace], tasks)
+  };
+  await writeFile(capturePath, `${JSON.stringify(captureArtifact, null, 2)}\n`, 'utf8');
+  await writeFile(join(dir, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`, 'utf8');
+  await writeFile(join(dir, 'run-export.json'), `${JSON.stringify(runExport, null, 2)}\n`, 'utf8');
 }
 
 const tasks = await loadTasks();
@@ -102,13 +142,13 @@ try {
   const secondCapturePath = join(outputDir, 'tasks', 'ticket-review', 'real-run-attempt2', 'capture.json');
   await mkdir(join(outputDir, 'tasks', 'ticket-review', 'real-run'), { recursive: true });
   await mkdir(join(outputDir, 'tasks', 'ticket-review', 'real-run-attempt2'), { recursive: true });
-  await writeFile(firstCapturePath, `${JSON.stringify(capture({ score: 0, success: false }), null, 2)}\n`, 'utf8');
-  await writeFile(secondCapturePath, `${JSON.stringify(capture({
+  await writeCaptureBundle(firstCapturePath, capture({ score: 0, success: false }), tasks);
+  await writeCaptureBundle(secondCapturePath, capture({
     score: 1,
     success: true,
     selectedTicketId: 'INC-2048',
     reviewed: true
-  }), null, 2)}\n`, 'utf8');
+  }), tasks);
 
   const summary = await summarizeRealRound({
     outputDir,
@@ -123,9 +163,40 @@ try {
   assert(log.includes('# UI-TARS Real E2E Round'), 'run log should have a title');
   assert(log.includes('18001 -> remote 8001'), 'run log should document the required proxy tunnel');
   assert(log.includes('ticket-review'), 'run log should include task rows');
+
+  const artifactErrors = await validateRealRoundArtifacts({
+    outputDir,
+    tasks: selectedTasks,
+    summary
+  });
+  assert(artifactErrors.length === 0, `synthetic real-round artifacts should validate: ${artifactErrors.join('; ')}`);
+
+  const corrupted = structuredClone(summary);
+  corrupted.tasks.find((task) => task.id === 'ticket-review').score = 0.25;
+  const corruptedErrors = await validateRealRoundArtifacts({
+    outputDir,
+    tasks: selectedTasks,
+    summary: corrupted
+  });
+  assert(
+    corruptedErrors.some((error) => error.includes('score must match capture evaluation score')),
+    'artifact validator should reject summary/capture score drift'
+  );
 } finally {
   await rm(tempDir, { recursive: true, force: true });
 }
+
+const expandedSummary = JSON.parse(await readFile(
+  'experiments/2026-05-24-uitars-expanded-real-round/real-run-summary.json',
+  'utf8'
+));
+const expandedArtifactErrors = await validateRealRoundArtifacts({
+  outputDir: 'experiments/2026-05-24-uitars-expanded-real-round',
+  tasks,
+  summary: expandedSummary,
+  requireCompleteCapture: true
+});
+for (const error of expandedArtifactErrors) errors.push(error);
 
 const help = await runCli(['--help']);
 assert(help.exitCode === 0, 'CLI help should exit 0');

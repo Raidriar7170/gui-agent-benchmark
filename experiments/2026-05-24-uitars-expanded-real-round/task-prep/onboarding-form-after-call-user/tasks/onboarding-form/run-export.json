@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:17:55.715Z",
+  "runs": [
+    {
+      "id": "harness-20260524051755-onboarding-form",
+      "taskId": "onboarding-form",
+      "taskTitle": "Submit onboarding request",
+      "startedAt": "2026-05-24T05:17:55.387Z",
+      "endedAt": null,
+      "durationMs": 326,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:17:55.490Z",
+          "type": "target_prepare",
+          "label": "Target prepare fixed",
+          "target": "onboarding-form",
+          "path": null,
+          "value": {
+            "prepareStatus": "fixed",
+            "reason": "Isolated target preparation left exactly one benchmark task target and no supported search targets.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:17:55.713Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "onboarding-form",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

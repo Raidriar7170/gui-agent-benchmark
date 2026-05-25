@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:33:39.763Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/modal-confirmation-after-call-user",
+  "options": {
+    "tasks": "modal-confirmation",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "modal-confirmation",
+      "title": "Confirm access request",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=modal-confirmation",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/modal-confirmation/prompt.txt",
+        "targetPrepare": "tasks/modal-confirmation/target-prepare.json",
+        "preflightDryRun": "tasks/modal-confirmation/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/modal-confirmation/trace.json",
+        "runExport": "tasks/modal-confirmation/run-export.json"
+      }
+    }
+  ]
+}

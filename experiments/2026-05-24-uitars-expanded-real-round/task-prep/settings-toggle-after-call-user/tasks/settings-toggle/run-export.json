@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:28:35.917Z",
+  "runs": [
+    {
+      "id": "harness-20260524052835-settings-toggle",
+      "taskId": "settings-toggle",
+      "taskTitle": "Update workspace settings",
+      "startedAt": "2026-05-24T05:28:35.745Z",
+      "endedAt": null,
+      "durationMs": 169,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:28:35.834Z",
+          "type": "target_prepare",
+          "label": "Target prepare ready",
+          "target": "settings-toggle",
+          "path": null,
+          "value": {
+            "prepareStatus": "ready",
+            "reason": "Benchmark target is already prepared for the requested task URL.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:28:35.914Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "settings-toggle",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

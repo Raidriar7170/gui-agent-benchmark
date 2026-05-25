@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:37:42.866Z",
+  "runs": [
+    {
+      "id": "trace-20260524053742765-1-ym99x2",
+      "taskId": "pagination-review",
+      "taskTitle": "Review paginated invoice",
+      "startedAt": "2026-05-24T05:37:42.765Z",
+      "endedAt": "2026-05-24T05:37:42.866Z",
+      "durationMs": 101,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:37:42.866Z",
+          "type": "real_run_capture",
+          "label": "Real run capture",
+          "target": null,
+          "path": null,
+          "value": {
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review",
+            "captureStatus": "captured"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [
+        {
+          "timestamp": "2026-05-24T05:37:42.866Z",
+          "label": "Final state",
+          "state": {
+            "activeTaskId": "pagination-review",
+            "form": {
+              "fullName": "",
+              "email": "",
+              "role": "",
+              "startDate": "",
+              "notes": "",
+              "submitted": false
+            },
+            "catalog": {
+              "search": "",
+              "category": "all",
+              "minRating": 0,
+              "inStockOnly": false,
+              "selectedSku": ""
+            },
+            "settings": {
+              "weeklyDigest": false,
+              "autosave": true,
+              "dataSharing": true,
+              "timezone": "UTC"
+            },
+            "table": {
+              "query": "",
+              "selectedTicketId": ""
+            },
+            "tickets": [
+              {
+                "id": "INC-1042",
+                "requester": "Lin Chen",
+                "priority": "Medium",
+                "topic": "VPN profile reset",
+                "status": "Open",
+                "reviewed": false
+              },
+              {
+                "id": "INC-2048",
+                "requester": "Priya Shah",
+                "priority": "High",
+                "topic": "Payroll portal timeout",
+                "status": "Open",
+                "reviewed": false
+              },
+              {
+                "id": "INC-3130",
+                "requester": "Owen Brooks",
+                "priority": "Low",
+                "topic": "Printer badge mapping",
+                "status": "Waiting",
+                "reviewed": false
+              },
+              {
+                "id": "INC-4011",
+                "requester": "Rina Patel",
+                "priority": "Medium",
+                "topic": "Calendar sync delay",
+                "status": "Open",
+                "reviewed": false
+              }
+            ],
+            "modal": {
+              "selectedRequestId": "",
+              "dialogOpened": false,
+              "confirmed": false
+            },
+            "pagination": {
+              "page": 1,
+              "reviewedIds": []
+            },
+            "inventory": {
+              "sortKey": "",
+              "sortDirection": "asc",
+              "selectedSku": ""
+            },
+            "approvals": {
+              "selectedIds": [],
+              "submitted": false
+            },
+            "validation": {
+              "title": "",
+              "owner": "",
+              "dueDate": "",
+              "errorShown": false,
+              "submitted": false
+            },
+            "upload": {
+              "selectedFile": "",
+              "category": "",
+              "description": "",
+              "submitted": false
+            }
+          }
+        }
+      ],
+      "evaluation": {
+        "success": false,
+        "score": 0.33,
+        "details": [
+          {
+            "criterion": "pagination is on page 2",
+            "pass": false,
+            "expected": 2,
+            "actual": 1
+          },
+          {
+            "criterion": "invoice INV-203 exists",
+            "pass": true,
+            "expected": "INV-203",
+            "actual": "INV-203"
+          },
+          {
+            "criterion": "invoice INV-203 is reviewed",
+            "pass": false,
+            "expected": true,
+            "actual": false
+          }
+        ],
+        "state": {
+          "activeTaskId": "pagination-review",
+          "form": {
+            "fullName": "",
+            "email": "",
+            "role": "",
+            "startDate": "",
+            "notes": "",
+            "submitted": false
+          },
+          "catalog": {
+            "search": "",
+            "category": "all",
+            "minRating": 0,
+            "inStockOnly": false,
+            "selectedSku": ""
+          },
+          "settings": {
+            "weeklyDigest": false,
+            "autosave": true,
+            "dataSharing": true,
+            "timezone": "UTC"
+          },
+          "table": {
+            "query": "",
+            "selectedTicketId": ""
+          },
+          "tickets": [
+            {
+              "id": "INC-1042",
+              "requester": "Lin Chen",
+              "priority": "Medium",
+              "topic": "VPN profile reset",
+              "status": "Open",
+              "reviewed": false
+            },
+            {
+              "id": "INC-2048",
+              "requester": "Priya Shah",
+              "priority": "High",
+              "topic": "Payroll portal timeout",
+              "status": "Open",
+              "reviewed": false
+            },
+            {
+              "id": "INC-3130",
+              "requester": "Owen Brooks",
+              "priority": "Low",
+              "topic": "Printer badge mapping",
+              "status": "Waiting",
+              "reviewed": false
+            },
+            {
+              "id": "INC-4011",
+              "requester": "Rina Patel",
+              "priority": "Medium",
+              "topic": "Calendar sync delay",
+              "status": "Open",
+              "reviewed": false
+            }
+          ],
+          "modal": {
+            "selectedRequestId": "",
+            "dialogOpened": false,
+            "confirmed": false
+          },
+          "pagination": {
+            "page": 1,
+            "reviewedIds": []
+          },
+          "inventory": {
+            "sortKey": "",
+            "sortDirection": "asc",
+            "selectedSku": ""
+          },
+          "approvals": {
+            "selectedIds": [],
+            "submitted": false
+          },
+          "validation": {
+            "title": "",
+            "owner": "",
+            "dueDate": "",
+            "errorShown": false,
+            "submitted": false
+          },
+          "upload": {
+            "selectedFile": "",
+            "category": "",
+            "description": "",
+            "submitted": false
+          }
+        }
+      },
+      "success": false,
+      "score": 0.33,
+      "failureReason": "pagination is on page 2"
+    }
+  ]
+}

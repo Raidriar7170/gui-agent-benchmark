@@ -1,0 +1,12 @@
+Task: Submit multiple approvals
+
+Select approvals APR-102 and APR-205 only, then submit the selected approvals.
+
+Start URL: http://127.0.0.1:4173/?task=multi-select-approvals
+Max steps: 10
+
+Success criteria:
+- APR-102 is selected
+- APR-205 is selected
+- only requested approvals are selected
+- approvals are submitted

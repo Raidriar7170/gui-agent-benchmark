@@ -1,0 +1,12 @@
+Task: Attach compliance evidence
+
+Attach security-audit.pdf, set category to Compliance, add description Q2 security audit evidence, and submit the upload request.
+
+Start URL: http://127.0.0.1:4173/?task=file-upload-request
+Max steps: 10
+
+Success criteria:
+- security-audit.pdf is attached
+- category is Compliance
+- description mentions Q2 security audit evidence
+- upload request is submitted

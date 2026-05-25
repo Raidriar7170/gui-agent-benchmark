@@ -2,6 +2,8 @@ import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { DEFAULT_HARNESS_BASE_URL } from './benchmark-harness.mjs';
+import { CAPTURE_SCHEMA_VERSION, CAPTURE_SOURCE } from './uitars-capture.mjs';
+import { RUNS_SCHEMA_VERSION, validateRun } from './runs.mjs';
 
 export const REAL_ROUND_SCHEMA_VERSION = 1;
 
@@ -219,6 +221,185 @@ function failedCriteria(evaluation) {
   return (evaluation?.details || [])
     .filter((detail) => !detail.pass)
     .map((detail) => detail.criterion);
+}
+
+const sensitiveKeyPattern = /(?:websocketdebuggerurl|base64|api_?key|token|password|passwd|cookie|headers?|authorization|localstorage|indexeddb|screenshot)/i;
+const sensitiveStringPattern = /(?:websocketdebuggerurl|api_?key|token|password|passwd|cookie|headers?|authorization|localstorage|indexeddb)\s*[:=]/i;
+const userInfoUrlPattern = /\b[a-z][a-z0-9+.-]*:\/\/[^\s/@:]+(?::[^\s/@]*)?@/i;
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+    && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+}
+
+function inspectSensitiveContent(value, path, errors) {
+  if (typeof value === 'string') {
+    const compact = value.replace(/\s/g, '');
+    if (
+      sensitiveStringPattern.test(value)
+      || /websocketdebuggerurl/i.test(value)
+      || userInfoUrlPattern.test(value)
+      || /^data:image\/[^;]+;base64,/i.test(compact)
+      || /^[A-Za-z0-9+/=]{400,}$/.test(compact)
+    ) {
+      errors.push(`${path} contains sensitive-looking content`);
+    }
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  for (const [key, child] of Object.entries(value)) {
+    if (sensitiveKeyPattern.test(key)) errors.push(`${path}.${key} uses a prohibited field name`);
+    inspectSensitiveContent(child, `${path}.${key}`, errors);
+  }
+}
+
+async function readJsonIfExists(path, errors, label) {
+  try {
+    return JSON.parse(await readFile(path, 'utf8'));
+  } catch (error) {
+    errors.push(`${label}: ${error.message}`);
+    return null;
+  }
+}
+
+function sameJson(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function validateCaptureArtifact({ capture, task, summaryTask, capturePath, errors }) {
+  if (!isPlainObject(capture)) {
+    errors.push(`${capturePath}: capture must be an object`);
+    return;
+  }
+  if (capture.schemaVersion !== CAPTURE_SCHEMA_VERSION) errors.push(`${capturePath}: schemaVersion must be ${CAPTURE_SCHEMA_VERSION}`);
+  if (capture.source !== CAPTURE_SOURCE) errors.push(`${capturePath}: source must be ${CAPTURE_SOURCE}`);
+  if (capture.captureStatus !== 'captured') errors.push(`${capturePath}: captureStatus must be captured`);
+  if (capture.taskId !== task.id) errors.push(`${capturePath}: taskId must be ${task.id}`);
+  if (capture.taskTitle !== undefined && capture.taskTitle !== task.title) errors.push(`${capturePath}: taskTitle must match task registry title`);
+  if (!isPlainObject(capture.finalState)) errors.push(`${capturePath}: finalState must be an object`);
+  if (!isPlainObject(capture.evaluation)) {
+    errors.push(`${capturePath}: evaluation must be an object`);
+    return;
+  }
+  if (typeof capture.evaluation.success !== 'boolean') errors.push(`${capturePath}: evaluation.success must be boolean`);
+  if (typeof capture.evaluation.score !== 'number') errors.push(`${capturePath}: evaluation.score must be number`);
+  if (!Array.isArray(capture.evaluation.details)) errors.push(`${capturePath}: evaluation.details must be an array`);
+  if (summaryTask.score !== capture.evaluation.score) errors.push(`${task.id}: summary score must match capture evaluation score`);
+  if (summaryTask.success !== capture.evaluation.success) errors.push(`${task.id}: summary success must match capture evaluation success`);
+  const captureFailedCriteria = failedCriteria(capture.evaluation);
+  if (!sameJson(summaryTask.failedCriteria || [], captureFailedCriteria)) {
+    errors.push(`${task.id}: summary failedCriteria must match capture evaluation details`);
+  }
+}
+
+function validateTraceArtifact({ trace, capture, task, tracePath, errors }) {
+  if (!isPlainObject(trace)) {
+    errors.push(`${tracePath}: trace must be an object`);
+    return;
+  }
+  if (trace.traceVersion !== 1) errors.push(`${tracePath}: traceVersion must be 1`);
+  if (trace.source !== CAPTURE_SOURCE) errors.push(`${tracePath}: source must be ${CAPTURE_SOURCE}`);
+  if (trace.taskId !== task.id) errors.push(`${tracePath}: taskId must be ${task.id}`);
+  if (trace.taskTitle !== task.title) errors.push(`${tracePath}: taskTitle must match task registry title`);
+  if (!Array.isArray(trace.events) || !trace.events.some((event) => event?.type === 'real_run_capture' && event.countsAsStep === false)) {
+    errors.push(`${tracePath}: trace must include a non-step real_run_capture event`);
+  }
+  if (!sameJson(trace.finalState, capture.finalState)) errors.push(`${tracePath}: finalState must match capture.json`);
+  if (!sameJson(trace.evaluation, capture.evaluation)) errors.push(`${tracePath}: evaluation must match capture.json`);
+}
+
+function validateRunExportArtifact({ runExport, capture, task, runExportPath, errors }) {
+  if (!isPlainObject(runExport)) {
+    errors.push(`${runExportPath}: run-export must be an object`);
+    return;
+  }
+  if (runExport.schemaVersion !== RUNS_SCHEMA_VERSION) errors.push(`${runExportPath}: schemaVersion must be ${RUNS_SCHEMA_VERSION}`);
+  if (!Array.isArray(runExport.runs) || runExport.runs.length !== 1) {
+    errors.push(`${runExportPath}: runs must contain exactly one run`);
+    return;
+  }
+  const [run] = runExport.runs;
+  for (const error of validateRun(run)) errors.push(`${runExportPath}: ${error}`);
+  if (run.taskId !== task.id) errors.push(`${runExportPath}: run.taskId must be ${task.id}`);
+  if (run.taskTitle !== task.title) errors.push(`${runExportPath}: run.taskTitle must match task registry title`);
+  if (run.success !== capture.evaluation.success) errors.push(`${runExportPath}: run.success must match capture evaluation success`);
+  if (run.score !== capture.evaluation.score) errors.push(`${runExportPath}: run.score must match capture evaluation score`);
+  if (!sameJson(run.evaluation, capture.evaluation)) errors.push(`${runExportPath}: run.evaluation must match capture evaluation`);
+}
+
+export async function validateRealRoundArtifacts(options = {}) {
+  const errors = [];
+  const outputDir = options.outputDir;
+  const tasks = ensureTaskList(options.tasks);
+  const summary = options.summary || await readJsonIfExists(join(outputDir, 'real-run-summary.json'), errors, 'real-run-summary.json');
+  const requireCompleteCapture = Boolean(options.requireCompleteCapture);
+  if (!outputDir) errors.push('validateRealRoundArtifacts requires outputDir');
+  if (!summary) return errors;
+
+  if (summary.schemaVersion !== REAL_ROUND_SCHEMA_VERSION) errors.push(`summary.schemaVersion must be ${REAL_ROUND_SCHEMA_VERSION}`);
+  if (summary.source !== 'ui-tars-real-e2e-round-summary') errors.push('summary.source must be ui-tars-real-e2e-round-summary');
+  if (summary.outputDir !== outputDir) errors.push('summary.outputDir must match validation outputDir');
+  if (!Array.isArray(summary.tasks)) {
+    errors.push('summary.tasks must be an array');
+    return errors;
+  }
+
+  const tasksById = new Map(tasks.map((task) => [task.id, task]));
+  const summaryById = new Map(summary.tasks.map((task) => [task.id, task]));
+  if (summary.totalTasks !== tasks.length) errors.push('summary.totalTasks must match selected task count');
+  if (summary.tasks.length !== tasks.length) errors.push('summary.tasks length must match selected task count');
+  for (const task of tasks) {
+    if (!summaryById.has(task.id)) errors.push(`summary.tasks missing ${task.id}`);
+  }
+  for (const summaryTask of summary.tasks) {
+    if (!tasksById.has(summaryTask.id)) errors.push(`summary.tasks contains unknown task ${summaryTask.id}`);
+  }
+
+  const captured = summary.tasks.filter((task) => task.status === 'captured');
+  if (summary.capturedTasks !== captured.length) errors.push('summary.capturedTasks must match captured task rows');
+  if (summary.successTasks !== captured.filter((task) => task.success).length) errors.push('summary.successTasks must match successful captured rows');
+  const expectedAverage = captured.length === 0
+    ? null
+    : Number((captured.reduce((sum, task) => sum + Number(task.score), 0) / captured.length).toFixed(4));
+  if (summary.averageScore !== expectedAverage) errors.push('summary.averageScore must match captured task scores');
+  if (requireCompleteCapture && captured.length !== tasks.length) errors.push('summary must capture every selected task');
+
+  for (const summaryTask of summary.tasks) {
+    const task = tasksById.get(summaryTask.id);
+    if (!task) continue;
+    if (summaryTask.title !== task.title) errors.push(`${task.id}: summary title must match task registry title`);
+    if (summaryTask.status !== 'captured') {
+      if (requireCompleteCapture) errors.push(`${task.id}: status must be captured`);
+      continue;
+    }
+    if (!summaryTask.capturePath) {
+      errors.push(`${task.id}: capturePath is required for captured tasks`);
+      continue;
+    }
+    if (!summaryTask.capturePath.startsWith(`${outputDir}/tasks/${task.id}/`)) {
+      errors.push(`${task.id}: capturePath must live under the task real-run directory`);
+    }
+    if (!Number.isInteger(summaryTask.captureCount) || summaryTask.captureCount < 1) {
+      errors.push(`${task.id}: captureCount must be a positive integer`);
+    }
+
+    const capture = await readJsonIfExists(summaryTask.capturePath, errors, summaryTask.capturePath);
+    if (!capture) continue;
+    const artifactDir = summaryTask.capturePath.slice(0, summaryTask.capturePath.lastIndexOf('/'));
+    const tracePath = join(artifactDir, 'trace.json');
+    const runExportPath = join(artifactDir, 'run-export.json');
+    const trace = await readJsonIfExists(tracePath, errors, tracePath);
+    const runExport = await readJsonIfExists(runExportPath, errors, runExportPath);
+
+    validateCaptureArtifact({ capture, task, summaryTask, capturePath: summaryTask.capturePath, errors });
+    if (trace) validateTraceArtifact({ trace, capture, task, tracePath, errors });
+    if (runExport) validateRunExportArtifact({ runExport, capture, task, runExportPath, errors });
+    inspectSensitiveContent(capture, summaryTask.capturePath, errors);
+    if (trace) inspectSensitiveContent(trace, tracePath, errors);
+    if (runExport) inspectSensitiveContent(runExport, runExportPath, errors);
+  }
+
+  return errors;
 }
 
 export async function summarizeRealRound(options = {}) {

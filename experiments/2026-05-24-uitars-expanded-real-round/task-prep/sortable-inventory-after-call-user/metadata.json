@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:39:54.394Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/sortable-inventory-after-call-user",
+  "options": {
+    "tasks": "sortable-inventory",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "sortable-inventory",
+      "title": "Select highest-risk inventory",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=sortable-inventory",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/sortable-inventory/prompt.txt",
+        "targetPrepare": "tasks/sortable-inventory/target-prepare.json",
+        "preflightDryRun": "tasks/sortable-inventory/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/sortable-inventory/trace.json",
+        "runExport": "tasks/sortable-inventory/run-export.json"
+      }
+    }
+  ]
+}

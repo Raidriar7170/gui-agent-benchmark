@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:46:19.234Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/validation-error-recovery-after-call-user",
+  "options": {
+    "tasks": "validation-error-recovery",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "validation-error-recovery",
+      "title": "Recover from validation error",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=validation-error-recovery",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/validation-error-recovery/prompt.txt",
+        "targetPrepare": "tasks/validation-error-recovery/target-prepare.json",
+        "preflightDryRun": "tasks/validation-error-recovery/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/validation-error-recovery/trace.json",
+        "runExport": "tasks/validation-error-recovery/run-export.json"
+      }
+    }
+  ]
+}

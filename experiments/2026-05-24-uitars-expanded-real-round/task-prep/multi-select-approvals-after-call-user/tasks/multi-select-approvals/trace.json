@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260524054310-multi-select-approvals",
+  "taskId": "multi-select-approvals",
+  "taskTitle": "Submit multiple approvals",
+  "startedAt": "2026-05-24T05:43:10.572Z",
+  "events": [
+    {
+      "timestamp": "2026-05-24T05:43:10.669Z",
+      "type": "target_prepare",
+      "label": "Target prepare ready",
+      "target": "multi-select-approvals",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "ready",
+        "reason": "Benchmark target is already prepared for the requested task URL.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=multi-select-approvals"
+      }
+    },
+    {
+      "timestamp": "2026-05-24T05:43:10.752Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "multi-select-approvals",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=multi-select-approvals"
+      }
+    }
+  ]
+}

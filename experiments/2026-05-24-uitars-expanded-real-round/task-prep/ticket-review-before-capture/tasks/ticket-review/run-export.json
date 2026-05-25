@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:32:02.690Z",
+  "runs": [
+    {
+      "id": "harness-20260524053202-ticket-review",
+      "taskId": "ticket-review",
+      "taskTitle": "Review priority support ticket",
+      "startedAt": "2026-05-24T05:32:02.521Z",
+      "endedAt": null,
+      "durationMs": 166,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:32:02.611Z",
+          "type": "target_prepare",
+          "label": "Target prepare ready",
+          "target": "ticket-review",
+          "path": null,
+          "value": {
+            "prepareStatus": "ready",
+            "reason": "Benchmark target is already prepared for the requested task URL.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:32:02.687Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "ticket-review",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

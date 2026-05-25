@@ -205,6 +205,8 @@ try {
   let fixtureTargetLists = null;
   let fixtureListReads = 0;
   const fixtureNavigateLog = [];
+  const fixtureCreateLog = [];
+  const fixtureActivateLog = [];
   const fixtureCdpErrors = [];
   const allowedFixtureCdpMethods = new Set(['Page.navigate']);
   const fixtureServer = createServer((request, response) => {
@@ -219,6 +221,29 @@ try {
         : fixtureTargets;
       fixtureListReads += 1;
       response.end(JSON.stringify(targets));
+      return;
+    }
+    if (request.url?.startsWith('/json/new?')) {
+      const address = fixtureServer.address();
+      const port = typeof address === 'object' && address ? address.port : 0;
+      const targetUrl = decodeURIComponent(request.url.slice('/json/new?'.length)) || 'about:blank';
+      const id = `created-target-${fixtureCreateLog.length + 1}`;
+      const target = {
+        id,
+        type: 'page',
+        title: targetUrl.startsWith('http://127.0.0.1:4173') ? 'GUI Agent Benchmark' : 'about:blank',
+        url: targetUrl,
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/${id}`
+      };
+      fixtureCreateLog.push({ id, url: targetUrl });
+      fixtureTargets.push(target);
+      response.end(JSON.stringify(target));
+      return;
+    }
+    if (request.url?.startsWith('/json/activate/')) {
+      const id = decodeURIComponent(request.url.slice('/json/activate/'.length));
+      fixtureActivateLog.push({ id });
+      response.end(JSON.stringify({ ok: true }));
       return;
     }
     response.statusCode = 404;
@@ -310,6 +335,41 @@ try {
     });
     assert(multiExactPrepare.status === 'ambiguous', 'multiple exact benchmark targets should make target preparation ambiguous without isolate');
     assert(validatePreflightReport(multiExactPrepare).length === 0, 'multiple exact prepare report should satisfy schema validation');
+
+    fixtureTargets = [];
+    fixtureTargetLists = null;
+    fixtureListReads = 0;
+    fixtureCreateLog.length = 0;
+    fixtureActivateLog.length = 0;
+    const emptyTargetPrepare = await prepareUitarsTarget({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      confirmExplicitCdpFix: true,
+      isolateTarget: true
+    });
+    assert(emptyTargetPrepare.status === 'fixed', 'empty target preparation should create and activate a benchmark target');
+    assert(emptyTargetPrepare.actions.some((action) => action.candidateType === 'new_target' && action.status === 'ok'), 'empty target preparation should record target creation');
+    assert(fixtureCreateLog.some((entry) => entry.url === expectedCatalogUrl.href), 'empty target preparation should call the CDP new-target endpoint with the benchmark URL');
+    assert(fixtureActivateLog.some((entry) => entry.id === 'created-target-1'), 'empty target preparation should activate the created benchmark target');
+    assert(emptyTargetPrepare.targetsAfter.some((target) => target.url === expectedCatalogUrl.href), 'empty target preparation should record the created exact task target');
+    assert(validatePreflightReport(emptyTargetPrepare).length === 0, 'empty target preparation report should satisfy schema validation');
+
+    fixtureTargets = [];
+    fixtureTargetLists = null;
+    fixtureListReads = 0;
+    fixtureCreateLog.length = 0;
+    fixtureActivateLog.length = 0;
+    const emptyTargetPreflightFix = await runUitarsPreflight({
+      benchmarkUrl: expectedCatalogUrl.href,
+      cdpUrl,
+      fix: true,
+      confirmExplicitCdpFix: true
+    });
+    assert(emptyTargetPreflightFix.status === 'fixed', 'empty preflight fix should create and activate a benchmark target');
+    assert(emptyTargetPreflightFix.actions.some((action) => action.action === 'Target.createTarget' && action.status === 'ok'), 'empty preflight fix should record target creation');
+    assert(fixtureCreateLog.some((entry) => entry.url === expectedCatalogUrl.href), 'empty preflight fix should call the CDP new-target endpoint with the benchmark URL');
+    assert(fixtureActivateLog.some((entry) => entry.id === 'created-target-1'), 'empty preflight fix should activate the created benchmark target');
+    assert(validatePreflightReport(emptyTargetPreflightFix).length === 0, 'empty preflight fix report should satisfy schema validation');
 
     fixtureTargets = [
       {
@@ -459,7 +519,7 @@ try {
     });
     const isolatedExactTargets = isolatedPrepare.targetsAfter.filter((target) => target.url === expectedCatalogUrl.href);
     assert(isolatedPrepare.status === 'fixed', 'isolate target preparation should fix multiple same-app candidates to one exact target');
-    assert(isolatedPrepare.actions.length === 2, 'isolate target preparation should navigate keeper and holding targets');
+    assert(isolatedPrepare.actions.length >= 2, 'isolate target preparation should navigate keeper and holding targets');
     assert(isolatedPrepare.actions.some((action) => action.candidateType === 'benchmark_app_keeper' && action.navigateTo === expectedCatalogUrl.href), 'isolate target preparation should record the benchmark app keeper');
     assert(isolatedPrepare.actions.some((action) => action.candidateType === 'benchmark_app_holding' && action.navigateTo === 'about:blank'), 'isolate target preparation should record benchmark app holding navigation');
     assert(fixtureNavigateLog.some((entry) => entry.id === 'isolate-extra' && entry.url === 'about:blank'), 'isolate target preparation should navigate extra same-app targets to about:blank');
@@ -485,6 +545,7 @@ try {
     fixtureTargetLists = null;
     fixtureListReads = 0;
     fixtureNavigateLog.length = 0;
+    fixtureActivateLog.length = 0;
     const isolatedSearchPrepare = await prepareUitarsTarget({
       benchmarkUrl: expectedCatalogUrl.href,
       cdpUrl,
@@ -497,6 +558,7 @@ try {
     assert(isolatedSearchPrepare.actions.some((action) => action.candidateType === 'search_holding' && action.navigateTo === 'about:blank'), 'isolate search preparation should record search holding navigation');
     assert(fixtureNavigateLog.some((entry) => entry.id === 'isolate-search-keeper' && entry.url === expectedCatalogUrl.href), 'isolate search preparation should navigate keeper to benchmark URL');
     assert(fixtureNavigateLog.some((entry) => entry.id === 'isolate-search-extra' && entry.url === 'about:blank'), 'isolate search preparation should navigate search extra to about:blank');
+    assert(fixtureActivateLog.some((entry) => entry.id === 'isolate-search-keeper'), 'isolate search preparation should activate the benchmark keeper after isolating search extras');
     assert(isolatedSearchExactTargets.length === 1, 'isolate search preparation should leave exactly one exact target afterward');
     assert(!isolatedSearchPrepare.targetsAfter.some((target) => target.url === 'https://www.google.com/search?q=benchmark'), 'isolate search preparation should leave no search extra afterward');
     assert(validatePreflightReport(isolatedSearchPrepare).length === 0, 'isolated search prepare report should satisfy schema validation');

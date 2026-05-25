@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "catalog-filter",
+  "taskTitle": "Find approved desk gear",
+  "artifactBase": "experiments/2026-05-24-uitars-expanded-real-round",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, preflight reports, final capture state, and operator-authored prompts.",
+    "Raw UI-TARS action transcript, screenshots, browser private storage, and model-internal logs were not captured for this expanded round.",
+    "Intermediate action steps therefore use capture_final_state, preflight_report, operator_note-compatible prompt artifacts, and derived attribution rather than transcript_observation evidence."
+  ],
+  "steps": [
+    {
+      "id": "catalog-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate artifact is linked for this expanded round, including local validation, smoke, tunnel, and remote checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-25-expanded-real-round.json"
+        ]
+      }
+    },
+    {
+      "id": "catalog-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded initial prompt for catalog-filter; non-benchmark pages required call_user() before proceeding.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "catalog-s03-target-preflight",
+      "index": 3,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind_or_prepare",
+      "summary": "Preflight and preparation artifacts document the benchmark target repair/isolation path before capture.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/catalog-filter-after-call-user/metadata.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/catalog-filter-before-capture/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "catalog-s04-continue-prompt",
+      "index": 4,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent continuation prompt once the catalog-filter benchmark page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "catalog-s03-target-preflight"
+      ]
+    },
+    {
+      "id": "catalog-s05-progress",
+      "index": 5,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "no_task_state_progress",
+      "summary": "Final state shows search text entered for the catalog task. No judge criteria passed before capture.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "catalog.search": "office",
+        "catalog.category": "all",
+        "catalog.minRating": 0,
+        "catalog.inStockOnly": false,
+        "catalog.selectedSku": ""
+      }
+    },
+    {
+      "id": "catalog-s06-missing-state",
+      "index": 6,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "required_state_missing",
+      "summary": "Category/rating filters stayed at defaults and selectedSku remained empty.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "catalog.search": "office",
+        "catalog.category": "all",
+        "catalog.minRating": 0,
+        "catalog.inStockOnly": false,
+        "catalog.selectedSku": ""
+      },
+      "relatedStepIds": [
+        "catalog-s05-progress"
+      ]
+    },
+    {
+      "id": "catalog-s07-capture",
+      "index": 7,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for catalog-filter.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "catalog-s08-evaluation",
+      "index": 8,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0; success was false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/catalog-filter/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0,
+        "passedCriteria": [],
+        "failedCriteria": [
+          "selected SKU is ERGO-27",
+          "selected product is in stock",
+          "selected product category is office",
+          "selected product rating is at least 4.5"
+        ]
+      }
+    },
+    {
+      "id": "catalog-s09-failure",
+      "index": 9,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is selection commit: the model changed visible search state but did not commit the target catalog item.",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "catalog-s05-progress",
+          "catalog-s06-missing-state",
+          "catalog-s08-evaluation"
+        ]
+      },
+      "failureCode": "ACT-SELECTION-COMMIT-MISS",
+      "relatedStepIds": [
+        "catalog-s05-progress",
+        "catalog-s06-missing-state",
+        "catalog-s08-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0,
+    "primaryFailureCode": "ACT-SELECTION-COMMIT-MISS",
+    "failedCriteria": [
+      "selected SKU is ERGO-27",
+      "selected product is in stock",
+      "selected product category is office",
+      "selected product rating is at least 4.5"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260524053339-modal-confirmation",
+  "taskId": "modal-confirmation",
+  "taskTitle": "Confirm access request",
+  "startedAt": "2026-05-24T05:33:39.763Z",
+  "events": [
+    {
+      "timestamp": "2026-05-24T05:33:39.862Z",
+      "type": "target_prepare",
+      "label": "Target prepare ready",
+      "target": "modal-confirmation",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "ready",
+        "reason": "Benchmark target is already prepared for the requested task URL.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=modal-confirmation"
+      }
+    },
+    {
+      "timestamp": "2026-05-24T05:33:39.947Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "modal-confirmation",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=modal-confirmation"
+      }
+    }
+  ]
+}

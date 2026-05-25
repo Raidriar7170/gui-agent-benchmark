@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-24T05:43:10.572Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-24-uitars-expanded-real-round/task-prep/multi-select-approvals-after-call-user",
+  "options": {
+    "tasks": "multi-select-approvals",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "multi-select-approvals",
+      "title": "Submit multiple approvals",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=multi-select-approvals",
+      "targetPrepareStatus": "ready",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/multi-select-approvals/prompt.txt",
+        "targetPrepare": "tasks/multi-select-approvals/target-prepare.json",
+        "preflightDryRun": "tasks/multi-select-approvals/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/multi-select-approvals/trace.json",
+        "runExport": "tasks/multi-select-approvals/run-export.json"
+      }
+    }
+  ]
+}

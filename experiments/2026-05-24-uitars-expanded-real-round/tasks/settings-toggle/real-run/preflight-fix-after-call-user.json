@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-24T05:28:35.413Z",
+  "status": "fixed",
+  "reason": "Navigated 1 search page target to the benchmark URL.",
+  "mode": {
+    "fix": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=settings-toggle",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:50452/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "ok",
+      "target": {
+        "id": "7C1BD69FFAE8E14D997D5C42CB1BBA91",
+        "type": "page",
+        "title": "Google",
+        "url": "https://www.google.com/"
+      },
+      "navigateTo": "http://127.0.0.1:4173/?task=settings-toggle"
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "7C1BD69FFAE8E14D997D5C42CB1BBA91",
+      "type": "page",
+      "title": "Google",
+      "url": "https://www.google.com/"
+    },
+    {
+      "id": "F6643FB80B575FD4C523426861484876",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "7C1BD69FFAE8E14D997D5C42CB1BBA91",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    {
+      "id": "F6643FB80B575FD4C523426861484876",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "warnings": []
+}

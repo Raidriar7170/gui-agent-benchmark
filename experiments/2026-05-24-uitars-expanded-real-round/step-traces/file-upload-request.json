@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-step-trace",
+  "taskId": "file-upload-request",
+  "taskTitle": "Attach compliance evidence",
+  "artifactBase": "experiments/2026-05-24-uitars-expanded-real-round",
+  "evidenceLimitations": [
+    "Timeline is reconstructed from round artifacts, preflight reports, final capture state, and operator-authored prompts.",
+    "Raw UI-TARS action transcript, screenshots, browser private storage, and model-internal logs were not captured for this expanded round.",
+    "Intermediate action steps therefore use capture_final_state, preflight_report, operator_note-compatible prompt artifacts, and derived attribution rather than transcript_observation evidence."
+  ],
+  "steps": [
+    {
+      "id": "upload-s01-finish-gate",
+      "index": 1,
+      "phase": "environment",
+      "actor": "environment",
+      "type": "finish_gate",
+      "summary": "Full finish gate artifact is linked for this expanded round, including local validation, smoke, tunnel, and remote checks.",
+      "evidence": {
+        "kind": "finish_gate",
+        "references": [
+          "artifacts/finish-gate/2026-05-25-expanded-real-round.json"
+        ]
+      }
+    },
+    {
+      "id": "upload-s02-initial-prompt",
+      "index": 2,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "initial_prompt",
+      "summary": "Sent guarded initial prompt for file-upload-request; non-benchmark pages required call_user() before proceeding.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      }
+    },
+    {
+      "id": "upload-s03-target-preflight",
+      "index": 3,
+      "phase": "preflight",
+      "actor": "preflight",
+      "type": "target_rebind_or_prepare",
+      "summary": "Preflight and preparation artifacts document the benchmark target repair/isolation path before capture.",
+      "evidence": {
+        "kind": "preflight_report",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/preflight-fix-before-run.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/preflight-fix-after-call-user.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/file-upload-request-after-call-user/metadata.json",
+          "experiments/2026-05-24-uitars-expanded-real-round/task-prep/file-upload-request-before-capture/metadata.json"
+        ]
+      }
+    },
+    {
+      "id": "upload-s04-continue-prompt",
+      "index": 4,
+      "phase": "prompt",
+      "actor": "operator",
+      "type": "continue_prompt",
+      "summary": "Sent continuation prompt once the file-upload-request benchmark page was prepared.",
+      "evidence": {
+        "kind": "artifact",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/round-plan.json"
+        ]
+      },
+      "relatedStepIds": [
+        "upload-s03-target-preflight"
+      ]
+    },
+    {
+      "id": "upload-s05-progress",
+      "index": 5,
+      "phase": "action",
+      "actor": "ui-tars",
+      "type": "partial_progress_observed",
+      "summary": "Final state shows security-audit.pdf attached to the upload field.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "upload.selectedFile": "security-audit.pdf",
+        "upload.category": "",
+        "upload.description": "",
+        "upload.submitted": false,
+        "expectedCategory": "Compliance"
+      }
+    },
+    {
+      "id": "upload-s06-missing-state",
+      "index": 6,
+      "phase": "observation",
+      "actor": "ui-tars",
+      "type": "required_state_missing",
+      "summary": "Category stayed empty, description stayed empty, and submitted stayed false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/capture.json"
+        ]
+      },
+      "stateEvidence": {
+        "upload.selectedFile": "security-audit.pdf",
+        "upload.category": "",
+        "upload.description": "",
+        "upload.submitted": false,
+        "expectedCategory": "Compliance"
+      },
+      "relatedStepIds": [
+        "upload-s05-progress"
+      ]
+    },
+    {
+      "id": "upload-s07-capture",
+      "index": 7,
+      "phase": "capture",
+      "actor": "capture",
+      "type": "final_state_capture",
+      "summary": "Captured final benchmark state and judge result for file-upload-request.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/capture.json"
+        ]
+      }
+    },
+    {
+      "id": "upload-s08-evaluation",
+      "index": 8,
+      "phase": "evaluation",
+      "actor": "benchmark",
+      "type": "judge_result",
+      "summary": "Judge score was 0.25; success was false.",
+      "evidence": {
+        "kind": "capture_final_state",
+        "references": [
+          "experiments/2026-05-24-uitars-expanded-real-round/tasks/file-upload-request/real-run/capture.json"
+        ]
+      },
+      "judge": {
+        "success": false,
+        "score": 0.25,
+        "passedCriteria": [
+          "security-audit.pdf is attached"
+        ],
+        "failedCriteria": [
+          "category is Compliance",
+          "description mentions Q2 security audit evidence",
+          "upload request is submitted"
+        ]
+      }
+    },
+    {
+      "id": "upload-s09-failure",
+      "index": 9,
+      "phase": "failure",
+      "actor": "analysis",
+      "type": "failure_attribution",
+      "summary": "Primary failure is dropdown/upload workflow completion: file attachment succeeded but the category dropdown and remaining submit path did not.",
+      "evidence": {
+        "kind": "derived",
+        "references": [
+          "upload-s05-progress",
+          "upload-s06-missing-state",
+          "upload-s08-evaluation"
+        ]
+      },
+      "failureCode": "ACT-DROPDOWN-VALUE-MISS",
+      "relatedStepIds": [
+        "upload-s05-progress",
+        "upload-s06-missing-state",
+        "upload-s08-evaluation"
+      ]
+    }
+  ],
+  "final": {
+    "success": false,
+    "score": 0.25,
+    "primaryFailureCode": "ACT-DROPDOWN-VALUE-MISS",
+    "failedCriteria": [
+      "category is Compliance",
+      "description mentions Q2 security audit evidence",
+      "upload request is submitted"
+    ]
+  }
+}

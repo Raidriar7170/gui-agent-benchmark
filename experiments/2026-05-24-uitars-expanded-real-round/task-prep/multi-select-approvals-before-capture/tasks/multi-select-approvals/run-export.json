@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-24T05:44:26.181Z",
+  "runs": [
+    {
+      "id": "harness-20260524054425-multi-select-approvals",
+      "taskId": "multi-select-approvals",
+      "taskTitle": "Submit multiple approvals",
+      "startedAt": "2026-05-24T05:44:25.999Z",
+      "endedAt": null,
+      "durationMs": 179,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-24T05:44:26.097Z",
+          "type": "target_prepare",
+          "label": "Target prepare ready",
+          "target": "multi-select-approvals",
+          "path": null,
+          "value": {
+            "prepareStatus": "ready",
+            "reason": "Benchmark target is already prepared for the requested task URL.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=multi-select-approvals"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-24T05:44:26.178Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "multi-select-approvals",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=multi-select-approvals"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

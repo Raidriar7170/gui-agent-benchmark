@@ -15,6 +15,15 @@ experiments/2026-05-23-uitars-real-e2e/step-traces/<task-id>.json
 Each trace is linked from
 `experiments/2026-05-23-uitars-real-e2e/failure-taxonomy.json`.
 
+For the expanded 2026-05-25 evidence-chain round:
+
+```text
+experiments/2026-05-24-uitars-expanded-real-round/step-traces/<task-id>.json
+```
+
+Each expanded trace is linked from
+`experiments/2026-05-24-uitars-expanded-real-round/failure-taxonomy.json`.
+
 ## Top-Level Shape
 
 ```json
