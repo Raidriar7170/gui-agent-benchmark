@@ -54,6 +54,9 @@ function rawTraceFixture() {
         type: 'action',
         role: 'assistant',
         timestamp: '2026-05-23T00:00:04.000Z',
+        artifactRefs: [
+          'tasks/settings-toggle/raw/action-raw-4.json'
+        ],
         action: {
           name: 'click',
           args: {
@@ -67,13 +70,28 @@ function rawTraceFixture() {
         type: 'tool_result',
         role: 'tool',
         timestamp: '2026-05-23T00:00:05.000Z',
+        artifactRefs: [
+          'tasks/settings-toggle/raw/tool-result-raw-5.json'
+        ],
+        screenshotRef: 'tasks/settings-toggle/screenshots/tool-result-raw-5.png',
         text: 'Click completed.'
       },
       {
         id: 'raw-6',
+        type: 'capture',
+        role: 'capture',
+        timestamp: '2026-05-23T00:00:06.000Z',
+        artifactRefs: [
+          'tasks/settings-toggle/raw/capture-raw-6.json'
+        ],
+        screenshotRef: 'tasks/settings-toggle/screenshots/capture-raw-6.png',
+        text: 'Captured final browser state after tool result.'
+      },
+      {
+        id: 'raw-7',
         type: 'judge_result',
         role: 'benchmark',
-        timestamp: '2026-05-23T00:00:06.000Z',
+        timestamp: '2026-05-23T00:00:07.000Z',
         evaluation: {
           success: false,
           score: 0.75,
@@ -127,10 +145,28 @@ assert(stepTrace.steps.length === fixture.events.length + 1, 'conversion should 
 assert(stepTrace.steps[1].rawEventId === 'raw-2', 'converted steps should retain raw event ids');
 assert(stepTrace.steps[1].evidence.kind === 'transcript_observation', 'observations should keep transcript evidence kind');
 assert(stepTrace.steps.at(-1).failureCode === 'ACT-DROPDOWN-VALUE-MISS', 'failure attribution should use final primary failure code');
+const actionStep = stepTrace.steps.find((step) => step.rawEventId === 'raw-4');
+assert(
+  actionStep?.evidence.references.includes('tasks/settings-toggle/raw/action-raw-4.json'),
+  'converted action steps should retain external artifact references'
+);
+const toolResultStep = stepTrace.steps.find((step) => step.rawEventId === 'raw-5');
+assert(
+  toolResultStep?.evidence.references.includes('tasks/settings-toggle/raw/tool-result-raw-5.json') &&
+    toolResultStep?.evidence.references.includes('tasks/settings-toggle/screenshots/tool-result-raw-5.png'),
+  'converted tool_result steps should retain external artifact and screenshot references'
+);
+const captureStep = stepTrace.steps.find((step) => step.rawEventId === 'raw-6');
+assert(
+  captureStep?.evidence.references.includes('tasks/settings-toggle/raw/capture-raw-6.json') &&
+    captureStep?.evidence.references.includes('tasks/settings-toggle/screenshots/capture-raw-6.png'),
+  'converted capture steps should retain external artifact and screenshot references'
+);
 
 const summary = summarizeRawUitarsTrace(fixture);
-assert(summary.eventCount === 6, 'summary should count raw events');
+assert(summary.eventCount === 7, 'summary should count raw events');
 assert(summary.eventTypes.action === 1, 'summary should count action events');
+assert(summary.eventTypes.capture === 1, 'summary should count capture events');
 assert(summary.hasJudgeResult === true, 'summary should detect judge result events');
 
 const invalidEventType = structuredClone(fixture);
@@ -146,6 +182,75 @@ assert(
   validateRawUitarsTrace(invalidScreenshot).some((error) => error.includes('base64')),
   'validator should reject inline base64 screenshots'
 );
+
+for (const eventType of ['action', 'tool_result', 'capture']) {
+  const missingRefs = structuredClone(fixture);
+  const eventIndex = missingRefs.events.findIndex((event) => event.type === eventType);
+  delete missingRefs.events[eventIndex].artifactRefs;
+  delete missingRefs.events[eventIndex].screenshotRef;
+  assert(
+    validateRawUitarsTrace(missingRefs).some(
+      (error) => error.includes(`events[${eventIndex}]`) && error.includes('artifactRefs or screenshotRef')
+    ),
+    `validator should reject ${eventType} events without external artifact references`
+  );
+}
+
+const emptyArtifactRefs = structuredClone(fixture);
+emptyArtifactRefs.events[3].artifactRefs = [];
+assert(
+  validateRawUitarsTrace(emptyArtifactRefs).some(
+    (error) => error.includes('events[3].artifactRefs') && error.includes('non-empty string array')
+  ),
+  'validator should reject empty artifactRefs arrays'
+);
+
+const invalidArtifactRefs = structuredClone(fixture);
+invalidArtifactRefs.events[3].artifactRefs = ['tasks/settings-toggle/raw/action-raw-4.json', ''];
+assert(
+  validateRawUitarsTrace(invalidArtifactRefs).some(
+    (error) => error.includes('events[3].artifactRefs') && error.includes('non-empty string array')
+  ),
+  'validator should reject artifactRefs with empty items'
+);
+
+const invalidScreenshotRef = structuredClone(fixture);
+invalidScreenshotRef.events[4].screenshotRef = ' ';
+assert(
+  validateRawUitarsTrace(invalidScreenshotRef).some(
+    (error) => error.includes('events[4].screenshotRef') && error.includes('non-empty string')
+  ),
+  'validator should reject empty screenshotRef values'
+);
+
+const invalidReferenceCases = [
+  ['path traversal', '../secret.json'],
+  ['absolute path', '/Users/me/private.png'],
+  ['URL credentials', 'https://u:p@example.com/x.png'],
+  ['control characters', 'tasks/settings-toggle/screenshots/action\nraw-4.png'],
+  ['data image payload', 'data:image/png;base64,aW1hZ2U='],
+  ['base64-looking payload', 'a'.repeat(520)]
+];
+
+for (const [caseName, ref] of invalidReferenceCases) {
+  const invalidArtifactRef = structuredClone(fixture);
+  invalidArtifactRef.events[3].artifactRefs = [ref];
+  assert(
+    validateRawUitarsTrace(invalidArtifactRef).some(
+      (error) => error.includes('events[3].artifactRefs') && error.includes('valid external artifact reference')
+    ),
+    `validator should reject artifactRefs with ${caseName}`
+  );
+
+  const invalidScreenshotReference = structuredClone(fixture);
+  invalidScreenshotReference.events[4].screenshotRef = ref;
+  assert(
+    validateRawUitarsTrace(invalidScreenshotReference).some(
+      (error) => error.includes('events[4].screenshotRef') && error.includes('valid external artifact reference')
+    ),
+    `validator should reject screenshotRef with ${caseName}`
+  );
+}
 
 const tempDir = await mkdtemp(join(tmpdir(), 'uitars-raw-trace-'));
 try {

@@ -63,6 +63,9 @@ finish gate, but they are not raw UI-TARS action transcripts.
 Raw UI-TARS action-level logs, screenshots, browser private storage, and
 model-internal logs were not captured for the expanded round. The current
 evidence supports qualitative failure analysis, not leaderboard-style claims.
+P0 is covered by the scripted oracle baseline; P1 is a forward-looking
+ingestion/capture contract and does not mean the historical expanded round has
+raw UI-TARS logs.
 
 扩展轮次里的 step traces 是基于现有 artifact 重建的时间线归因，不是原始
 UI-TARS action transcript。当前证据适合解释失败模式和 primitive 难点，但还

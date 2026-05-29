@@ -27,12 +27,40 @@ const allowedRoles = new Set([
   'capture'
 ]);
 
+const externalReferenceRequiredEventTypes = new Set([
+  'action',
+  'tool_result',
+  'capture'
+]);
+
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function nonEmptyStringArray(value) {
+  return Array.isArray(value) && value.length > 0 && value.every(nonEmptyString);
+}
+
+function isValidExternalArtifactReference(value) {
+  if (!nonEmptyString(value)) return false;
+  if (value !== value.trim()) return false;
+  if (/[\x00-\x1f\x7f]/.test(value)) return false;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return false;
+  if (value.startsWith('/') || value.startsWith('\\') || value.startsWith('~')) return false;
+  if (value.includes('\\')) return false;
+  if (value.length > 512) return false;
+
+  const segments = value.split('/');
+  if (segments.some((segment) => segment === '' || segment === '.' || segment === '..')) return false;
+  return segments.every((segment) => /^[A-Za-z0-9._-]+$/.test(segment) && segment.length <= 128);
+}
+
+function validExternalArtifactReferenceArray(value) {
+  return nonEmptyStringArray(value) && value.every(isValidExternalArtifactReference);
 }
 
 function pushIf(errors, condition, message) {
@@ -100,7 +128,27 @@ export function validateRawUitarsTrace(trace) {
         pushIf(errors, !isPlainObject(event.evaluation), `${path}.evaluation must be present for judge_result events`);
       }
       if (event.artifactRefs !== undefined) {
-        pushIf(errors, !Array.isArray(event.artifactRefs), `${path}.artifactRefs must be an array when present`);
+        pushIf(errors, !nonEmptyStringArray(event.artifactRefs), `${path}.artifactRefs must be a non-empty string array when present`);
+        pushIf(
+          errors,
+          nonEmptyStringArray(event.artifactRefs) && !validExternalArtifactReferenceArray(event.artifactRefs),
+          `${path}.artifactRefs must contain valid external artifact references`
+        );
+      }
+      if (event.screenshotRef !== undefined) {
+        pushIf(errors, !nonEmptyString(event.screenshotRef), `${path}.screenshotRef must be a non-empty string when present`);
+        pushIf(
+          errors,
+          nonEmptyString(event.screenshotRef) && !isValidExternalArtifactReference(event.screenshotRef),
+          `${path}.screenshotRef must be a valid external artifact reference`
+        );
+      }
+      if (externalReferenceRequiredEventTypes.has(event.type)) {
+        pushIf(
+          errors,
+          !validExternalArtifactReferenceArray(event.artifactRefs) && !isValidExternalArtifactReference(event.screenshotRef),
+          `${path} must include artifactRefs or screenshotRef for ${event.type} events`
+        );
       }
     });
   }

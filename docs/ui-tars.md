@@ -8,6 +8,14 @@ file and import that file through the Runs dashboard. This keeps credentials,
 raw prompts, browser storage internals, and large screenshots outside the
 benchmark storage model.
 
+P1 raw transcript capture is forward-looking. A future real-run bundle should
+preserve the raw trace JSON and external screenshot/artifact references for
+`action`, `tool_result`, and `capture` events, while continuing to reject inline
+base64 image payloads. In the P1 raw schema, `artifactRefs` and `screenshotRef`
+are bundle-relative paths only; they are not absolute local paths or URLs.
+Historical derived step traces should not be rewritten as raw UI-TARS
+transcripts without the original raw logs and referenced artifacts.
+
 Recommended hook flow:
 
 1. Start a benchmark task with `window.__BENCH__.reset(taskId)`.
@@ -43,6 +51,11 @@ Minimal trace shape:
 
 Event-stream JSONL is not part of the MVP importer. If a runner emits one event
 per line, aggregate those events into a complete trace object before import.
+
+The trace importer described above is the older Runs-dashboard importer and may
+carry fields such as `screenshotUrl` or `screenshotPath`. The P1 raw transcript
+schema is stricter: use `artifactRefs` and `screenshotRef` with relative bundle
+paths, and keep externally hosted or local absolute paths out of raw JSON.
 
 ## Config
 
