@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-native-task-action-transcript-smoke",
+  "createdAt": "2026-05-29T03:41:45.930Z",
+  "scope": {
+    "taskIds": [
+      "onboarding-form",
+      "settings-toggle",
+      "pagination-review"
+    ],
+    "taskCount": 3,
+    "measurement": "Measures native task-action transcript preservation for three prepared UI-TARS tasks; this is not automated model scoring."
+  },
+  "preflightContextPath": "experiments/2026-05-29-p1-native-action-transcript-smoke/preflight-context/metadata.json",
+  "metrics": {
+    "native_task_actions_captured": 0,
+    "visible_transcript_only": 0,
+    "invalid_native_transcript": 0,
+    "missing_native_transcript": 3
+  },
+  "tasks": [
+    {
+      "taskId": "onboarding-form",
+      "taskTitle": "Submit onboarding request",
+      "preflightStatus": "ready",
+      "transcriptStatus": "missing_native_transcript",
+      "rawTracePath": null,
+      "taskActionCount": 0,
+      "taskActionNames": [],
+      "evidence": [
+        "preflight status=ready",
+        "targetPrepareStatus=fixed",
+        "dryRunStatus=ready",
+        "no native raw trace file found under the P1.5 task artifact directory for onboarding-form"
+      ],
+      "limitations": [
+        "Native task actions are not reconstructed from capture, run-export, trace, screenshots, or final state.",
+        "Preflight artifacts only prove target readiness; they do not prove model task-action execution.",
+        "Missing native transcript means no native task-action coverage was available for this smoke."
+      ],
+      "analysisPath": "experiments/2026-05-29-p1-native-action-transcript-smoke/tasks/onboarding-form/native-transcript-analysis.json"
+    },
+    {
+      "taskId": "settings-toggle",
+      "taskTitle": "Update workspace settings",
+      "preflightStatus": "ready",
+      "transcriptStatus": "missing_native_transcript",
+      "rawTracePath": null,
+      "taskActionCount": 0,
+      "taskActionNames": [],
+      "evidence": [
+        "preflight status=ready",
+        "targetPrepareStatus=fixed",
+        "dryRunStatus=ready",
+        "no native raw trace file found under the P1.5 task artifact directory for settings-toggle"
+      ],
+      "limitations": [
+        "Native task actions are not reconstructed from capture, run-export, trace, screenshots, or final state.",
+        "Preflight artifacts only prove target readiness; they do not prove model task-action execution.",
+        "Missing native transcript means no native task-action coverage was available for this smoke."
+      ],
+      "analysisPath": "experiments/2026-05-29-p1-native-action-transcript-smoke/tasks/settings-toggle/native-transcript-analysis.json"
+    },
+    {
+      "taskId": "pagination-review",
+      "taskTitle": "Review paginated invoice",
+      "preflightStatus": "ready",
+      "transcriptStatus": "missing_native_transcript",
+      "rawTracePath": null,
+      "taskActionCount": 0,
+      "taskActionNames": [],
+      "evidence": [
+        "preflight status=ready",
+        "targetPrepareStatus=fixed",
+        "dryRunStatus=ready",
+        "no native raw trace file found under the P1.5 task artifact directory for pagination-review"
+      ],
+      "limitations": [
+        "Native task actions are not reconstructed from capture, run-export, trace, screenshots, or final state.",
+        "Preflight artifacts only prove target readiness; they do not prove model task-action execution.",
+        "Missing native transcript means no native task-action coverage was available for this smoke."
+      ],
+      "analysisPath": "experiments/2026-05-29-p1-native-action-transcript-smoke/tasks/pagination-review/native-transcript-analysis.json"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-29T03:42:01.525Z",
+  "runs": [
+    {
+      "id": "harness-20260529034145-pagination-review",
+      "taskId": "pagination-review",
+      "taskTitle": "Review paginated invoice",
+      "startedAt": "2026-05-29T03:41:45.930Z",
+      "endedAt": null,
+      "durationMs": 15593,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-29T03:41:56.419Z",
+          "type": "target_prepare",
+          "label": "Target prepare fixed",
+          "target": "pagination-review",
+          "path": null,
+          "value": {
+            "prepareStatus": "fixed",
+            "reason": "Exact benchmark task target is visible and no supported search target remains after target preparation.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-29T03:42:01.523Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "pagination-review",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

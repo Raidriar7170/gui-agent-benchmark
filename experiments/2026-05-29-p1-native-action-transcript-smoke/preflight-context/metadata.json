@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-05-29T03:41:45.930Z",
+  "source": "ui-tars-benchmark-harness",
+  "outputDir": "experiments/2026-05-29-p1-native-action-transcript-smoke/preflight-context",
+  "options": {
+    "tasks": "onboarding-form,settings-toggle,pagination-review",
+    "baseUrl": "http://127.0.0.1:4173/",
+    "cdpEndpoint": "",
+    "discoverLocalUitars": true,
+    "prepareTarget": true,
+    "isolateTarget": true,
+    "preflightFix": false,
+    "confirmExplicitCdpFix": false,
+    "allowRemoteCdp": false,
+    "allowRemoteBenchmark": false
+  },
+  "tasks": [
+    {
+      "id": "onboarding-form",
+      "title": "Submit onboarding request",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form",
+      "targetPrepareStatus": "fixed",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/onboarding-form/prompt.txt",
+        "targetPrepare": "tasks/onboarding-form/target-prepare.json",
+        "preflightDryRun": "tasks/onboarding-form/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/onboarding-form/trace.json",
+        "runExport": "tasks/onboarding-form/run-export.json"
+      }
+    },
+    {
+      "id": "settings-toggle",
+      "title": "Update workspace settings",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle",
+      "targetPrepareStatus": "fixed",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/settings-toggle/prompt.txt",
+        "targetPrepare": "tasks/settings-toggle/target-prepare.json",
+        "preflightDryRun": "tasks/settings-toggle/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/settings-toggle/trace.json",
+        "runExport": "tasks/settings-toggle/run-export.json"
+      }
+    },
+    {
+      "id": "pagination-review",
+      "title": "Review paginated invoice",
+      "status": "ready",
+      "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review",
+      "targetPrepareStatus": "fixed",
+      "dryRunStatus": "ready",
+      "fixStatus": null,
+      "reason": "Benchmark target is already present and no search page target needs correction.",
+      "files": {
+        "prompt": "tasks/pagination-review/prompt.txt",
+        "targetPrepare": "tasks/pagination-review/target-prepare.json",
+        "preflightDryRun": "tasks/pagination-review/preflight-dry-run.json",
+        "preflightFix": null,
+        "trace": "tasks/pagination-review/trace.json",
+        "runExport": "tasks/pagination-review/run-export.json"
+      }
+    }
+  ]
+}

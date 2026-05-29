@@ -1,0 +1,11 @@
+Task: Review paginated invoice
+
+Go to page 2 of the invoice queue and mark invoice INV-203 reviewed.
+
+Start URL: http://127.0.0.1:4173/?task=pagination-review
+Max steps: 10
+
+Success criteria:
+- pagination is on page 2
+- invoice INV-203 exists
+- invoice INV-203 is reviewed

@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-29T03:41:46.043Z",
+  "status": "fixed",
+  "reason": "Exact benchmark task target is visible and no supported search target remains after target preparation.",
+  "mode": {
+    "fix": true,
+    "prepareTarget": true,
+    "isolateTarget": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=onboarding-form",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:50982/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "error",
+      "candidateType": "benchmark_app_keeper",
+      "navigateTo": "http://127.0.0.1:4173/?task=onboarding-form",
+      "target": {
+        "id": "1EE7D3B8BCE40434ED8F3B9B821696F6",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=pagination-review"
+      },
+      "reason": "Timed out waiting for CDP Page.navigate."
+    },
+    {
+      "action": "Target.activateTarget",
+      "status": "ok",
+      "candidateType": "benchmark_app_keeper",
+      "target": {
+        "id": "1EE7D3B8BCE40434ED8F3B9B821696F6",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "1EE7D3B8BCE40434ED8F3B9B821696F6",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=pagination-review"
+    },
+    {
+      "id": "34866D9DE5B29F87D8BBDD3E39024722",
+      "type": "page",
+      "title": "",
+      "url": "about:blank"
+    },
+    {
+      "id": "792FD6F27EBDC6654B4414427D3C891A",
+      "type": "page",
+      "title": "Google",
+      "url": "about:blank"
+    },
+    {
+      "id": "89FE713FB620D536A7ACF1C2F65E764C",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "75CFBB006BD20DB4B3D4AFA9C847F4C0",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "3B4CFC068895804DDE6EA131D4005CE1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "F3D064D8AF866ADE6D9EDA4098715640",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "DA48F703B77BAB67205D5B0E405436CF",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "468E868CDD5BA2B12D2BEE328F07E9AF",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "A7CA45380813F0B1A3BBA93D53F65A32",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "028219CE1FCFA23C64B6300B844D1221",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "C53D349D38F5FB3291E8B367565B5BDA",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "A8A632B536FD6ADB084D0AD61D26BFB7",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "2CA1959DAC31BA79C5F06B50666FF98E",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "64DB89CFB3E3BFB0F4B041B22B7ED743",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "DC7112194E04D2A573B9706069DCDEA1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "58E1ACFFD2AF7C3572F8DB9AA64A7B5F",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "1EE7D3B8BCE40434ED8F3B9B821696F6",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    },
+    {
+      "id": "34866D9DE5B29F87D8BBDD3E39024722",
+      "type": "page",
+      "title": "",
+      "url": "about:blank"
+    },
+    {
+      "id": "792FD6F27EBDC6654B4414427D3C891A",
+      "type": "page",
+      "title": "Google",
+      "url": "about:blank"
+    },
+    {
+      "id": "89FE713FB620D536A7ACF1C2F65E764C",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "75CFBB006BD20DB4B3D4AFA9C847F4C0",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "3B4CFC068895804DDE6EA131D4005CE1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "F3D064D8AF866ADE6D9EDA4098715640",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "DA48F703B77BAB67205D5B0E405436CF",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "468E868CDD5BA2B12D2BEE328F07E9AF",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "A7CA45380813F0B1A3BBA93D53F65A32",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "028219CE1FCFA23C64B6300B844D1221",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "C53D349D38F5FB3291E8B367565B5BDA",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "A8A632B536FD6ADB084D0AD61D26BFB7",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "2CA1959DAC31BA79C5F06B50666FF98E",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "64DB89CFB3E3BFB0F4B041B22B7ED743",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "DC7112194E04D2A573B9706069DCDEA1",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    },
+    {
+      "id": "58E1ACFFD2AF7C3572F8DB9AA64A7B5F",
+      "type": "page",
+      "title": "about:blank",
+      "url": "about:blank"
+    }
+  ],
+  "warnings": [
+    "1 navigation response failed, but the exact benchmark task target became visible and no supported search target remains."
+  ]
+}

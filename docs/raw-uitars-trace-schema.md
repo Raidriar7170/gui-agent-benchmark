@@ -99,6 +99,28 @@ schema unless the original raw UI-TARS transcript and referenced screenshots or
 artifacts exist. The expanded round step traces remain derived timeline
 attributions, not raw UI-TARS action logs.
 
+## P1.5 Native Task-Action Transcript Smoke
+
+`npm run validate:native-task-action-transcript` validates the P1.5 preservation
+smoke under `experiments/2026-05-29-p1-native-action-transcript-smoke/`.
+
+This smoke distinguishes four states:
+
+- `native_task_actions_captured`: a preserved native raw UI-TARS transcript
+  passes schema validation and contains at least one task-execution action such
+  as `click`, `type`, `fill`, `select`, `press`, `submit`, `drag`, `check`, or
+  `uncheck`.
+- `visible_transcript_only`: a preserved transcript exists, but it does not
+  contain native task-execution actions.
+- `invalid_native_transcript`: a candidate native transcript exists but does
+  not satisfy the raw UI-TARS transcript schema.
+- `missing_native_transcript`: no native task-action transcript was preserved
+  for the task.
+
+The P1.5 smoke is a preservation and honesty check, not automated model
+scoring. It must not reconstruct native task-action events from capture,
+run-export, trace, screenshots, or final-state artifacts.
+
 ## CLI
 
 ```sh

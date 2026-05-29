@@ -1,0 +1,36 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260529034145-pagination-review",
+  "taskId": "pagination-review",
+  "taskTitle": "Review paginated invoice",
+  "startedAt": "2026-05-29T03:41:45.930Z",
+  "events": [
+    {
+      "timestamp": "2026-05-29T03:41:56.419Z",
+      "type": "target_prepare",
+      "label": "Target prepare fixed",
+      "target": "pagination-review",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "fixed",
+        "reason": "Exact benchmark task target is visible and no supported search target remains after target preparation.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review"
+      }
+    },
+    {
+      "timestamp": "2026-05-29T03:42:01.523Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "pagination-review",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=pagination-review"
+      }
+    }
+  ]
+}

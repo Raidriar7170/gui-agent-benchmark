@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-native-task-action-transcript-smoke",
+  "createdAt": "2026-05-29T03:41:45.930Z",
+  "taskId": "pagination-review",
+  "preflight": {
+    "status": "ready",
+    "targetPrepareStatus": "fixed",
+    "dryRunStatus": "ready",
+    "promptPath": "tasks/pagination-review/prompt.txt",
+    "targetPreparePath": "tasks/pagination-review/target-prepare.json",
+    "preflightDryRunPath": "tasks/pagination-review/preflight-dry-run.json"
+  },
+  "transcriptStatus": "missing_native_transcript",
+  "rawTraceCandidatePath": null,
+  "rawTracePath": null,
+  "rawTraceValidationErrors": [],
+  "nativeTaskActionNames": [],
+  "nativeTaskActionCount": 0,
+  "evidence": [
+    "preflight status=ready",
+    "targetPrepareStatus=fixed",
+    "dryRunStatus=ready",
+    "no native raw trace file found under the P1.5 task artifact directory for pagination-review"
+  ],
+  "limitations": [
+    "Native task actions are not reconstructed from capture, run-export, trace, screenshots, or final state.",
+    "Preflight artifacts only prove target readiness; they do not prove model task-action execution.",
+    "Missing native transcript means no native task-action coverage was available for this smoke."
+  ]
+}
