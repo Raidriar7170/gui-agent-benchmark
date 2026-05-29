@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GUI Agent Benchmark 面试讲解手册</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8f7;
+      --paper: #ffffff;
+      --ink: #1f2428;
+      --muted: #606a70;
+      --line: #d8dfdc;
+      --teal: #0f766e;
+      --green: #26734d;
+      --amber: #9a5b00;
+      --red: #b42318;
+      --violet: #665191;
+      --soft-teal: #e7f5f2;
+      --soft-green: #eaf5ed;
+      --soft-amber: #fff3da;
+      --soft-red: #fff0ee;
+      --soft-violet: #f1eef8;
+      --shadow: 0 10px 30px rgba(31, 36, 40, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.72;
+    }
+
+    a {
+      color: var(--teal);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .masthead {
+      padding: 48px 0 32px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 880px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    nav a {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    nav a:hover {
+      background: var(--soft-teal);
+      color: var(--teal);
+    }
+
+    main {
+      padding: 28px 0 64px;
+    }
+
+    section {
+      margin: 28px 0;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    section.plain {
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 8px 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 27px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 20px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul, ol {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #edf1ef;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101514;
+      color: #e8f3ef;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #354039;
+      background: #f0f4f2;
+      font-weight: 750;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      min-height: 116px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--teal);
+      font-size: 34px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .callout {
+      margin: 16px 0;
+      padding: 16px;
+      border-left: 4px solid var(--teal);
+      border-radius: 8px;
+      background: var(--soft-teal);
+    }
+
+    .warn {
+      border-left-color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .danger {
+      border-left-color: var(--red);
+      background: var(--soft-red);
+    }
+
+    .quote {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      font-size: 18px;
+      line-height: 1.75;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .node {
+      min-height: 96px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .node b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--teal);
+    }
+
+    .node small {
+      display: block;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .flowline {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(110px, 1fr));
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .step {
+      position: relative;
+      min-height: 82px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 4px;
+      color: #27332f;
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 2px 4px 2px 0;
+      padding: 2px 7px;
+      border-radius: 8px;
+      background: #edf1ef;
+      color: #40504a;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag.teal { background: var(--soft-teal); color: var(--teal); }
+    .tag.green { background: var(--soft-green); color: var(--green); }
+    .tag.amber { background: var(--soft-amber); color: var(--amber); }
+    .tag.red { background: var(--soft-red); color: var(--red); }
+    .tag.violet { background: var(--soft-violet); color: var(--violet); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .script-block {
+      border-left: 4px solid var(--green);
+      background: var(--soft-green);
+    }
+
+    .script-block p {
+      margin: 8px 0;
+    }
+
+    .checklist li::marker {
+      color: var(--teal);
+    }
+
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: var(--paper);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .architecture,
+      .flowline,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 20px;
+      }
+
+      .masthead {
+        padding-top: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap masthead">
+      <p class="eyebrow">Interview Guide · GUI Agent Benchmark</p>
+      <h1>把 GUI Agent 的失败讲清楚，而不是只报一个成功率</h1>
+      <p class="lead">
+        这份 HTML 是面试复习版项目说明。读完后，你应该能用自己的话解释：
+        我们为什么做这个 benchmark、系统怎么组织、证据链怎么闭环、开发过程中做了哪些取舍，
+        以及面对追问时应该如何既有亮点又不过度声称。
+      </p>
+      <div class="meta-row">
+        <span class="pill">项目：gui-agent-benchmark</span>
+        <span class="pill">定位：Agent Reliability / GUI Agent Evaluation</span>
+        <span class="pill">最新扩展轮次：2026-05-25</span>
+        <span class="pill">技术栈：zero-dependency Node.js + browser app</span>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="目录">
+    <div class="wrap">
+      <a href="#pitch">面试开场</a>
+      <a href="#problem">问题背景</a>
+      <a href="#architecture">组织架构</a>
+      <a href="#evidence">证据链</a>
+      <a href="#results">结果</a>
+      <a href="#tradeoffs">取舍思考</a>
+      <a href="#qa">追问准备</a>
+      <a href="#paths">代码路径</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="pitch">
+      <h2>1. 面试开场怎么讲</h2>
+      <div class="quote">
+        我做了一个确定性的 GUI Agent Benchmark，用来分析 GUI agent 在浏览器任务里到底失败在哪里。
+        它不是做 leaderboard，而是把任务、judge、UI-TARS 调用、浏览器 target preflight、capture、
+        step trace、failure taxonomy 和 finish gate 串成一条可复核证据链。最新扩展轮次覆盖了 10 个常见
+        GUI primitive，10 个任务全部 captured，但 full success 是 0/10，平均分 0.206。这个结果的重点不是
+        “某模型不行”，而是证明环境和 capture 已经闭环，剩下的失败集中在 dropdown commit、表格选择、
+        modal 确认、分页、排序、多选、validation recovery、上传流程这些交互 primitive 上。
+      </div>
+
+      <h3>30 秒版本</h3>
+      <p>
+        这个项目解决的是 GUI agent demo 很难复盘的问题：最终失败时，我们不知道是页面没打开、
+        browser target 绑错了、证据没抓到，还是模型真的不会操作某个控件。我搭了一个本地确定性浏览器
+        benchmark，并围绕 UI-TARS 做了 preflight 修复、capture、judge、step trace 和 failure taxonomy。
+        最终它能把一次 agent run 变成可审计 artifact，而不是口头描述。
+      </p>
+
+      <h3>2 分钟版本</h3>
+      <ol>
+        <li>
+          <strong>背景：</strong>GUI agent 的评测很容易停留在“成功/失败”，但工程上更需要知道失败层级：
+          环境、目标页、证据采集、最终状态，还是具体交互 primitive。
+        </li>
+        <li>
+          <strong>方法：</strong>我把 benchmark app、task registry、deterministic judge、run recorder、
+          UI-TARS integration、CDP preflight、capture bundle、step trace、failure taxonomy 和 finish gate
+          分层组织，每层都有 schema 和验证脚本。
+        </li>
+        <li>
+          <strong>结果：</strong>扩展到 10 个任务后，全部任务都有 capture bundle，finish gate 显示 local 和
+          integration 都 ready；但 UI-TARS 没有 full success，说明问题不在“没有证据”，而在交互执行质量。
+        </li>
+        <li>
+          <strong>价值：</strong>面向 agent reliability，它提供的是 failure analysis workspace，可以指导后续
+          model/operator 改进，也能避免把环境错误误判成模型能力问题。
+        </li>
+      </ol>
+    </section>
+
+    <section id="problem">
+      <h2>2. 项目要解决的问题</h2>
+      <p>
+        GUI agent 看似简单：给模型一个浏览器任务，让它点击、输入、提交，然后看结果。但真正做 benchmark
+        时会遇到三类混在一起的问题。
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>环境问题</h3>
+          <p>模型服务、隧道、UI-TARS 本地配置、Chrome 子进程、CDP 端点都可能出错。</p>
+          <span class="tag red">P0/P1 风险</span>
+          <span class="tag amber">不能直接算模型失败</span>
+        </div>
+        <div class="card">
+          <h3>目标页问题</h3>
+          <p>UI-TARS 可能看着 Google、空 tab、错误 task、多个 benchmark tab 或 Chrome error page。</p>
+          <span class="tag amber">target binding</span>
+          <span class="tag teal">preflight repair</span>
+        </div>
+        <div class="card">
+          <h3>交互能力问题</h3>
+          <p>页面正确时，agent 仍可能无法提交 dropdown、表格选择、modal 确认、分页和复杂表单。</p>
+          <span class="tag violet">primitive failure</span>
+          <span class="tag green">taxonomy</span>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>项目核心判断：</strong>只有先把环境 readiness、target binding 和 capture completeness
+        从失败中拆出来，才能有资格讨论 GUI agent 在交互 primitive 上到底弱在哪里。
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>3. 组织架构：代码和职责怎么分</h2>
+      <p>
+        项目采用轻量但很清晰的分层：浏览器任务和 judge 是 deterministic core；UI-TARS/CDP 相关代码是
+        integration layer；实验、报告、taxonomy、finish gate 是 evidence layer；scripts 把这些层串成
+        可重复运行的命令。
+      </p>
+
+      <div class="architecture" aria-label="项目架构图">
+        <div class="node">
+          <b>Task UI</b>
+          <small><code>public/</code><br>本地浏览器 app，10 个任务，暴露 <code>window.__BENCH__</code>。</small>
+        </div>
+        <div class="node">
+          <b>Judge Core</b>
+          <small><code>src/state.mjs</code><br><code>src/judge.mjs</code><br>确定性状态和评分。</small>
+        </div>
+        <div class="node">
+          <b>Run & Trace</b>
+          <small><code>src/runs.mjs</code><br><code>src/trace-importer.mjs</code><br>记录、导入、导出 run。</small>
+        </div>
+        <div class="node">
+          <b>UI-TARS Layer</b>
+          <small><code>src/uitars-*.mjs</code><br>preflight、capture、real round、raw trace。</small>
+        </div>
+        <div class="node">
+          <b>Evidence Gate</b>
+          <small><code>docs/</code><br><code>experiments/</code><br><code>artifacts/</code><br>报告、taxonomy、finish gate。</small>
+        </div>
+      </div>
+
+      <h3>目录视角</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>目录</th>
+            <th>职责</th>
+            <th>面试讲法</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>public/</code></td>
+            <td>浏览器 benchmark UI、任务入口、可操作控件、<code>tasks.json</code>。</td>
+            <td>“我没有依赖真实网站，因为我需要可重复 judge 和可控状态。”</td>
+          </tr>
+          <tr>
+            <td><code>src/state.mjs</code> / <code>src/judge.mjs</code></td>
+            <td>定义初始状态、可见数据、每个 task 的 deterministic success criteria。</td>
+            <td>“judge 不看截图主观判断，只看状态是否满足 criteria。”</td>
+          </tr>
+          <tr>
+            <td><code>src/runs.mjs</code> / <code>src/trace-importer.mjs</code></td>
+            <td>把用户/agent 操作记录成 run schema，并支持外部 trace 导入。</td>
+            <td>“run export 是模型无关格式，避免把 benchmark 绑死在某个工具日志上。”</td>
+          </tr>
+          <tr>
+            <td><code>src/uitars-preflight.mjs</code></td>
+            <td>发现 UI-TARS child Chrome、检查 CDP、识别 benchmark/search/error target、创建/导航/激活 tab。</td>
+            <td>“这是我花最多工程判断的部分，因为 target 绑错会污染所有后续结论。”</td>
+          </tr>
+          <tr>
+            <td><code>src/uitars-capture.mjs</code> / <code>src/uitars-real-round.mjs</code></td>
+            <td>从正确 benchmark target 里抓 final state 和 evaluation，汇总真实 round。</td>
+            <td>“每个 task 都要有 capture、trace、run-export，不能只说跑过。”</td>
+          </tr>
+          <tr>
+            <td><code>src/oracle-baseline.mjs</code></td>
+            <td>用 scripted UI actions 验证所有任务通过 UI path 可解。</td>
+            <td>“它不是 agent score，而是证明任务和 judge 不是坏的。”</td>
+          </tr>
+          <tr>
+            <td><code>docs/</code> / <code>experiments/</code> / <code>artifacts/</code></td>
+            <td>报告、schema、failure taxonomy、实验 artifact、finish gate。</td>
+            <td>“项目产出不是一个 demo，而是一组可复核证据。”</td>
+          </tr>
+          <tr>
+            <td><code>scripts/</code></td>
+            <td>所有 validator、harness runner、health check、smoke check。</td>
+            <td>“用命令把质量门槛固定下来，减少口头状态。”</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>核心数据流</h3>
+      <div class="flowline">
+        <div class="step"><b>1. Task</b>确定性任务、起始 URL、max steps、success criteria。</div>
+        <div class="step"><b>2. Agent Attempt</b>UI-TARS Local Browser Operator 执行浏览器任务。</div>
+        <div class="step"><b>3. Preflight</b>发现/修复正确 CDP target，过滤错误 tab。</div>
+        <div class="step"><b>4. Capture</b>抓取 final state、judge evaluation 和 run export。</div>
+        <div class="step"><b>5. Summary</b>生成 real-run-summary，统计 captured/success/score。</div>
+        <div class="step"><b>6. Step Trace</b>把证据映射到时间线和 failure code。</div>
+        <div class="step"><b>7. Finish Gate</b>验证 local、integration、artifact 一致性。</div>
+      </div>
+    </section>
+
+    <section id="tasks">
+      <h2>4. Benchmark 覆盖了哪些 GUI primitive</h2>
+      <p>
+        任务不是随便堆出来的，而是覆盖了企业应用里常见且容易让 GUI agent 失手的操作类型。
+        每个任务都有明确的初始状态和可机器判断的成功标准。
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>任务</th>
+            <th>目标 primitive</th>
+            <th>为什么有价值</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>onboarding-form</code></td><td>多字段表单输入和 submit</td><td>测试文本输入连续性、select、日期、最终提交。</td></tr>
+          <tr><td><code>catalog-filter</code></td><td>搜索、过滤、列表选择</td><td>测试 agent 能否把“找到目标”变成 committed selection。</td></tr>
+          <tr><td><code>settings-toggle</code></td><td>checkbox + dropdown</td><td>拆分简单 toggle 和 select value commit 的差异。</td></tr>
+          <tr><td><code>ticket-review</code></td><td>表格搜索、行选择、review commit</td><td>接近实际后台系统里的 queue review。</td></tr>
+          <tr><td><code>modal-confirmation</code></td><td>打开 dialog 并确认</td><td>测试跨 UI state 的两步确认流程。</td></tr>
+          <tr><td><code>pagination-review</code></td><td>分页导航和行操作</td><td>测试 agent 是否能先切换页面再操作目标项。</td></tr>
+          <tr><td><code>sortable-inventory</code></td><td>排序和目标选择</td><td>测试“排序改变表格状态”后再选择。</td></tr>
+          <tr><td><code>multi-select-approvals</code></td><td>多选集合和 submit</td><td>测试 precise set selection，不能多选或少选。</td></tr>
+          <tr><td><code>validation-error-recovery</code></td><td>先触发 validation，再修复表单</td><td>测试从错误状态恢复到成功提交。</td></tr>
+          <tr><td><code>file-upload-request</code></td><td>文件选择、dropdown、description、submit</td><td>测试上传类 workflow，不只看文件是否 attach。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="evidence">
+      <h2>5. 证据链：为什么这个项目可信</h2>
+      <p>
+        这个项目最重要的不是“跑了 10 个任务”，而是每个结论都能回到 artifact。面试时可以强调：
+        我们把一次 GUI agent run 拆成多个可验证层级，每层都有 schema、validator 和失败边界。
+      </p>
+      <pre>deterministic task
+  -> UI-TARS attempt
+  -> preflight target check / repair
+  -> capture.json + trace.json + run-export.json
+  -> real-run-summary.json
+  -> step trace attribution
+  -> failure taxonomy
+  -> finish gate</pre>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Capture bundle</h3>
+          <p>每个 task 的 <code>real-run/</code> 包含 <code>capture.json</code>、<code>trace.json</code>、<code>run-export.json</code>。</p>
+          <span class="tag teal">final state</span>
+          <span class="tag green">evaluation</span>
+        </div>
+        <div class="card">
+          <h3>Step trace</h3>
+          <p>把 preflight、operator prompt、capture、evaluation、finish gate 组织成带证据引用的 timeline。</p>
+          <span class="tag amber">derived attribution</span>
+          <span class="tag violet">not raw action log</span>
+        </div>
+        <div class="card">
+          <h3>Failure taxonomy</h3>
+          <p>区分 infrastructure、operator binding、interaction primitive、task execution。</p>
+          <span class="tag red">P0/P1/P2</span>
+          <span class="tag green">root-cause framing</span>
+        </div>
+        <div class="card">
+          <h3>Finish gate</h3>
+          <p>一次性验证 local validation、smoke、local config、tunnel health、remote read-only health。</p>
+          <span class="tag teal">ready=true</span>
+          <span class="tag green">CI-friendly</span>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>关键边界：</strong>扩展轮次里的 step trace 是 reconstructed / derived timeline，不是 UI-TARS 原始动作日志。
+        所以它能支持 qualitative failure analysis，但不能声称逐动作延迟、动作次数或底层 policy 行为。
+      </div>
+    </section>
+
+    <section id="results">
+      <h2>6. 当前结果应该怎么解释</h2>
+      <div class="metric-grid">
+        <div class="metric"><strong>10</strong><span>planned tasks</span></div>
+        <div class="metric"><strong>10</strong><span>captured tasks</span></div>
+        <div class="metric"><strong>0</strong><span>full successes</span></div>
+        <div class="metric"><strong>0.206</strong><span>average score</span></div>
+        <div class="metric"><strong>true</strong><span>finish gate ready</span></div>
+      </div>
+
+      <p>
+        面试时不要把 0/10 讲成 leaderboard 结论。更准确的讲法是：
+        扩展轮次证明 capture completeness 和 environment readiness 已经闭环，所以失败不再主要归因于“我们没抓到证据”。
+        在这个前提下，失败集中出现在 interaction primitives。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>任务</th>
+            <th>分数</th>
+            <th>主要失败 primitive</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>onboarding-form</code></td><td>0.33</td><td>文本输入没有持续到完整表单，submit 缺失。</td></tr>
+          <tr><td><code>catalog-filter</code></td><td>0</td><td>搜索/过滤后没有完成目标 item selection。</td></tr>
+          <tr><td><code>settings-toggle</code></td><td>0.75</td><td>checkbox 成功，但 timezone dropdown 留在默认值。</td></tr>
+          <tr><td><code>ticket-review</code></td><td>0</td><td>表格查询、选择、review commit 均未完成。</td></tr>
+          <tr><td><code>modal-confirmation</code></td><td>0</td><td>没有完成 open dialog + confirm sequence。</td></tr>
+          <tr><td><code>pagination-review</code></td><td>0.33</td><td>目标 invoice 存在，但未切到 page 2 并 review。</td></tr>
+          <tr><td><code>sortable-inventory</code></td><td>0</td><td>没有把 risk sort commit 到正确方向，也没有选中目标 SKU。</td></tr>
+          <tr><td><code>multi-select-approvals</code></td><td>0</td><td>未完成 precise multi-select 和 submit。</td></tr>
+          <tr><td><code>validation-error-recovery</code></td><td>0.4</td><td>触发了 validation，部分填写，但 owner/date/submit 缺失。</td></tr>
+          <tr><td><code>file-upload-request</code></td><td>0.25</td><td>文件 attach 成功，category/description/submit 失败。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>最值得讲的发现：</strong><code>settings-toggle</code> 和 <code>file-upload-request</code>
+        是很好的 split cases。前者说明简单 checkbox 可以成功但 dropdown commit 不稳定；后者说明文件 attach 可以成功，
+        但后续表单 workflow 仍会失败。这种拆分比单一成功率更有工程价值。
+      </div>
+    </section>
+
+    <section id="tradeoffs">
+      <h2>7. 开发过程中的取舍思考</h2>
+      <p>
+        这一节是面试最容易加分的地方。不要只说“我写了哪些模块”，要说你面对不确定性时如何定边界。
+      </p>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>取舍 1：本地确定性 app vs 真实网站</h3>
+          <p><strong>选择：</strong>先做本地确定性 benchmark app。</p>
+          <p><strong>原因：</strong>真实网站变化快、状态不可控、登录和反爬会污染结论；本地 app 可以把任务、状态和 judge 固定下来。</p>
+          <p><strong>代价：</strong>外部真实性弱一些，所以现在定位为 failure-analysis workspace，不是 paper-grade external benchmark。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 2：证据链优先 vs 成功率优先</h3>
+          <p><strong>选择：</strong>先保证 10/10 captured，即使 success rate 低也不隐藏失败。</p>
+          <p><strong>原因：</strong>没有完整 artifact 的成功率没有解释力；完整失败证据比漂亮数字更能暴露 agent primitive 问题。</p>
+          <p><strong>代价：</strong>短期展示不如“高分 demo”好看，但更可信。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 3：自动 target repair vs 手动救火</h3>
+          <p><strong>选择：</strong>preflight 自动发现、创建、导航、隔离和激活 benchmark target。</p>
+          <p><strong>原因：</strong>UI-TARS 经常观察 search page、空 target、错 task 或 stale child Chrome。手动救火会让实验不可复现。</p>
+          <p><strong>代价：</strong>preflight 逻辑复杂，需要明确安全边界和敏感信息清洗。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 4：derived step trace vs 等待原始动作日志</h3>
+          <p><strong>选择：</strong>先用现有 artifact 重建 timeline，同时明确 evidence limitations。</p>
+          <p><strong>原因：</strong>这样可以立刻解释失败发生在哪个阶段，不必等所有底层日志接入。</p>
+          <p><strong>代价：</strong>不能做动作级行为分析，所以报告里明确不声称 raw action transcript。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 5：zero dependency vs 引入测试框架/前端框架</h3>
+          <p><strong>选择：</strong>保持 Node.js zero-dependency。</p>
+          <p><strong>原因：</strong>benchmark 本身更像 artifact pipeline，减少依赖能降低安装摩擦，也方便 CI 和公开复现。</p>
+          <p><strong>代价：</strong>需要手写一些 harness、DOM stub、CDP WebSocket 逻辑，但可控性更强。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 6：oracle baseline vs 直接跑更多模型</h3>
+          <p><strong>选择：</strong>先加 scripted oracle baseline，证明 10 个任务通过 UI path 可解。</p>
+          <p><strong>原因：</strong>如果 oracle 都做不到，失败可能来自任务设计或 judge 错误，而不是 agent 能力。</p>
+          <p><strong>代价：</strong>它不是模型评测结果，只是 P0 solvability proof。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 7：公开安全 vs 原始信息完整</h3>
+          <p><strong>选择：</strong>公开 repo 里清洗私有连接、凭证、浏览器存储、截图 base64 和敏感字段。</p>
+          <p><strong>原因：</strong>面向外部读者时，证据要可信，但不能泄露私有环境。</p>
+          <p><strong>代价：</strong>一些低层原始上下文不会进入公开 artifact，所以要在 limitations 中说明边界。</p>
+        </div>
+        <div class="card">
+          <h3>取舍 8：定性 taxonomy vs 统计结论</h3>
+          <p><strong>选择：</strong>当前只做 qualitative failure taxonomy，不做 leaderboard 或显著性结论。</p>
+          <p><strong>原因：</strong>10 个任务、单个扩展轮次不足以支持模型总体能力判断。</p>
+          <p><strong>下一步：</strong>重复 10-task round、保留 raw action logs、报告 variance 和 confidence interval。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="implementation">
+      <h2>8. 实现细节：你需要能讲出来的几个点</h2>
+
+      <h3>8.1 Deterministic judge</h3>
+      <p>
+        <code>public/tasks.json</code> 定义任务和 criteria，<code>src/judge.mjs</code> 对每个 task 写确定性 judge。
+        评分是通过 criteria fraction 得到的，<code>success=true</code> 只有在所有 criteria 都通过时才成立。
+        这让 partial progress 可以被保留下来，例如 <code>settings-toggle</code> 通过 3/4 criteria 得到 0.75。
+      </p>
+
+      <h3>8.2 Browser API</h3>
+      <p>
+        app 暴露 <code>window.__BENCH__.reset()</code>、<code>snapshot()</code>、<code>evaluate()</code>、
+        <code>exportRuns()</code>、<code>importRuns()</code>。UI-TARS 或脚本不需要读内部实现，只要能打开页面并最终
+        从这个 API 拿 state 和 judge result。
+      </p>
+
+      <h3>8.3 UI-TARS preflight</h3>
+      <p>
+        preflight 的关键不是“检查页面能不能打开”，而是检查 UI-TARS 受控 Chrome 的 CDP target 是否唯一、正确、可激活。
+        它会处理几类高频问题：空 target list、search page start、active target mismatch、多个 benchmark tab、
+        stale child Chrome、Chrome error page。必要时它会创建新 target、导航 search target、隔离多余 target，
+        最后激活正确 benchmark tab。
+      </p>
+
+      <h3>8.4 Capture 和 artifact validation</h3>
+      <p>
+        capture 通过 CDP 在目标页面执行 benchmark capture expression，拿到 <code>finalState</code> 和
+        <code>evaluation</code>。validator 再检查 summary、capture bundle、taxonomy、step traces、finish gate
+        是否互相一致。这个设计能防止“summary 写了 captured，但实际没有 capture file”这类证据断裂。
+      </p>
+
+      <h3>8.5 Oracle baseline</h3>
+      <p>
+        <code>validate:oracle-baseline</code> 用 scripted UI actions 跑过同一个 <code>public/app.mjs</code> 事件路径，
+        再用 <code>window.__BENCH__.evaluate(taskId)</code> 评分。它验证 10/10 tasks 可以通过 UI actions 得到
+        <code>score=1</code>，所以当 UI-TARS 失败时，我们可以排除“任务本身不可解”这个 P0 风险。
+      </p>
+    </section>
+
+    <section id="qa">
+      <h2>9. 面试追问准备</h2>
+
+      <h3>Q1：为什么不用真实网站？</h3>
+      <p>
+        可以回答：真实网站适合最终外部验证，但第一阶段我更关心把失败原因拆清楚。真实网站会引入登录状态、网络波动、
+        DOM 变化、AB test、权限和反爬，容易让 judge 不稳定。本地 deterministic app 能保证同一个状态、同一个 criteria、
+        同一个 UI path，先把 reliability pipeline 做稳。后续可以把这套证据链迁移到更真实的网站任务上。
+      </p>
+
+      <h3>Q2：0/10 success 是不是说明项目失败？</h3>
+      <p>
+        不是。这个项目目标不是把 UI-TARS 调到最高分，而是构建能解释失败的 benchmark harness。0/10 full success
+        在 10/10 captured 和 finish gate ready 的前提下反而有分析价值：它说明环境和证据链已经闭环，失败集中在
+        dropdown commit、selection commit、modal、pagination、multi-select 等 primitives。项目产出的是 failure map。
+      </p>
+
+      <h3>Q3：怎么保证 judge 公平？</h3>
+      <p>
+        judge 只看 deterministic state，不读模型日志，也不靠主观截图判断。每个 task 有明确 success criteria；
+        partial score 是 criteria 通过比例；oracle baseline 证明正确 UI 操作可以拿满分。这个组合能降低 judge bug
+        和任务不可解带来的误判。
+      </p>
+
+      <h3>Q4：preflight 为什么这么复杂？</h3>
+      <p>
+        GUI agent 的真实失败经常不是模型不会点，而是它根本看错了页面。UI-TARS 可能绑定到 search tab、空 target、
+        错任务、多个 benchmark tab 或已经失效的 Chrome 子进程。preflight 把这些问题显式化，并在安全条件下自动修复。
+        这样后续失败才可以归因到 interaction primitive，而不是环境噪声。
+      </p>
+
+      <h3>Q5：step trace 不是原始动作日志，会不会不可靠？</h3>
+      <p>
+        它的定位不是替代 raw action log，而是把已有 artifact 做成可读的 timeline attribution。每个 step 都标明
+        evidence kind 和 references，并在 schema 里承认 limitation。面试时要主动说清楚：当前支持定性失败分析，
+        不支持动作级 timing 或 policy 分析。下一步就是保留 raw UI-TARS action traces 和截图引用。
+      </p>
+
+      <h3>Q6：你在这个项目里最难的工程问题是什么？</h3>
+      <p>
+        可以讲 target binding。最开始 UI-TARS 有时看着 Google 或错误 tab，capture 也可能因为多个 benchmark target
+        变得 ambiguous。如果不解决这个问题，所有模型能力结论都会被污染。我后来把 preflight 做成状态机式的检查和修复：
+        发现 live UI-TARS child Chrome、过滤 stale endpoint、判断 benchmark/search/error target、必要时创建或导航 target、
+        隔离多余 tab、最后激活正确页，并把每次修复写成 artifact。
+      </p>
+
+      <h3>Q7：下一步你会怎么做？</h3>
+      <ol>
+        <li>保留 raw UI-TARS action traces 和截图引用，补齐动作级证据。</li>
+        <li>重复 10-task expanded round，报告 variance 和 confidence intervals。</li>
+        <li>把同一 harness 接到更多 GUI agent/operator，对比 failure taxonomy，而不是只对比 success rate。</li>
+        <li>把 dashboard/GIF 放在证据闭环之后，用可视化帮助读者浏览，不替代 artifact。</li>
+      </ol>
+    </section>
+
+    <section id="answer-script" class="script-block">
+      <h2>10. 一段可以背下来的完整回答</h2>
+      <p>
+        这个项目叫 GUI Agent Benchmark，我把它定位成 agent reliability 方向的 failure-analysis workspace。
+        我观察到很多 GUI agent demo 最后只有成功/失败，但如果失败了，我们不知道是模型没能力、浏览器 target 错了、
+        远端模型服务不可用，还是最终状态没有被正确 capture。所以我做了一个确定性浏览器 benchmark，把任务、judge、
+        UI-TARS 集成、preflight 修复、capture、step trace、failure taxonomy 和 finish gate 串起来。
+      </p>
+      <p>
+        架构上，<code>public/</code> 是本地 benchmark app，<code>public/tasks.json</code> 定义 10 个任务；
+        <code>src/state.mjs</code> 和 <code>src/judge.mjs</code> 做确定性状态和评分；<code>src/uitars-preflight.mjs</code>
+        负责 CDP target 检查和修复；capture 层抓 final state 和 evaluation；最后 <code>docs/</code>、
+        <code>experiments/</code>、<code>artifacts/</code> 保存报告、taxonomy、step traces 和 finish gate。
+      </p>
+      <p>
+        最新扩展轮次覆盖 10 个常见 GUI primitive，10 个任务都 captured，finish gate 是 ready，但 full success 是 0/10。
+        我不会把这说成模型排行榜结论；它更像一个诊断结论：环境和证据链已经闭环，失败集中在 dropdown value commit、
+        table selection、modal confirmation、pagination、sorting、multi-select、validation recovery 和 upload workflow。
+      </p>
+      <p>
+        我最重要的取舍是先追求可复核证据，而不是追求漂亮成功率。比如我加了 oracle baseline，证明所有任务通过 scripted
+        UI actions 都可以拿满分，所以任务和 judge 是可解的；我也把 step trace 明确标成 derived attribution，不把它包装成
+        raw action log。后续如果继续做，我会保留原始 UI-TARS 动作日志，重复多轮实验，并把这个 harness 用到更多 GUI agent
+        上做 failure taxonomy 对比。
+      </p>
+    </section>
+
+    <section id="paths">
+      <h2>11. 面试前代码路径速查</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>你要说明的点</th>
+            <th>对应文件</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>任务定义和 criteria</td><td><code>public/tasks.json</code></td></tr>
+          <tr><td>浏览器 app API 和 run recording</td><td><code>public/app.mjs</code></td></tr>
+          <tr><td>确定性状态</td><td><code>src/state.mjs</code></td></tr>
+          <tr><td>judge 评分逻辑</td><td><code>src/judge.mjs</code></td></tr>
+          <tr><td>run schema 和 import/export</td><td><code>src/runs.mjs</code>, <code>src/trace-importer.mjs</code></td></tr>
+          <tr><td>UI-TARS target binding 和 CDP 修复</td><td><code>src/uitars-preflight.mjs</code></td></tr>
+          <tr><td>真实 round 汇总</td><td><code>src/uitars-real-round.mjs</code>, <code>scripts/validate-real-round.mjs</code></td></tr>
+          <tr><td>step trace schema 和验证</td><td><code>docs/step-trace-schema.md</code>, <code>scripts/validate-step-traces.mjs</code></td></tr>
+          <tr><td>failure taxonomy</td><td><code>docs/failure-taxonomy.md</code></td></tr>
+          <tr><td>oracle baseline</td><td><code>src/oracle-baseline.mjs</code>, <code>scripts/validate-oracle-baseline.mjs</code></td></tr>
+          <tr><td>finish gate</td><td><code>src/finish-gate.mjs</code>, <code>artifacts/finish-gate/2026-05-25-expanded-real-round.json</code></td></tr>
+          <tr><td>公开说明</td><td><code>README.md</code>, <code>docs/benchmark-report-2026-05-25-expanded-real-round.md</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout danger">
+        <strong>避免过度表述：</strong>不要说“我们证明 UI-TARS 不行”或“这是标准 benchmark/SOTA benchmark”。
+        更稳的说法是：“这是一个确定性 GUI-agent failure-analysis benchmark；当前证据支持 qualitative case study，
+        还需要 raw action logs 和多轮重复实验，才能做更强的统计结论。”
+      </div>
+    </section>
+
+    <section id="prep" class="plain">
+      <h2>12. 复习清单</h2>
+      <ul class="checklist">
+        <li>能用 30 秒说清楚项目不是 leaderboard，而是 evidence-chain benchmark。</li>
+        <li>能画出 Task UI、Judge Core、Run/Trace、UI-TARS Layer、Evidence Gate 五层架构。</li>
+        <li>能解释为什么 10/10 captured 比 0/10 success 更关键。</li>
+        <li>能讲清 oracle baseline 的作用：证明任务和 judge 可解，不代表 agent 分数。</li>
+        <li>能主动说出 limitations：derived step trace、单轮扩展实验、缺少 raw action transcript。</li>
+        <li>能给出下一步：raw logs、重复轮次、variance、更多 agent/operator 对比。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      生成时间：2026-05-26。基于当前 repo 文件、2026-05-25 扩展轮次报告、finish gate artifact 和 oracle baseline 实现整理。
+    </div>
+  </footer>
+</body>
+</html>
