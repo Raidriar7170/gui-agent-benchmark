@@ -1,5 +1,5 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { dirname, extname, resolve } from 'node:path';
 
 import { STEP_TRACE_SCHEMA_VERSION, validateStepTrace } from './step-trace.mjs';
 
@@ -188,6 +188,157 @@ function referencesForEvent(event) {
   if (nonEmptyString(event.screenshotRef)) references.push(event.screenshotRef);
   references.push(event.id);
   return [...new Set(references)];
+}
+
+function eventExternalReferences(event) {
+  const refs = [];
+  if (Array.isArray(event.artifactRefs)) refs.push(...event.artifactRefs.filter(nonEmptyString));
+  if (nonEmptyString(event.screenshotRef)) refs.push(event.screenshotRef);
+  return refs;
+}
+
+function isInsideDirectory(root, path) {
+  const rootPath = resolve(root);
+  const childPath = resolve(path);
+  return childPath === rootPath || childPath.startsWith(`${rootPath}/`);
+}
+
+function isScreenshotReference(value) {
+  return /\.(png|jpg|jpeg|webp)$/i.test(value);
+}
+
+const textArtifactExtensions = new Set([
+  '.json',
+  '.jsonl',
+  '.md',
+  '.txt',
+  '.log',
+  '.html',
+  '.htm'
+]);
+
+const sensitiveTextPatterns = [
+  /-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
+  /\bBearer\s+[A-Za-z0-9._~+/=-]+/i,
+  /["']?(?:api_?key|token|password|authorization|cookie)["']?\s*[:=]\s*["']?[^"',}\s]+/i,
+  /\bwebSocketDebuggerUrl\b/i,
+  /\bws:\/\/[^\s"'<>]+\/devtools\//i,
+  /\/Users\/[^/\s]+\/\.ssh\b/i,
+  /(^|[\s"'`])~\/\.ssh\b/i,
+  /(^|[\s"'`])\/root(?:\/|[\s"'`]|$)/i,
+  /\bssh\s+-L\b/i,
+  /\bssh\s+[^\s]+@[^\s]+/i
+];
+
+function containsSensitiveText(text) {
+  if (sensitiveTextPatterns.some((pattern) => pattern.test(text))) return true;
+  for (const match of text.matchAll(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g)) {
+    const ip = match[0];
+    const octets = ip.split('.').map((part) => Number(part));
+    if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) continue;
+    if (ip === '127.0.0.1' || ip.startsWith('127.')) continue;
+    return true;
+  }
+  return false;
+}
+
+async function validateTextArtifactContent({ resolvedPath, ref, path, errors }) {
+  if (!textArtifactExtensions.has(extname(ref).toLowerCase())) return;
+  let text;
+  try {
+    text = await readFile(resolvedPath, 'utf8');
+  } catch (error) {
+    errors.push(`${path} referenced text artifact cannot be read: ${ref}: ${error.message}`);
+    return;
+  }
+  if (containsSensitiveText(text)) {
+    errors.push(`${path} referenced text artifact contains sensitive-looking content: ${ref}`);
+  }
+}
+
+async function validateExistingBundleReference({ bundleRoot, realBundleRoot, ref, path, errors }) {
+  if (!isValidExternalArtifactReference(ref)) return;
+  const resolvedPath = resolve(bundleRoot, ref);
+  if (!isInsideDirectory(bundleRoot, resolvedPath)) {
+    errors.push(`${path} resolves outside bundle root: ${ref}`);
+    return;
+  }
+
+  let stats;
+  try {
+    stats = await lstat(resolvedPath);
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      errors.push(`${path} referenced file does not exist: ${ref}`);
+      return;
+    }
+    errors.push(`${path} referenced file cannot be read: ${ref}: ${error.message}`);
+    return;
+  }
+
+  let realResolvedPath;
+  try {
+    realResolvedPath = await realpath(resolvedPath);
+  } catch (error) {
+    errors.push(`${path} referenced file cannot be resolved: ${ref}: ${error.message}`);
+    return;
+  }
+  if (!isInsideDirectory(realBundleRoot, realResolvedPath)) {
+    errors.push(`${path} referenced file resolves outside bundle root: ${ref}`);
+    return;
+  }
+
+  if (stats.isSymbolicLink()) {
+    errors.push(`${path} referenced path must not be a symlink: ${ref}`);
+    return;
+  }
+
+  if (!stats.isFile()) {
+    errors.push(`${path} referenced path must be a file: ${ref}`);
+    return;
+  }
+
+  await validateTextArtifactContent({ resolvedPath: realResolvedPath, ref, path, errors });
+}
+
+export async function validateRawUitarsTraceBundle(rawTrace, options = {}) {
+  const errors = validateRawUitarsTrace(rawTrace);
+  const bundleRoot = options.bundleRoot || rawTrace?.artifactBase;
+  if (!nonEmptyString(bundleRoot)) {
+    errors.push('bundleRoot or rawTrace.artifactBase must be a non-empty string');
+    return errors;
+  }
+  if (/^[a-z][a-z0-9+.-]*:/i.test(bundleRoot)) {
+    errors.push('bundle root must be a local directory path, not a URL');
+    return errors;
+  }
+  let realBundleRoot;
+  try {
+    realBundleRoot = await realpath(bundleRoot);
+  } catch (error) {
+    errors.push(`bundle root cannot be resolved: ${error.message}`);
+    return errors;
+  }
+
+  const events = Array.isArray(rawTrace?.events) ? rawTrace.events : [];
+  const seenRefs = new Set();
+  for (const [index, event] of events.entries()) {
+    if (!isPlainObject(event)) continue;
+    for (const ref of eventExternalReferences(event)) {
+      const path = `events[${index}]`;
+      if (seenRefs.has(ref)) errors.push(`${path} duplicate external artifact reference: ${ref}`);
+      seenRefs.add(ref);
+      if (event.screenshotRef === ref && !isScreenshotReference(ref)) {
+        errors.push(`${path}.screenshotRef must point to a .png, .jpg, .jpeg, or .webp file`);
+      }
+      if (extname(ref).toLowerCase() === '.json') {
+        // JSON artifacts are allowed as opaque raw evidence; readability is covered by stat.
+      }
+      await validateExistingBundleReference({ bundleRoot, realBundleRoot, ref, path, errors });
+    }
+  }
+
+  return errors;
 }
 
 function actionSummary(event) {

@@ -13,8 +13,15 @@ preserve the raw trace JSON and external screenshot/artifact references for
 `action`, `tool_result`, and `capture` events, while continuing to reject inline
 base64 image payloads. In the P1 raw schema, `artifactRefs` and `screenshotRef`
 are bundle-relative paths only; they are not absolute local paths or URLs.
+Bundle validation also checks that those refs resolve to existing files under
+the bundle root.
 Historical derived step traces should not be rewritten as raw UI-TARS
 transcripts without the original raw logs and referenced artifacts.
+
+P2 native action evidence is stricter than the P1.5 smoke. The default
+validation command allows a missing P2 experiment so ordinary repo checks stay
+green, but `node scripts/validate-native-action-evidence-gate.mjs
+--require-sample` must pass before claiming native action evidence closure.
 
 Recommended hook flow:
 

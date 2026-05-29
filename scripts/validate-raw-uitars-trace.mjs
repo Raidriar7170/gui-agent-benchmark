@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawn } from 'node:child_process';
@@ -9,6 +9,7 @@ import {
   convertRawUitarsTraceToStepTrace,
   ingestRawUitarsTraceFile,
   summarizeRawUitarsTrace,
+  validateRawUitarsTraceBundle,
   validateRawUitarsTrace
 } from '../src/uitars-raw-trace.mjs';
 import { validateStepTrace } from '../src/step-trace.mjs';
@@ -214,6 +215,17 @@ assert(
   'validator should reject artifactRefs with empty items'
 );
 
+const duplicateArtifactRefs = structuredClone(fixture);
+duplicateArtifactRefs.events[3].artifactRefs = [
+  'tasks/settings-toggle/raw/action-raw-4.json',
+  'tasks/settings-toggle/raw/action-raw-4.json'
+];
+
+const crossEventDuplicateRefs = structuredClone(fixture);
+crossEventDuplicateRefs.events[4].artifactRefs = [
+  'tasks/settings-toggle/raw/action-raw-4.json'
+];
+
 const invalidScreenshotRef = structuredClone(fixture);
 invalidScreenshotRef.events[4].screenshotRef = ' ';
 assert(
@@ -256,7 +268,91 @@ const tempDir = await mkdtemp(join(tmpdir(), 'uitars-raw-trace-'));
 try {
   const inputPath = join(tempDir, 'raw.json');
   const outputPath = join(tempDir, 'step.json');
-  await import('node:fs/promises').then(({ writeFile }) => writeFile(inputPath, `${JSON.stringify(fixture, null, 2)}\n`, 'utf8'));
+  const bundleRoot = join(tempDir, 'bundle');
+  const referencedFiles = [
+    'tasks/settings-toggle/raw/action-raw-4.json',
+    'tasks/settings-toggle/raw/tool-result-raw-5.json',
+    'tasks/settings-toggle/raw/capture-raw-6.json',
+    'tasks/settings-toggle/screenshots/tool-result-raw-5.png',
+    'tasks/settings-toggle/screenshots/capture-raw-6.png'
+  ];
+
+  for (const ref of referencedFiles) {
+    const path = join(bundleRoot, ref);
+    await mkdir(join(path, '..'), { recursive: true });
+    await writeFile(path, ref.endsWith('.json') ? '{}\n' : 'png-bytes', 'utf8');
+  }
+
+  const bundleErrors = await validateRawUitarsTraceBundle(fixture, { bundleRoot });
+  assert(bundleErrors.length === 0, `valid raw UI-TARS bundle should pass validation: ${bundleErrors.join('; ')}`);
+
+  await rm(join(bundleRoot, 'tasks/settings-toggle/raw/action-raw-4.json'));
+  const missingBundleErrors = await validateRawUitarsTraceBundle(fixture, { bundleRoot });
+  assert(
+    missingBundleErrors.some((error) => error.includes('action-raw-4.json') && error.includes('does not exist')),
+    'bundle validation should reject missing referenced artifact files'
+  );
+
+  await writeFile(join(bundleRoot, 'tasks/settings-toggle/raw/action-raw-4.json'), '{"token":"secret"}\n', 'utf8');
+  const sensitiveBundleErrors = await validateRawUitarsTraceBundle(fixture, { bundleRoot });
+  assert(
+    sensitiveBundleErrors.some((error) => error.includes('sensitive-looking content')),
+    'bundle validation should reject sensitive-looking content in referenced text artifacts'
+  );
+
+  await writeFile(join(bundleRoot, 'tasks/settings-toggle/raw/action-raw-4.json'), '{}\n', 'utf8');
+  const symlinkEscapeRoot = join(tempDir, 'symlink-escape');
+  const symlinkEscapeTrace = structuredClone(fixture);
+  symlinkEscapeTrace.events[3].artifactRefs = ['tasks/settings-toggle/raw/outside.json'];
+  await mkdir(join(symlinkEscapeRoot, 'tasks/settings-toggle/raw'), { recursive: true });
+  const outsidePath = join(tempDir, 'outside.json');
+  await writeFile(outsidePath, '{}\n', 'utf8');
+  await symlink(outsidePath, join(symlinkEscapeRoot, 'tasks/settings-toggle/raw/outside.json'));
+  const symlinkBundleErrors = await validateRawUitarsTraceBundle(symlinkEscapeTrace, {
+    bundleRoot: symlinkEscapeRoot
+  });
+  assert(
+    symlinkBundleErrors.some((error) => error.includes('symlink') || error.includes('outside bundle root')),
+    'bundle validation should reject symlink escapes outside the bundle root'
+  );
+
+  const parentSymlinkRoot = join(tempDir, 'parent-symlink-root');
+  const parentSymlinkOutside = join(tempDir, 'parent-symlink-outside');
+  const parentSymlinkTrace = structuredClone(fixture);
+  parentSymlinkTrace.events[3].artifactRefs = ['tasks/settings-toggle/raw/parent-outside.json'];
+  await mkdir(join(parentSymlinkRoot), { recursive: true });
+  await mkdir(join(parentSymlinkOutside, 'tasks/settings-toggle/raw'), { recursive: true });
+  await writeFile(join(parentSymlinkOutside, 'tasks/settings-toggle/raw/parent-outside.json'), '{}\n', 'utf8');
+  await symlink(join(parentSymlinkOutside, 'tasks'), join(parentSymlinkRoot, 'tasks'), 'dir');
+  const parentSymlinkBundleErrors = await validateRawUitarsTraceBundle(parentSymlinkTrace, {
+    bundleRoot: parentSymlinkRoot
+  });
+  assert(
+    parentSymlinkBundleErrors.some((error) => error.includes('outside bundle root')),
+    'bundle validation should reject parent-directory symlink escapes outside the bundle root'
+  );
+
+  const duplicateBundleErrors = await validateRawUitarsTraceBundle(duplicateArtifactRefs, { bundleRoot });
+  assert(
+    duplicateBundleErrors.some((error) => error.includes('duplicate external artifact reference')),
+    'bundle validation should reject duplicate refs inside one event'
+  );
+
+  const crossEventDuplicateBundleErrors = await validateRawUitarsTraceBundle(crossEventDuplicateRefs, { bundleRoot });
+  assert(
+    crossEventDuplicateBundleErrors.some((error) => error.includes('duplicate external artifact reference')),
+    'bundle validation should reject duplicate refs across events'
+  );
+
+  const duplicateScreenshotRefTrace = structuredClone(fixture);
+  duplicateScreenshotRefTrace.events[5].screenshotRef = 'tasks/settings-toggle/screenshots/tool-result-raw-5.png';
+  const duplicateScreenshotRefErrors = await validateRawUitarsTraceBundle(duplicateScreenshotRefTrace, { bundleRoot });
+  assert(
+    duplicateScreenshotRefErrors.some((error) => error.includes('duplicate external artifact reference')),
+    'bundle validation should reject duplicate screenshotRef values across events'
+  );
+
+  await writeFile(inputPath, `${JSON.stringify(fixture, null, 2)}\n`, 'utf8');
   const ingested = await ingestRawUitarsTraceFile({
     inputPath,
     outputPath

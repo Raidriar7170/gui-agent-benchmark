@@ -253,10 +253,12 @@ Supported formats:
 1. P0: Keep the scripted browser oracle baseline green as tasks evolve; it
    proves all deterministic tasks are solvable through the same UI and judge
    path.
-2. P1: Preserve raw UI-TARS action traces and referenced screenshots for real
-   runs.
-3. P2: Repeat the expanded 10-task round and report variance.
-4. P3: Generate a visual dashboard or GIF from existing evidence artifacts.
+2. P1: Preserve raw UI-TARS action traces and referenced screenshots for future
+   real runs without backfilling historical derived step traces.
+3. P2: Close the native action evidence gate with a fresh raw transcript bundle
+   whose task-action events and external refs pass validation.
+4. P3: Repeat the expanded 10-task round and report variance.
+5. P4: Generate a visual dashboard or GIF from existing evidence artifacts.
 
 ## Further Reading / 延伸阅读
 

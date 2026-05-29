@@ -94,6 +94,14 @@ characters, inline `data:image/...` payloads, or base64-looking image payloads.
 Inline base64 screenshots or image payloads are rejected so the JSON remains
 reviewable and portable.
 
+`validateRawUitarsTraceBundle(rawTrace, { bundleRoot })` adds entity checks on
+top of schema validation. Every `artifactRefs` and `screenshotRef` entry must
+resolve to an existing regular file under the bundle root. Screenshot refs must
+use `.png`, `.jpg`, `.jpeg`, or `.webp` file names. Duplicate external refs are
+rejected across the whole trace so stale or collapsed evidence does not
+silently pass as a preserved bundle. Symlinks and parent-directory symlink
+escapes are rejected by resolving referenced files against the real bundle root.
+
 Historical derived step traces cannot be backfilled into this raw transcript
 schema unless the original raw UI-TARS transcript and referenced screenshots or
 artifacts exist. The expanded round step traces remain derived timeline
@@ -120,6 +128,25 @@ This smoke distinguishes four states:
 The P1.5 smoke is a preservation and honesty check, not automated model
 scoring. It must not reconstruct native task-action events from capture,
 run-export, trace, screenshots, or final-state artifacts.
+
+## P2 Native Action Evidence Gate
+
+`npm run validate:native-action-evidence-gate` runs the P2 gate in
+`--allow-missing` mode. This keeps repository validation green before a fresh P2
+sample exists, while still reporting `missing_experiment` clearly.
+
+Use the stricter command when a new raw transcript sample is expected:
+
+```sh
+node scripts/validate-native-action-evidence-gate.mjs --require-sample
+```
+
+The P2 gate reads
+`experiments/2026-05-29-p2-native-action-evidence/summary.json`, follows each
+`native_task_actions_captured` task's `rawTracePath`, validates the raw trace
+schema, validates the raw bundle's referenced files, and requires at least one
+native task-execution action. A missing P2 experiment is not evidence closure;
+it is only allowed during the default repo health check.
 
 ## CLI
 

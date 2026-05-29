@@ -6,7 +6,7 @@
   "description": "Zero-dependency GUI agent benchmark workspace.",
   "scripts": {
     "start": "node server.mjs",
-    "validate": "npm run validate:tasks && npm run validate:runs && npm run validate:uitars-preflight && npm run validate:harness && npm run validate:capture && npm run validate:tunnel && npm run validate:oracle-baseline && npm run validate:real-round && npm run validate:step-traces && npm run validate:raw-uitars-trace && npm run validate:repeated-baseline && npm run validate:native-task-action-transcript && npm run validate:finish",
+    "validate": "npm run validate:tasks && npm run validate:runs && npm run validate:uitars-preflight && npm run validate:harness && npm run validate:capture && npm run validate:tunnel && npm run validate:oracle-baseline && npm run validate:real-round && npm run validate:step-traces && npm run validate:raw-uitars-trace && npm run validate:native-action-evidence-gate && npm run validate:repeated-baseline && npm run validate:native-task-action-transcript && npm run validate:finish",
     "validate:tasks": "node scripts/validate-tasks.mjs",
     "validate:runs": "node scripts/validate-runs.mjs",
     "validate:uitars-preflight": "node scripts/validate-uitars-preflight.mjs",
@@ -17,6 +17,7 @@
     "validate:real-round": "node scripts/validate-real-round.mjs",
     "validate:step-traces": "node scripts/validate-step-traces.mjs",
     "validate:raw-uitars-trace": "node scripts/validate-raw-uitars-trace.mjs",
+    "validate:native-action-evidence-gate": "node scripts/validate-native-action-evidence-gate.mjs --allow-missing",
     "validate:repeated-baseline": "node scripts/validate-repeated-baseline.mjs",
     "validate:native-task-action-transcript": "node scripts/validate-native-task-action-transcript-smoke.mjs",
     "validate:finish": "node scripts/validate-finish-gate.mjs",
