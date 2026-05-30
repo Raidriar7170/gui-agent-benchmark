@@ -1,0 +1,27 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 4,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049910405,
+    "end": 1780049913164,
+    "cost": 2759
+  },
+  "value": "Thought: I just clicked on the address bar, and now I need to enter the correct URL. Let me type in \"chrome://settings\" so that I can access the settings interface of the Chrome browser. This is the first step to complete the task, and I need to make sure I get this step right.\nAction: type(content='chrome://settings')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": false,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 0,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "type",
+    "action_inputs": {
+      "content": "chrome://settings"
+    },
+    "thought": "I just clicked on the address bar, and now I need to enter the correct URL. Let me type in \"chrome://settings\" so that I can access the settings interface of the Chrome browser. This is the first step to complete the task, and I need to make sure I get this step right.",
+    "reflection": null
+  }
+}

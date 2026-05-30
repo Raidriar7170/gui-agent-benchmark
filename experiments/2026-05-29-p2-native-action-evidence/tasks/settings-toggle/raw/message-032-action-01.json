@@ -1,0 +1,31 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 32,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780050022431,
+    "end": 1780050028329,
+    "cost": 5898
+  },
+  "value": "Thought: I've finally finished all the settings adjustments! I've enabled the email digests, turned off product analytics, and confirmed that the auto-save feature is still active. The only thing left to do is change the time zone to New York. I noticed that the time zone option is currently showing UTC, so I need to click on the dropdown menu to switch it to the New York time zone. Once I do that, I can click the Evaluate button to see the results of the evaluation.\nAction: click(start_box='(1160,1066)')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": true,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 336452,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "click",
+    "action_inputs": {
+      "start_box": "[0.4552590266875981,0.6679197994987469,0.4552590266875981,0.6679197994987469]",
+      "start_coords": [
+        2330.926,
+        2137.344
+      ]
+    },
+    "thought": "I've finally finished all the settings adjustments! I've enabled the email digests, turned off product analytics, and confirmed that the auto-save feature is still active. The only thing left to do is change the time zone to New York. I noticed that the time zone option is currently showing UTC, so I need to click on the dropdown menu to switch it to the New York time zone. Once I do that, I can click the Evaluate button to see the results of the evaluation.",
+    "reflection": null
+  }
+}

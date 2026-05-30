@@ -1,0 +1,31 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 2,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049905465,
+    "end": 1780049908093,
+    "cost": 2628
+  },
+  "value": "Thought: I noticed that the current page is the Google search homepage. To complete the task of benchmarking the local test page, I need to open the Chrome browser first. Let me click on the address bar and type in the URL for the Chrome browser, which is \"chrome://settings.\" This will allow me to access the settings interface of the browser.\nAction: click(start_box='(964,702)')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": true,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 93252,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "click",
+    "action_inputs": {
+      "start_box": "[0.3783359497645212,0.4398496240601504,0.3783359497645212,0.4398496240601504]",
+      "start_coords": [
+        1937.08,
+        1407.518
+      ]
+    },
+    "thought": "I noticed that the current page is the Google search homepage. To complete the task of benchmarking the local test page, I need to open the Chrome browser first. Let me click on the address bar and type in the URL for the Chrome browser, which is \"chrome://settings.\" This will allow me to access the settings interface of the browser.",
+    "reflection": null
+  }
+}

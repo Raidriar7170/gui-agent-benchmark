@@ -1,0 +1,27 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 10,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049929518,
+    "end": 1780049934750,
+    "cost": 5232
+  },
+  "value": "Thought: I noticed that the address bar is already selected, so I can directly enter the URL for the local test page. Let me input \"http://127.0.0.1:4173/?task=settings-toggle\" here, and that will take me to the page we need to benchmark. This is the first step in completing the task, and I need to make sure I get it right.\nAction: type(content='http://127.0.0.1:4173/?task=settings-toggle')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": false,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 0,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "type",
+    "action_inputs": {
+      "content": "http://127.0.0.1:4173/?task=settings-toggle"
+    },
+    "thought": "I noticed that the address bar is already selected, so I can directly enter the URL for the local test page. Let me input \"http://127.0.0.1:4173/?task=settings-toggle\" here, and that will take me to the page we need to benchmark. This is the first step in completing the task, and I need to make sure I get it right.",
+    "reflection": null
+  }
+}

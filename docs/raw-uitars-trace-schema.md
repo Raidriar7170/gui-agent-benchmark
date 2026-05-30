@@ -138,7 +138,7 @@ sample exists, while still reporting `missing_experiment` clearly.
 Use the stricter command when a new raw transcript sample is expected:
 
 ```sh
-node scripts/validate-native-action-evidence-gate.mjs --require-sample
+npm run validate:p2-native-action-evidence
 ```
 
 The P2 gate reads
@@ -147,6 +147,104 @@ The P2 gate reads
 schema, validates the raw bundle's referenced files, and requires at least one
 native task-execution action. A missing P2 experiment is not evidence closure;
 it is only allowed during the default repo health check.
+
+Strict closure expects these three tasks in the P2 summary:
+
+- `settings-toggle`
+- `onboarding-form`
+- `ticket-review`
+
+Each expected task must have `transcriptStatus:
+native_task_actions_captured` and at least one native task-execution action.
+Missing expected tasks fail with:
+
+```text
+<taskId>: missing expected task in P2 native action evidence summary
+```
+
+The strict gate also accepts explicit CLI flags for ad hoc checks:
+
+```sh
+node scripts/validate-native-action-evidence-gate.mjs \
+  --require-sample \
+  --expected-task-ids settings-toggle,onboarding-form,ticket-review \
+  --min-native-task-actions-per-task 1
+```
+
+The default aggregate `npm run validate` intentionally does not include this
+strict closure command. It validates the tooling and allows an absent P2 sample;
+`validate:p2-native-action-evidence` is the evidence-closure gate for fresh
+three-task native transcript samples.
+
+## P2 Native Transcript Export
+
+Offline export converts a UI-TARS renderer state snapshot shaped like
+`window.zustandBridge.getState()` into the raw trace bundle:
+
+```sh
+npm run uitars:export-native-transcript -- \
+  --task settings-toggle \
+  --task-title "Update workspace settings" \
+  --experiment-dir experiments/2026-05-29-p2-native-action-evidence \
+  --state-json /path/to/zustand-state.json \
+  --final-capture experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/capture/capture.json \
+  --prompt-file experiments/2026-05-29-p2-native-action-evidence/preflight-context/tasks/settings-toggle/prompt.txt
+```
+
+The exporter writes:
+
+```text
+tasks/{taskId}/raw-trace.json
+tasks/{taskId}/raw/*.json
+```
+
+Artifact references inside `raw-trace.json` are relative to the experiment
+directory and must satisfy `validateRawUitarsTraceBundle()`. The raw trace
+source is `ui-tars-raw-transcript`, and the schema version is
+`RAW_UITARS_TRACE_SCHEMA_VERSION`.
+
+The exporter records screenshot presence and sanitized metadata only. It does
+not write inline screenshot/base64 payloads, `webSocketDebuggerUrl`,
+`ws://.../devtools` values, cookies, tokens, authorization headers, passwords,
+SSH paths, or non-local IP/connection details.
+
+`--final-capture` should point to the task's `capture.json`; its
+`evaluation.success`, `evaluation.score`, and failed criteria become
+`rawTrace.final`. When omitted, the exporter uses a conservative placeholder
+(`FINAL_CAPTURE_NOT_PROVIDED`) so the bundle remains honest but not closed.
+
+The CLI reserves `--cdp-url` and `--discover-local-uitars` for live renderer
+collection, but the verified path in this repository is offline `--state-json`.
+Live export requires the UI-TARS renderer to be reachable and expose
+`window.zustandBridge.getState()`; do not paste or persist CDP websocket URLs in
+artifacts or docs.
+
+## P2 Evidence Pack Analyzer
+
+`npm run analyze:p2-native-action-evidence` reads
+`tasks/<taskId>/raw-trace.json` for the three P2 tasks, validates each raw
+bundle, compares raw final evaluation with `tasks/<taskId>/capture/capture.json`
+when present, and writes:
+
+```text
+summary.json
+report.md
+run-log.md
+```
+
+The summary keeps the existing gate contract:
+
+- `schemaVersion: 1`
+- `source: ui-tars-native-task-action-transcript-smoke`
+- status metrics for `native_task_actions_captured`,
+  `visible_transcript_only`, `invalid_native_transcript`, and
+  `missing_native_transcript`
+- per-task `rawTracePath`, `taskActionCount`, and `taskActionNames`
+
+If a task lacks a raw native transcript, the analyzer records
+`missing_native_transcript`. It must not fabricate `onboarding-form` or
+`ticket-review` action evidence from step traces, capture bundles, run exports,
+screenshots, or final state.
 
 ## CLI
 
