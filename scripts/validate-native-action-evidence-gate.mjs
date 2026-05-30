@@ -21,10 +21,19 @@ function readValue(argv, index, flag) {
   return value;
 }
 
+function parseTaskIds(value) {
+  return value
+    .split(',')
+    .map((taskId) => taskId.trim())
+    .filter(Boolean);
+}
+
 function parseArgs(argv) {
   const options = {
     experimentDir: DEFAULT_NATIVE_ACTION_EVIDENCE_EXPERIMENT_DIR,
     minNativeTaskActions: 1,
+    minNativeTaskActionsPerTask: 0,
+    expectedTaskIds: [],
     allowMissing: false
   };
 
@@ -44,6 +53,16 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg.startsWith('--min-native-task-actions=')) {
       options.minNativeTaskActions = Number(arg.slice('--min-native-task-actions='.length));
+    } else if (arg === '--expected-task-ids') {
+      options.expectedTaskIds.push(...parseTaskIds(readValue(argv, index, arg)));
+      index += 1;
+    } else if (arg.startsWith('--expected-task-ids=')) {
+      options.expectedTaskIds.push(...parseTaskIds(arg.slice('--expected-task-ids='.length)));
+    } else if (arg === '--min-native-task-actions-per-task') {
+      options.minNativeTaskActionsPerTask = Number(readValue(argv, index, arg));
+      index += 1;
+    } else if (arg.startsWith('--min-native-task-actions-per-task=')) {
+      options.minNativeTaskActionsPerTask = Number(arg.slice('--min-native-task-actions-per-task='.length));
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -52,6 +71,10 @@ function parseArgs(argv) {
   if (!Number.isInteger(options.minNativeTaskActions) || options.minNativeTaskActions < 1) {
     throw new Error('--min-native-task-actions must be a positive integer.');
   }
+  if (!Number.isInteger(options.minNativeTaskActionsPerTask) || options.minNativeTaskActionsPerTask < 0) {
+    throw new Error('--min-native-task-actions-per-task must be a non-negative integer.');
+  }
+  options.expectedTaskIds = [...new Set(options.expectedTaskIds)];
 
   return options;
 }
@@ -157,6 +180,30 @@ try {
   });
   assert(validGate.ok === true, `valid native action evidence gate should pass: ${validGate.errors.join('; ')}`);
   assert(validGate.capturedNativeTaskActions === 1, 'gate should count captured native task actions');
+
+  const missingExpectedGate = await validateNativeActionEvidenceGate({
+    experimentDir: validExperimentDir,
+    expectedTaskIds: ['settings-toggle', 'onboarding-form'],
+    minNativeTaskActions: 1,
+    minNativeTaskActionsPerTask: 1
+  });
+  assert(missingExpectedGate.ok === false, 'strict gate should fail when an expected task is absent from summary.tasks');
+  assert(
+    missingExpectedGate.errors.some((error) => error === 'onboarding-form: missing expected task in P2 native action evidence summary'),
+    'strict gate should report the missing expected task id'
+  );
+
+  const perTaskMinimumGate = await validateNativeActionEvidenceGate({
+    experimentDir: validExperimentDir,
+    expectedTaskIds: ['settings-toggle'],
+    minNativeTaskActions: 1,
+    minNativeTaskActionsPerTask: 2
+  });
+  assert(perTaskMinimumGate.ok === false, 'strict gate should fail when an expected task is below the per-task action minimum');
+  assert(
+    perTaskMinimumGate.errors.some((error) => error.includes('settings-toggle') && error.includes('below required per-task minimum 2')),
+    'strict gate should report the expected task below the per-task minimum'
+  );
 
   const invalidExperimentDir = join(tempDir, 'missing-ref');
   await writeSyntheticExperiment({ experimentDir: invalidExperimentDir, includeReferencedFiles: false });

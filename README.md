@@ -64,8 +64,9 @@ Raw UI-TARS action-level logs, screenshots, browser private storage, and
 model-internal logs were not captured for the expanded round. The current
 evidence supports qualitative failure analysis, not leaderboard-style claims.
 P0 is covered by the scripted oracle baseline; P1 is a forward-looking
-ingestion/capture contract and does not mean the historical expanded round has
-raw UI-TARS logs.
+ingestion/capture contract. P2 adds native action evidence tooling for fresh
+UI-TARS transcript samples, but it does not backfill raw logs for the historical
+expanded round.
 
 扩展轮次里的 step traces 是基于现有 artifact 重建的时间线归因，不是原始
 UI-TARS action transcript。当前证据适合解释失败模式和 primitive 难点，但还
@@ -198,6 +199,7 @@ runs. Keep public examples generic, and put setup guidance in
 | `experiments/2026-05-24-uitars-expanded-real-round/tasks/{task-id}/real-run/` | Per-task capture bundle |
 | [artifacts/finish-gate/2026-05-25-expanded-real-round.json](artifacts/finish-gate/2026-05-25-expanded-real-round.json) | Local plus integration readiness result |
 | [src/oracle-baseline.mjs](src/oracle-baseline.mjs) and [scripts/validate-oracle-baseline.mjs](scripts/validate-oracle-baseline.mjs) | Scripted P0 oracle baseline proving task and judge solvability through UI actions |
+| [docs/raw-uitars-trace-schema.md](docs/raw-uitars-trace-schema.md) | Raw UI-TARS trace schema plus P2 native action evidence exporter, analyzer, and strict gate commands |
 
 Per-task capture bundles contain:
 

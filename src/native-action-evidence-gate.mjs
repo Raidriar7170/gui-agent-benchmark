@@ -113,11 +113,46 @@ function validateSummaryMetadata(summary, errors) {
   }
 }
 
+function normalizeExpectedTaskIds(value) {
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value
+    .map((taskId) => String(taskId || '').trim())
+    .filter(Boolean))];
+}
+
+function addExpectedTaskErrors({ summary, expectedTaskIds, minNativeTaskActionsPerTask, errors }) {
+  if (expectedTaskIds.length === 0 || !Array.isArray(summary?.tasks)) return;
+  const tasksById = new Map();
+  for (const task of summary.tasks) {
+    if (isPlainObject(task) && typeof task.taskId === 'string') tasksById.set(task.taskId, task);
+  }
+
+  for (const taskId of expectedTaskIds) {
+    const task = tasksById.get(taskId);
+    if (!task) {
+      errors.push(`${taskId}: missing expected task in P2 native action evidence summary`);
+      continue;
+    }
+    if (task.transcriptStatus !== 'native_task_actions_captured') {
+      errors.push(`${taskId}: transcriptStatus must be native_task_actions_captured for expected P2 native action evidence task`);
+    }
+    const count = Number.isFinite(task.taskActionCount) ? task.taskActionCount : 0;
+    if (count < minNativeTaskActionsPerTask) {
+      errors.push(`${taskId}: taskActionCount ${count} is below required per-task minimum ${minNativeTaskActionsPerTask}`);
+    }
+  }
+}
+
 export async function validateNativeActionEvidenceGate(options = {}) {
   const experimentDir = options.experimentDir || DEFAULT_NATIVE_ACTION_EVIDENCE_EXPERIMENT_DIR;
   const minNativeTaskActions = Number.isFinite(options.minNativeTaskActions)
     ? options.minNativeTaskActions
     : 1;
+  const expectedTaskIds = normalizeExpectedTaskIds(options.expectedTaskIds);
+  const minNativeTaskActionsPerTask = Number.isFinite(options.minNativeTaskActionsPerTask)
+    ? options.minNativeTaskActionsPerTask
+    : 0;
   const summaryPath = `${experimentDir}/summary.json`;
   const errors = [];
 
@@ -151,6 +186,12 @@ export async function validateNativeActionEvidenceGate(options = {}) {
     errors.push(`${summaryPath}: summary.tasks must be a non-empty array`);
   }
   validateSummaryMetadata(summary, errors);
+  addExpectedTaskErrors({
+    summary,
+    expectedTaskIds,
+    minNativeTaskActionsPerTask,
+    errors
+  });
 
   let capturedNativeTaskActions = 0;
   const realExperimentDir = await realpathOrError(experimentDir, 'experimentDir', errors);
