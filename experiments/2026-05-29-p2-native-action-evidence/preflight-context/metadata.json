@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "source": "p2-native-action-evidence-sample-preflight-context",
+  "createdAt": "2026-05-29T10:32:20.476Z",
+  "benchmarkUrl": "http://127.0.0.1:4173/?task=settings-toggle",
+  "tunnelHealth": "npm run check:tunnel passed before the UI-TARS run",
+  "preflightReports": [
+    "experiments/2026-05-29-p2-native-action-evidence/preflight-context/preflight-settings-toggle.json",
+    "experiments/2026-05-29-p2-native-action-evidence/preflight-context/preflight-fix-settings-toggle.json"
+  ]
+}

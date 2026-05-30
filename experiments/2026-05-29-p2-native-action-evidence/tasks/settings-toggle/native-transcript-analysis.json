@@ -1,0 +1,33 @@
+{
+  "taskId": "settings-toggle",
+  "transcriptStatus": "native_task_actions_captured",
+  "rawTracePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/raw-trace.json",
+  "source": "ui-tars exposed renderer state via window.zustandBridge.getState()",
+  "privateStorageRead": false,
+  "nativeTaskActionCount": 27,
+  "nativeTaskActionNames": [
+    "click",
+    "type"
+  ],
+  "messageCount": 62,
+  "rawEventCount": 66,
+  "final": {
+    "success": false,
+    "score": 0.75,
+    "primaryFailureCode": "ACT-DROPDOWN-VALUE-MISS",
+    "failedCriteria": [
+      "timezone is America/New_York"
+    ]
+  },
+  "evidence": [
+    "tasks/settings-toggle/raw/source-state-metadata.json",
+    "preflight-context/preflight-settings-toggle.json",
+    "preflight-context/preflight-fix-settings-toggle.json",
+    "tasks/settings-toggle/capture/capture.json"
+  ],
+  "limitations": [
+    "This sample preserves UI-TARS renderer state exposed through the application bridge; it does not read UI-TARS private storage.",
+    "Screenshot base64 payloads are deliberately omitted from text artifacts to keep the bundle portable and reviewable.",
+    "The run was stopped after repeated timezone dropdown clicks; final benchmark score is 0.75, not success."
+  ]
+}

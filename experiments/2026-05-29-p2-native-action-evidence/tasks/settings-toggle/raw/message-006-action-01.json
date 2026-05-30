@@ -1,0 +1,27 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 6,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049916071,
+    "end": 1780049919654,
+    "cost": 3583
+  },
+  "value": "Thought: I've already entered the address chrome://settings in the address bar, and now I'm just one step away from finishing. I need to press the Enter key to let the browser take me to the settings page, so I can start working on the task of benchmarking the local test page.\nAction: hotkey(key='enter')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": false,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 0,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "hotkey",
+    "action_inputs": {
+      "key": "enter"
+    },
+    "thought": "I've already entered the address chrome://settings in the address bar, and now I'm just one step away from finishing. I need to press the Enter key to let the browser take me to the settings page, so I can start working on the task of benchmarking the local test page.",
+    "reflection": null
+  }
+}

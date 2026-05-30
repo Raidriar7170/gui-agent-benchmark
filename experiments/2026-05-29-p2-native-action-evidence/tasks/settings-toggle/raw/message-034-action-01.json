@@ -1,0 +1,31 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 34,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780050030647,
+    "end": 1780050036430,
+    "cost": 5783
+  },
+  "value": "Thought: I just clicked on the time zone option, but it seems like nothing happened. Let me check the current status: the email digests are enabled, product analytics is turned off, and the auto-save feature is still active. The only thing left to do is to change the time zone to New York. I need to click on the dropdown menu for the time zone again to open the list of options and select the New York time zone.\nAction: click(start_box='(1160,1066)')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": true,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 336452,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "click",
+    "action_inputs": {
+      "start_box": "[0.4552590266875981,0.6679197994987469,0.4552590266875981,0.6679197994987469]",
+      "start_coords": [
+        2330.926,
+        2137.344
+      ]
+    },
+    "thought": "I just clicked on the time zone option, but it seems like nothing happened. Let me check the current status: the email digests are enabled, product analytics is turned off, and the auto-save feature is still active. The only thing left to do is to change the time zone to New York. I need to click on the dropdown menu for the time zone again to open the list of options and select the New York time zone.",
+    "reflection": null
+  }
+}

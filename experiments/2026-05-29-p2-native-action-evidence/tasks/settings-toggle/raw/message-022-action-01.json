@@ -1,0 +1,31 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 22,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049981360,
+    "end": 1780049987140,
+    "cost": 5780
+  },
+  "value": "Thought: I've noticed that the time zone option is currently set to UTC, and I need to change it to the New York time zone. There's a dropdown menu for the time zone right on the interface, so I'll click on it to open the list of options. This way, I can select the New York time zone and complete the final setting.\nAction: click(start_box='(1160,1066)')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": true,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 336452,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "click",
+    "action_inputs": {
+      "start_box": "[0.4552590266875981,0.6679197994987469,0.4552590266875981,0.6679197994987469]",
+      "start_coords": [
+        2330.926,
+        2137.344
+      ]
+    },
+    "thought": "I've noticed that the time zone option is currently set to UTC, and I need to change it to the New York time zone. There's a dropdown menu for the time zone right on the interface, so I'll click on it to open the list of options. This way, I can select the New York time zone and complete the final setting.",
+    "reflection": null
+  }
+}

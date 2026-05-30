@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "source": "ui-tars-native-task-action-transcript-smoke",
+  "createdAt": "2026-05-29T10:32:20.476Z",
+  "preflightContextPath": "experiments/2026-05-29-p2-native-action-evidence/preflight-context/metadata.json",
+  "scope": {
+    "taskCount": 1,
+    "taskIds": [
+      "settings-toggle"
+    ],
+    "measurement": "P2 native task-action transcript preservation sample from a real UI-TARS local run; not automated model scoring."
+  },
+  "tasks": [
+    {
+      "taskId": "settings-toggle",
+      "preflightStatus": "ready",
+      "transcriptStatus": "native_task_actions_captured",
+      "rawTracePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/raw-trace.json",
+      "analysisPath": "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/native-transcript-analysis.json",
+      "taskActionCount": 27,
+      "taskActionNames": [
+        "click",
+        "type"
+      ],
+      "evidence": [
+        "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/raw-trace.json",
+        "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/native-transcript-analysis.json",
+        "experiments/2026-05-29-p2-native-action-evidence/preflight-context/preflight-fix-settings-toggle.json",
+        "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/capture/capture.json"
+      ],
+      "limitations": [
+        "Actions are not reconstructed from capture, run-export, step trace, screenshots, or final state.",
+        "Native state was captured via UI-TARS exposed zustandBridge.getState(), not private storage.",
+        "Run ended user_stopped after repeated dropdown attempts."
+      ]
+    }
+  ],
+  "metrics": {
+    "native_task_actions_captured": 1,
+    "visible_transcript_only": 0,
+    "invalid_native_transcript": 0,
+    "missing_native_transcript": 0
+  }
+}

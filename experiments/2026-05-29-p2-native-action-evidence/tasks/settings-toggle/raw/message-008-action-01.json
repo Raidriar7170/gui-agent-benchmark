@@ -1,0 +1,31 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 8,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049922652,
+    "end": 1780049927212,
+    "cost": 4560
+  },
+  "value": "Thought: I just typed chrome://settings into the address bar, and the search results page is now displayed. However, this isn't the page we're looking for; we need to go to the local test page instead. Let me click on the address bar again and enter the correct URL: \"http://127.0.0.1:4173/?task=settings-toggle.\" This will take us directly to the page we need to benchmark.\nAction: click(start_box='(964,702)')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": true,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 295628,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "click",
+    "action_inputs": {
+      "start_box": "[0.3783359497645212,0.4398496240601504,0.3783359497645212,0.4398496240601504]",
+      "start_coords": [
+        1937.08,
+        1407.518
+      ]
+    },
+    "thought": "I just typed chrome://settings into the address bar, and the search results page is now displayed. However, this isn't the page we're looking for; we need to go to the local test page instead. Let me click on the address bar again and enter the correct URL: \"http://127.0.0.1:4173/?task=settings-toggle.\" This will take us directly to the page we need to benchmark.",
+    "reflection": null
+  }
+}

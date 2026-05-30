@@ -1,0 +1,25 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 14,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049945273,
+    "end": 1780049950585,
+    "cost": 5312
+  },
+  "value": "Thought: I just entered the URL for the local test page in the address bar, and the page is currently loading. I need to wait a moment for the page to fully load so that I can proceed with the next steps. After all, I need to make sure that the page is accessible before I can start adjusting the settings.\nAction: wait()",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": false,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 0,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "wait",
+    "action_inputs": {},
+    "thought": "I just entered the URL for the local test page in the address bar, and the page is currently loading. I need to wait a moment for the page to fully load so that I can proceed with the next steps. After all, I need to make sure that the page is accessible before I can start adjusting the settings.",
+    "reflection": null
+  }
+}

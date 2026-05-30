@@ -1,0 +1,27 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 12,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049938773,
+    "end": 1780049943929,
+    "cost": 5156
+  },
+  "value": "Thought: I've already entered the URL for the local test page in the address bar, and now I just need to press the Enter key to access it. This is the first step in completing the task, and I need to make sure I get it right. Let me go ahead and press Enter to see what the page looks like.\nAction: hotkey(key='enter')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": false,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 0,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "hotkey",
+    "action_inputs": {
+      "key": "enter"
+    },
+    "thought": "I've already entered the URL for the local test page in the address bar, and now I just need to press the Enter key to access it. This is the first step in completing the task, and I need to make sure I get it right. Let me go ahead and press Enter to see what the page looks like.",
+    "reflection": null
+  }
+}

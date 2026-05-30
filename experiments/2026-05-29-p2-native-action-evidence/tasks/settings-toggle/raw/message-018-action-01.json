@@ -1,0 +1,31 @@
+{
+  "source": "ui-tars-zustandBridge.getState.message.predictionParsed",
+  "messageIndex": 18,
+  "predictionIndex": 0,
+  "from": "gpt",
+  "timing": {
+    "start": 1780049964924,
+    "end": 1780049970759,
+    "cost": 5835
+  },
+  "value": "Thought: I just enabled the email digest feature, and now I need to check the status of the other settings. I noticed that the auto-save option is already checked, which is great. However, the product analytics sharing is still enabled, so I need to turn that off. I also need to change the time zone to New York. Let me click on the checkbox next to \"Product analytics sharing\" to disable it.\nAction: click(start_box='(1696,888)')",
+  "screenshot": {
+    "hasScreenshotBase64": false,
+    "hasScreenshotBase64WithElementMarker": true,
+    "screenshotBase64Length": 0,
+    "screenshotBase64WithElementMarkerLength": 333040,
+    "mime": "image/png"
+  },
+  "predictionParsed": {
+    "action_type": "click",
+    "action_inputs": {
+      "start_box": "[0.6656200941915228,0.556390977443609,0.6656200941915228,0.556390977443609]",
+      "start_coords": [
+        3407.974,
+        1780.452
+      ]
+    },
+    "thought": "I just enabled the email digest feature, and now I need to check the status of the other settings. I noticed that the auto-save option is already checked, which is great. However, the product analytics sharing is still enabled, so I need to turn that off. I also need to change the time zone to New York. Let me click on the checkbox next to \"Product analytics sharing\" to disable it.",
+    "reflection": null
+  }
+}
