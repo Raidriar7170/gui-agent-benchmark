@@ -8,6 +8,14 @@
   "localReady": true,
   "integrationReady": true,
   "ready": true,
+  "outputPolicy": {
+    "publicSummary": true,
+    "omittedFields": [
+      "checks[].stdoutTail",
+      "checks[].stderrTail"
+    ],
+    "note": "stdout/stderr tails are omitted from public artifacts; rerun the finish gate locally for private logs."
+  },
   "checks": [
     {
       "id": "validate",
@@ -17,9 +25,7 @@
       "command": "npm run validate",
       "status": "passed",
       "exitCode": 0,
-      "durationMs": 2227,
-      "stdoutTail": "\n> gui-agent-benchmark@0.1.0 validate\n> npm run validate:tasks && npm run validate:runs && npm run validate:uitars-preflight && npm run validate:harness && npm run validate:capture && npm run validate:tunnel && npm run validate:real-round && npm run validate:finish\n\n\n> gui-agent-benchmark@0.1.0 validate:tasks\n> node scripts/validate-tasks.mjs\n\nTask validation passed: 4 tasks, 17 criteria.\n\n> gui-agent-benchmark@0.1.0 validate:runs\n> node scripts/validate-runs.mjs\n\nRun validation passed: 2 synthetic runs, 1 failure reason bucket.\n\n> gui-agent-benchmark@0.1.0 validate:uitars-preflight\n> node scripts/validate-uitars-preflight.mjs\n\nUI-TARS preflight validation passed for synthetic report.\n\n> gui-agent-benchmark@0.1.0 validate:harness\n> node scripts/validate-benchmark-harness.mjs\n\nBenchmark harness validation passed with synthetic no-CDP output.\n\n> gui-agent-benchmark@0.1.0 validate:capture\n> node scripts/validate-uitars-capture.mjs\n\nUI-TARS capture validation passed for synthetic CDP fixtures.\n\n> gui-agent-benchmark@0.1.0 validate:tunnel\n> node scripts/validate-tunnel-health.mjs\n\nTunnel health validation passed.\n\n> gui-agent-benchmark@0.1.0 validate:real-round\n> node scripts/validate-real-round.mjs\n\nReal round validation passed.\n\n> gui-agent-benchmark@0.1.0 validate:finish\n> node scripts/validate-finish-gate.mjs\n\nFinish gate validation passed: 5 checks, local-only and integration modes covered.\n",
-      "stderrTail": ""
+      "durationMs": 2227
     },
     {
       "id": "smoke",
@@ -29,9 +35,7 @@
       "command": "npm run smoke",
       "status": "passed",
       "exitCode": 0,
-      "durationMs": 264,
-      "stdoutTail": "\n> gui-agent-benchmark@0.1.0 smoke\n> node scripts/smoke.mjs\n\nLoaded benchmark products 5\nSmoke check passed at http://127.0.0.1:65485.\n",
-      "stderrTail": ""
+      "durationMs": 264
     },
     {
       "id": "local",
@@ -41,9 +45,7 @@
       "command": "node scripts/check-local.mjs",
       "status": "passed",
       "exitCode": 0,
-      "durationMs": 142,
-      "stdoutTail": "== Local tool versions ==\nnode: v22.22.3\npython3: Python 3.12.2\ngit: git version 2.50.1 (Apple Git-155)\n\n== UI-TARS config files ==\nfound: /Users/raidriar/Library/Application Support/ui-tars-desktop/ui_tars.setting.json\n\nLocal health check passed.\n",
-      "stderrTail": ""
+      "durationMs": 142
     },
     {
       "id": "tunnel",
@@ -53,9 +55,7 @@
       "command": "node scripts/check-tunnel.mjs",
       "status": "passed",
       "exitCode": 0,
-      "durationMs": 206,
-      "stdoutTail": "Checking tunnel models endpoint: http://127.0.0.1:18001/v1/models\nChecking UI-TARS chat compatibility with a non-stream high max_tokens probe.\nTunnel health check passed. Models reported: 1.\nChat compatibility: passed.\nCompatibility model: ByteDance-Seed/UI-TARS-1.5-7B.\n",
-      "stderrTail": ""
+      "durationMs": 206
     },
     {
       "id": "remote",
@@ -65,9 +65,7 @@
       "command": "node scripts/check-remote.mjs",
       "status": "passed",
       "exitCode": 0,
-      "durationMs": 640,
-      "stdoutTail": "kages/vllm/entrypoints/openai/api_server.py\", line 693, in run_server\n(APIServer pid=3069766)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/entrypoints/openai/api_server.py\", line 707, in run_server_worker\n(APIServer pid=3069766)     async with build_async_engine_client(\n(APIServer pid=3069766)   File \"/root/miniconda3/lib/python3.11/contextlib.py\", line 204, in __aenter__\n(APIServer pid=3069766)     return await anext(self.gen)\n(APIServer pid=3069766)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/entrypoints/openai/api_server.py\", line 100, in build_async_engine_client\n(APIServer pid=3069766)     async with build_async_engine_client_from_engine_args(\n(APIServer pid=3069766)   File \"/root/miniconda3/lib/python3.11/contextlib.py\", line 204, in __aenter__\n(APIServer pid=3069766)     return await anext(self.gen)\n(APIServer pid=3069766)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/entrypoints/openai/api_server.py\", line 136, in build_async_engine_client_from_engine_args\n(APIServer pid=3069766)     async_llm = AsyncLLM.from_vllm_config(\n(APIServer pid=3069766)                 ^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/async_llm.py\", line 217, in from_vllm_config\n(APIServer pid=3069766)     return cls(\n(APIServer pid=3069766)            ^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/async_llm.py\", line 146, in __init__\n(APIServer pid=3069766)     self.engine_core = EngineCoreClient.make_async_mp_client(\n(APIServer pid=3069766)                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n(APIServer pid=3069766)     return func(*args, **kwargs)\n(APIServer pid=3069766)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/core_client.py\", line 130, in make_async_mp_client\n(APIServer pid=3069766)     return AsyncMPClient(*client_args)\n(APIServer pid=3069766)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n(APIServer pid=3069766)     return func(*args, **kwargs)\n(APIServer pid=3069766)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/core_client.py\", line 900, in __init__\n(APIServer pid=3069766)     super().__init__(\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/core_client.py\", line 535, in __init__\n(APIServer pid=3069766)     with launch_core_engines(\n(APIServer pid=3069766)   File \"/root/miniconda3/lib/python3.11/contextlib.py\", line 144, in __exit__\n(APIServer pid=3069766)     next(self.gen)\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/utils.py\", line 1128, in launch_core_engines\n(APIServer pid=3069766)     wait_for_engine_startup(\n(APIServer pid=3069766)   File \"/mnt/data/minghongsun/ui-tars-vllm/env/venv/lib/python3.11/site-packages/vllm/v1/engine/utils.py\", line 1187, in wait_for_engine_startup\n(APIServer pid=3069766)     raise RuntimeError(\n(APIServer pid=3069766) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}\nRemote health check passed.\n",
-      "stderrTail": ""
+      "durationMs": 640
     }
   ]
 }

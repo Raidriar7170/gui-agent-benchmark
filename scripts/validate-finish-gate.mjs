@@ -4,7 +4,8 @@ import {
   CHECK_FINISH_SCHEMA_VERSION,
   finishGateChecks,
   formatFinishGateSummary,
-  runFinishGate
+  runFinishGate,
+  toPublicFinishGateReport
 } from '../src/finish-gate.mjs';
 
 const errors = [];
@@ -125,6 +126,15 @@ assert(validateCheck?.stdoutTail.includes('[redacted]'), 'stdout tail should red
 assert(!validateCheck?.stdoutTail.includes('abc123'), 'stdout tail should not retain api key values');
 assert(validateCheck?.stderrTail.includes('[redacted]'), 'stderr tail should redact sensitive-looking values');
 
+const publicSummary = toPublicFinishGateReport(redacted);
+assert(publicSummary.ready === redacted.ready, 'public finish gate summary should preserve readiness');
+assert(publicSummary.localReady === redacted.localReady, 'public finish gate summary should preserve local readiness');
+assert(publicSummary.integrationReady === redacted.integrationReady, 'public finish gate summary should preserve integration readiness');
+assert(publicSummary.checks.length === redacted.checks.length, 'public finish gate summary should preserve checks');
+assert(publicSummary.checks.every((check) => !('stdoutTail' in check)), 'public finish gate summary should omit stdout tails');
+assert(publicSummary.checks.every((check) => !('stderrTail' in check)), 'public finish gate summary should omit stderr tails');
+assert(publicSummary.outputPolicy?.publicSummary === true, 'public finish gate summary should declare public output policy');
+
 const summary = formatFinishGateSummary(failedIntegration);
 assert(summary.includes('Local ready: yes'), 'summary should include local readiness');
 assert(summary.includes('Integration ready: no'), 'summary should include integration readiness');
@@ -136,6 +146,10 @@ const badArg = await runCli(['--wat']);
 assert(badArg.exitCode === 1, 'CLI should exit 1 for unknown arguments');
 assert(badArg.stderr.includes('Unknown argument: --wat'), 'CLI should print a concise argument error');
 assert(!badArg.stderr.includes('at parseArgs'), 'CLI should not print a stack trace for argument errors');
+
+const help = await runCli(['--help']);
+assert(help.exitCode === 0, 'CLI help should exit 0');
+assert(help.stdout.includes('--public-summary'), 'CLI help should document public summary mode');
 
 if (errors.length > 0) {
   console.error('Finish gate validation failed:');

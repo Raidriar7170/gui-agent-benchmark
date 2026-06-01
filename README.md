@@ -28,6 +28,8 @@ readiness are closed, while failures concentrate in GUI interaction primitives.
 
 [![GUI Agent Benchmark summary dashboard](docs/assets/gui-agent-benchmark-summary.png)](https://raidriar7170.github.io/gui-agent-benchmark/)
 
+For a 30-second overview, start with the dashboard image above.
+
 Open the [public dashboard](https://raidriar7170.github.io/gui-agent-benchmark/)
 or the [repo-local dashboard](docs/gui-agent-benchmark-dashboard.html) for a
 skimmable view of the task scores, failure primitives, evidence chain, and
@@ -62,6 +64,7 @@ Fast links:
 - [Current Results / 当前结果](#current-results--当前结果)
 - [Run Locally / 本地运行](#run-locally--本地运行)
 - [Evidence Map / 证据地图](#evidence-map--证据地图)
+- [Status / Roadmap](#status--roadmap)
 
 ## Project Positioning / 项目定位
 
@@ -185,6 +188,8 @@ report, and finish gate need to agree.
 This project is intentionally zero-dependency. Use Node.js 18 or newer.
 
 ```sh
+git clone https://github.com/Raidriar7170/gui-agent-benchmark.git
+cd gui-agent-benchmark
 npm run validate:oracle-baseline
 npm run validate
 npm run smoke
@@ -227,6 +232,11 @@ logs.
 Use local environment variables or local-only configuration for integration
 runs. Keep public examples generic, and put setup guidance in
 [docs/environment.md](docs/environment.md).
+
+Public finish-gate JSON files are generated as summaries: they preserve
+readiness, check status, exit codes, and durations, but omit stdout/stderr tails.
+Use `npm run check:finish -- --public-summary --json --output <path>` when
+writing reviewer-facing finish-gate artifacts.
 
 ## Evidence Map / 证据地图
 
@@ -291,20 +301,28 @@ Supported formats:
 - JSONL where each non-empty line is one complete trace object
 - existing `{ "runs": [ ... ] }` exports
 
-## Next Steps / 下一步
+## Status / Roadmap
 
-1. P0: Keep the scripted browser oracle baseline green as tasks evolve; it
-   proves all deterministic tasks are solvable through the same UI and judge
-   path.
-2. P1/P2: Preserve run-scoped native UI-TARS action-event traces for
-   representative real runs. The first closure pack covers the original
-   settings-toggle attempt plus two visible-target/screenshot-tool failure
-   attempts with raw transcript events and capture/judge cross-checks.
-3. P3: Fix visible-target binding so UI-TARS screenshots the prepared benchmark
-   page instead of stale/search pages, then repeat the expanded 10-task round.
-4. P4: Report repeated-round variance.
-5. P5: Add a short GIF only if a future reviewer needs motion evidence beyond
-   the static dashboard and preserved artifacts.
+Completed:
+
+- P0 scripted browser oracle baseline proves all deterministic tasks are
+  solvable through the same UI and judge path.
+- Expanded 10-task evidence round captured all planned UI-TARS-style browser
+  attempts and linked the results to reports, summaries, and finish-gate
+  artifacts.
+- Static dashboard and reviewer path make the result skimmable from GitHub or
+  GitHub Pages.
+- P1/P2 native action evidence samples preserve sanitized UI-TARS renderer
+  transcript actions for `settings-toggle`, `onboarding-form`, and
+  `ticket-review`.
+
+Future:
+
+- P3: Fix visible-target binding so UI-TARS screenshots the prepared benchmark
+  page instead of stale/search pages, then repeat the expanded 10-task round.
+- P4: Report repeated-round variance.
+- P5: Add a short GIF only if a future reviewer needs motion evidence beyond
+  the static dashboard and preserved artifacts.
 
 ## Further Reading / 延伸阅读
 

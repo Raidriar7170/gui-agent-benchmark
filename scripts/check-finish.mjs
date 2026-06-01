@@ -2,7 +2,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { formatFinishGateSummary, runFinishGate } from '../src/finish-gate.mjs';
+import { formatFinishGateSummary, runFinishGate, toPublicFinishGateReport } from '../src/finish-gate.mjs';
 
 const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
@@ -13,6 +13,7 @@ Options:
   --local-only      Run only local completion gates.
   --json            Print the full JSON report instead of a text summary.
   --output <path>   Write the full JSON report to a file.
+  --public-summary  Omit stdout/stderr tails from JSON output for public repos.
   --help            Show this help text.
 `);
 }
@@ -27,7 +28,8 @@ function parseArgs(argv) {
   const options = {
     localOnly: false,
     json: false,
-    output: ''
+    output: '',
+    publicSummary: false
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -38,6 +40,8 @@ function parseArgs(argv) {
       options.localOnly = true;
     } else if (arg === '--json') {
       options.json = true;
+    } else if (arg === '--public-summary') {
+      options.publicSummary = true;
     } else if (arg === '--output') {
       options.output = readValue(argv, index, arg);
       index += 1;
@@ -70,7 +74,8 @@ const report = await runFinishGate({
   cwd: rootDir
 });
 
-const json = `${JSON.stringify(report, null, 2)}\n`;
+const outputReport = options.publicSummary ? toPublicFinishGateReport(report) : report;
+const json = `${JSON.stringify(outputReport, null, 2)}\n`;
 if (options.output) {
   await mkdir(dirname(options.output), { recursive: true });
   await writeFile(options.output, json, 'utf8');
@@ -79,7 +84,7 @@ if (options.output) {
 if (options.json) {
   process.stdout.write(json);
 } else {
-  console.log(formatFinishGateSummary(report));
+  console.log(formatFinishGateSummary(outputReport));
   if (options.output) {
     console.log(`\nWrote JSON report to ${options.output}`);
   }

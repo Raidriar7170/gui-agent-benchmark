@@ -168,6 +168,37 @@ export async function runFinishGate(options = {}) {
   };
 }
 
+export function toPublicFinishGateReport(report) {
+  const checks = Array.isArray(report?.checks)
+    ? report.checks.map((check) => ({
+      id: check.id,
+      title: check.title,
+      category: check.category,
+      required: check.required,
+      command: check.command,
+      status: check.status,
+      exitCode: check.exitCode,
+      durationMs: check.durationMs
+    }))
+    : [];
+
+  return {
+    schemaVersion: report.schemaVersion,
+    source: report.source,
+    createdAt: report.createdAt,
+    mode: report.mode,
+    localReady: report.localReady,
+    integrationReady: report.integrationReady,
+    ready: report.ready,
+    outputPolicy: {
+      publicSummary: true,
+      omittedFields: ['checks[].stdoutTail', 'checks[].stderrTail'],
+      note: 'stdout/stderr tails are omitted from public artifacts; rerun the finish gate locally for private logs.'
+    },
+    checks
+  };
+}
+
 export function formatFinishGateSummary(report) {
   function failureDetails(check) {
     return [check.stderrTail, check.stdoutTail]
