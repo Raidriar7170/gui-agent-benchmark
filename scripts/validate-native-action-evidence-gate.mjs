@@ -137,7 +137,8 @@ async function writeSyntheticExperimentWithPaths({
   experimentDir,
   rawTracePath,
   artifactBase,
-  includeReferencedFiles
+  includeReferencedFiles,
+  summaryTaskActionCount = 1
 }) {
   await writeJson(rawTracePath, rawTraceFixture({ artifactBase }));
   if (includeReferencedFiles) {
@@ -163,7 +164,7 @@ async function writeSyntheticExperimentWithPaths({
         taskId: 'settings-toggle',
         transcriptStatus: 'native_task_actions_captured',
         rawTracePath,
-        taskActionCount: 1,
+        taskActionCount: summaryTaskActionCount,
         taskActionNames: ['click']
       }
     ]
@@ -180,6 +181,90 @@ try {
   });
   assert(validGate.ok === true, `valid native action evidence gate should pass: ${validGate.errors.join('; ')}`);
   assert(validGate.capturedNativeTaskActions === 1, 'gate should count captured native task actions');
+
+  const staleActionExperimentDir = join(tempDir, 'stale-action');
+  await writeSyntheticExperiment({ experimentDir: staleActionExperimentDir, includeReferencedFiles: true });
+  const staleRawTracePath = join(staleActionExperimentDir, 'tasks/settings-toggle/raw-trace.json');
+  const staleRawTrace = rawTraceFixture({ artifactBase: staleActionExperimentDir });
+  staleRawTrace.events[1].timestamp = '2026-05-28T23:59:59.000Z';
+  await writeJson(staleRawTracePath, staleRawTrace);
+  const staleActionGate = await validateNativeActionEvidenceGate({
+    experimentDir: staleActionExperimentDir,
+    minNativeTaskActions: 1
+  });
+  assert(staleActionGate.ok === false, 'gate should reject action events before the run prompt boundary');
+  assert(
+    staleActionGate.errors.some((error) => /action event.*before.*prompt/i.test(error)),
+    'gate should report action events before the prompt boundary'
+  );
+
+  const postFinalActionExperimentDir = join(tempDir, 'post-final-action');
+  await writeSyntheticExperimentWithPaths({
+    experimentDir: postFinalActionExperimentDir,
+    rawTracePath: join(postFinalActionExperimentDir, 'tasks/settings-toggle/raw-trace.json'),
+    artifactBase: postFinalActionExperimentDir,
+    includeReferencedFiles: true,
+    summaryTaskActionCount: 2
+  });
+  const postFinalRawTracePath = join(postFinalActionExperimentDir, 'tasks/settings-toggle/raw-trace.json');
+  const postFinalRawTrace = rawTraceFixture({ artifactBase: postFinalActionExperimentDir });
+  postFinalRawTrace.events.push(
+    {
+      id: 'raw-final-capture',
+      type: 'capture',
+      role: 'capture',
+      timestamp: '2026-05-29T00:00:03.000Z',
+      text: 'Final capture.',
+      artifactRefs: ['tasks/settings-toggle/capture/capture.json']
+    },
+    {
+      id: 'raw-final-judge',
+      type: 'judge_result',
+      role: 'benchmark',
+      timestamp: '2026-05-29T00:00:03.000Z',
+      text: 'Final judge result.',
+      evaluation: {
+        success: false,
+        score: 0.75,
+        details: [
+          { criterion: 'timezone is America/New_York', pass: false }
+        ]
+      }
+    },
+    {
+      id: 'raw-3',
+      type: 'action',
+      role: 'assistant',
+      timestamp: '2026-05-29T00:00:04.000Z',
+      artifactRefs: ['tasks/settings-toggle/raw/action-raw-3.json'],
+      action: {
+        name: 'click',
+        args: {
+          target: 'Timezone'
+        }
+      }
+    }
+  );
+  await writeJson(postFinalRawTracePath, postFinalRawTrace);
+  await writeJson(join(postFinalActionExperimentDir, 'tasks/settings-toggle/raw/action-raw-3.json'), {
+    action: 'click',
+    target: 'Timezone'
+  });
+  await writeJson(join(postFinalActionExperimentDir, 'tasks/settings-toggle/capture/capture.json'), {
+    evaluation: {
+      success: false,
+      score: 0.75
+    }
+  });
+  const postFinalActionGate = await validateNativeActionEvidenceGate({
+    experimentDir: postFinalActionExperimentDir,
+    minNativeTaskActions: 1
+  });
+  assert(postFinalActionGate.ok === false, 'gate should reject action events after a final capture or judge boundary');
+  assert(
+    postFinalActionGate.errors.some((error) => /action event.*after.*final/i.test(error)),
+    'gate should report action events after the final boundary'
+  );
 
   const missingExpectedGate = await validateNativeActionEvidenceGate({
     experimentDir: validExperimentDir,

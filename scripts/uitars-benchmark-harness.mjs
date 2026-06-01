@@ -20,6 +20,7 @@ Options:
   --discover-local-uitars        Safely discover a UI-TARS child Chrome endpoint.
   --prepare-target               Navigate safe target(s) to the task URL before dry-run preflight.
   --isolate-target               During target preparation, keep one benchmark target and navigate extra candidates to about:blank.
+  --require-live-guard           Require exact live benchmark target with no external/search/sign-in target.
   --preflight-fix                Also write preflight-fix.json by navigating matched search targets.
   --confirm-explicit-cdp-fix     Allow fix mode when the CDP endpoint is explicit.
   --allow-remote-cdp             Allow a non-localhost CDP endpoint.
@@ -32,6 +33,7 @@ Environment:
   UI_TARS_DISCOVER_LOCAL=1       Enable safe local UI-TARS discovery.
   UI_TARS_PREPARE_TARGET=1       Enable target preparation before dry-run preflight.
   UI_TARS_ISOLATE_TARGET=1       Enable target isolation during target preparation.
+  UI_TARS_REQUIRE_LIVE_GUARD=1   Require safe live target guard before prompt handoff.
   UI_TARS_PREFLIGHT_FIX=1        Enable preflight fix mode.
   UI_TARS_CONFIRM_EXPLICIT_CDP_FIX=1
                                  Confirm fix mode for explicit CDP endpoints.
@@ -57,6 +59,7 @@ function parseArgs(argv) {
     discoverLocalUitars: process.env.UI_TARS_DISCOVER_LOCAL === '1',
     prepareTarget: process.env.UI_TARS_PREPARE_TARGET === '1',
     isolateTarget: process.env.UI_TARS_ISOLATE_TARGET === '1',
+    requireLiveGuard: process.env.UI_TARS_REQUIRE_LIVE_GUARD === '1',
     preflightFix: process.env.UI_TARS_PREFLIGHT_FIX === '1',
     confirmExplicitCdpFix: process.env.UI_TARS_CONFIRM_EXPLICIT_CDP_FIX === '1',
     allowRemoteCdp: false,
@@ -74,6 +77,8 @@ function parseArgs(argv) {
       options.prepareTarget = true;
     } else if (arg === '--isolate-target') {
       options.isolateTarget = true;
+    } else if (arg === '--require-live-guard') {
+      options.requireLiveGuard = true;
     } else if (arg === '--preflight-fix') {
       options.preflightFix = true;
     } else if (arg === '--confirm-explicit-cdp-fix') {

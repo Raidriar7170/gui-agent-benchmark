@@ -7,6 +7,7 @@ import {
   captureBenchmarkBenchState,
   sanitizeUrl
 } from './uitars-preflight.mjs';
+import { evaluateLiveTargetGuard } from './uitars-live-target-guard.mjs';
 
 export const CAPTURE_SCHEMA_VERSION = 1;
 export const CAPTURE_SOURCE = 'ui-tars-real-run-capture';
@@ -150,6 +151,29 @@ export async function runUitarsCapture(options = {}) {
   const baseUrl = options.baseUrl || DEFAULT_CAPTURE_BASE_URL;
   const benchmarkUrl = benchmarkUrlForTask(baseUrl, task);
   const startedAt = toIso(options.startedAt || new Date());
+
+  if (options.requireLiveGuard) {
+    const liveGuard = await evaluateLiveTargetGuard({
+      cdpUrl: options.cdpUrl,
+      discoverLocalUitars: options.discoverLocalUitars,
+      benchmarkUrl,
+      taskId: task.id,
+      allowRemoteCdp: options.allowRemoteCdp,
+      allowRemoteBenchmark: options.allowRemoteBenchmark,
+      timeoutMs: options.timeoutMs,
+      requireRendererState: false
+    });
+    assertJsonSafe(liveGuard, 'liveGuard');
+    assertNoSensitiveContent(liveGuard, 'liveGuard');
+    if (options.outputDir) {
+      await mkdir(options.outputDir, { recursive: true });
+      await writeJson(join(options.outputDir, 'live-guard.json'), liveGuard);
+    }
+    if (liveGuard.verdict !== 'safe_to_prompt') {
+      throw new Error(`blocked by live target guard: ${liveGuard.reason || liveGuard.verdict}`);
+    }
+  }
+
   const captureResult = await captureBenchmarkBenchState({
     cdpUrl: options.cdpUrl,
     benchmarkUrl,

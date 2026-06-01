@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "timestamp": "2026-05-31T12:31:49.727Z",
+  "taskId": "onboarding-form",
+  "verdict": "safe_to_prompt",
+  "reason": "Exactly one local benchmark target is available and no blocked external targets are present.",
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=onboarding-form"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:54123/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "exactTargets": [
+    {
+      "id": "0229837171FEADB87919AF4CD702F187",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    }
+  ],
+  "blockedTargets": [],
+  "warnings": []
+}

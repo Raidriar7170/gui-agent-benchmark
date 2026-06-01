@@ -1,0 +1,11 @@
+Task: Review priority support ticket
+
+Find Priya Shah's INC-2048 support ticket in the review queue and mark it reviewed.
+
+Start URL: http://127.0.0.1:4173/?task=ticket-review
+Max steps: 8
+
+Success criteria:
+- table query identifies Priya Shah or INC-2048
+- INC-2048 is selected
+- INC-2048 is marked reviewed

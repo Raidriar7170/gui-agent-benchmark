@@ -1,0 +1,48 @@
+{
+  "traceVersion": 1,
+  "source": "ui-tars-benchmark-harness",
+  "traceId": "harness-20260531123142-onboarding-form",
+  "taskId": "onboarding-form",
+  "taskTitle": "Submit onboarding request",
+  "startedAt": "2026-05-31T12:31:42.768Z",
+  "events": [
+    {
+      "timestamp": "2026-05-31T12:31:42.832Z",
+      "type": "target_prepare",
+      "label": "Target prepare ready",
+      "target": "onboarding-form",
+      "countsAsStep": false,
+      "value": {
+        "prepareStatus": "ready",
+        "reason": "Benchmark target is already prepared for the requested task URL.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    },
+    {
+      "timestamp": "2026-05-31T12:31:42.884Z",
+      "type": "live_target_guard",
+      "label": "Live target guard safe_to_prompt",
+      "target": "onboarding-form",
+      "countsAsStep": false,
+      "value": {
+        "guardVerdict": "safe_to_prompt",
+        "reason": "Exactly one local benchmark target is available and no blocked external targets are present.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    },
+    {
+      "timestamp": "2026-05-31T12:31:42.940Z",
+      "type": "preflight",
+      "label": "Preflight ready",
+      "target": "onboarding-form",
+      "countsAsStep": false,
+      "value": {
+        "taskStatus": "ready",
+        "dryRunStatus": "ready",
+        "fixStatus": null,
+        "reason": "Benchmark target is already present and no search page target needs correction.",
+        "benchmarkUrl": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    }
+  ]
+}

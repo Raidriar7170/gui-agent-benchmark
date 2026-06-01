@@ -10,6 +10,7 @@ import {
   sanitizeUrl,
   writePreflightReport
 } from './uitars-preflight.mjs';
+import { evaluateLiveTargetGuard } from './uitars-live-target-guard.mjs';
 
 export const HARNESS_SCHEMA_VERSION = 1;
 export const DEFAULT_HARNESS_BASE_URL = 'http://127.0.0.1:4173';
@@ -126,7 +127,12 @@ function targetPrepareBlocksTask(targetPrepareReport) {
   return targetPrepareReport && blockedPreflightStatuses.has(targetPrepareReport.status);
 }
 
-function taskStatusFromReports(dryRunReport, fixReport = null, targetPrepareReport = null) {
+function liveGuardBlocksTask(liveGuardReport) {
+  return liveGuardReport && liveGuardReport.verdict !== 'safe_to_prompt';
+}
+
+function taskStatusFromReports(dryRunReport, fixReport = null, targetPrepareReport = null, liveGuardReport = null) {
+  if (liveGuardBlocksTask(liveGuardReport)) return 'blocked';
   if (targetPrepareBlocksTask(targetPrepareReport)) return 'blocked';
   const finalReport = fixReport || dryRunReport;
   if (blockedPreflightStatuses.has(finalReport.status)) return 'blocked';
@@ -135,9 +141,9 @@ function taskStatusFromReports(dryRunReport, fixReport = null, targetPrepareRepo
   return finalReport.status;
 }
 
-function traceForTask({ task, benchmarkUrl, targetPrepareReport, dryRunReport, fixReport, startedAt }) {
+function traceForTask({ task, benchmarkUrl, targetPrepareReport, liveGuardReport, dryRunReport, fixReport, startedAt }) {
   const finalReport = fixReport || dryRunReport;
-  const status = taskStatusFromReports(dryRunReport, fixReport, targetPrepareReport);
+  const status = taskStatusFromReports(dryRunReport, fixReport, targetPrepareReport, liveGuardReport);
   const events = [];
   if (targetPrepareReport) {
     events.push({
@@ -149,6 +155,20 @@ function traceForTask({ task, benchmarkUrl, targetPrepareReport, dryRunReport, f
       value: {
         prepareStatus: targetPrepareReport.status,
         reason: targetPrepareReport.reason || '',
+        benchmarkUrl
+      }
+    });
+  }
+  if (liveGuardReport) {
+    events.push({
+      timestamp: liveGuardReport.timestamp || startedAt,
+      type: 'live_target_guard',
+      label: `Live target guard ${liveGuardReport.verdict}`,
+      target: task.id,
+      countsAsStep: false,
+      value: {
+        guardVerdict: liveGuardReport.verdict,
+        reason: liveGuardReport.reason || '',
         benchmarkUrl
       }
     });
@@ -241,7 +261,8 @@ export async function runBenchmarkHarness(options = {}) {
       preflightFix: Boolean(options.preflightFix),
       confirmExplicitCdpFix: Boolean(options.confirmExplicitCdpFix),
       allowRemoteCdp: Boolean(options.allowRemoteCdp),
-      allowRemoteBenchmark: Boolean(options.allowRemoteBenchmark)
+      allowRemoteBenchmark: Boolean(options.allowRemoteBenchmark),
+      requireLiveGuard: Boolean(options.requireLiveGuard)
     },
     tasks: []
   };
@@ -272,6 +293,45 @@ export async function runBenchmarkHarness(options = {}) {
       await writePreflightReport(sanitizeForOutput(targetPrepareReport), join(taskDir, 'target-prepare.json'));
     }
 
+    let liveGuardReport = null;
+    if (options.requireLiveGuard) {
+      liveGuardReport = await evaluateLiveTargetGuard({
+        cdpUrl: options.cdpUrl,
+        discoverLocalUitars: options.discoverLocalUitars,
+        benchmarkUrl,
+        taskId: task.id,
+        allowRemoteCdp: options.allowRemoteCdp,
+        allowRemoteBenchmark: options.allowRemoteBenchmark,
+        timeoutMs: options.timeoutMs,
+        requireRendererState: false
+      });
+      await writeJson(join(taskDir, 'target-live-guard.json'), liveGuardReport);
+
+      if (liveGuardBlocksTask(liveGuardReport)) {
+        metadata.tasks.push({
+          id: task.id,
+          title: task.title,
+          status: 'blocked',
+          benchmarkUrl: sanitizeUrl(benchmarkUrl),
+          targetPrepareStatus: targetPrepareReport?.status || null,
+          liveGuardVerdict: liveGuardReport.verdict,
+          dryRunStatus: null,
+          fixStatus: null,
+          reason: sanitizeString(liveGuardReport.reason || ''),
+          files: {
+            prompt: `tasks/${task.id}/prompt.txt`,
+            targetPrepare: targetPrepareReport ? `tasks/${task.id}/target-prepare.json` : null,
+            targetLiveGuard: `tasks/${task.id}/target-live-guard.json`,
+            preflightDryRun: null,
+            preflightFix: null,
+            trace: null,
+            runExport: null
+          }
+        });
+        continue;
+      }
+    }
+
     const dryRunReport = await runUitarsPreflight({ ...preflightOptions, fix: false });
     await writePreflightReport(sanitizeForOutput(dryRunReport), join(taskDir, 'preflight-dry-run.json'));
 
@@ -289,6 +349,7 @@ export async function runBenchmarkHarness(options = {}) {
       task,
       benchmarkUrl: sanitizeUrl(benchmarkUrl),
       targetPrepareReport,
+      liveGuardReport,
       dryRunReport,
       fixReport,
       startedAt: createdAt
@@ -298,20 +359,24 @@ export async function runBenchmarkHarness(options = {}) {
     await writeJson(join(taskDir, 'trace.json'), trace);
     await writeJson(join(taskDir, 'run-export.json'), runExport);
 
-    const taskStatus = taskStatusFromReports(dryRunReport, fixReport, targetPrepareReport);
-    const statusReasonReport = targetPrepareBlocksTask(targetPrepareReport) ? targetPrepareReport : (fixReport || dryRunReport);
+    const taskStatus = taskStatusFromReports(dryRunReport, fixReport, targetPrepareReport, liveGuardReport);
+    const statusReasonReport = liveGuardBlocksTask(liveGuardReport)
+      ? liveGuardReport
+      : targetPrepareBlocksTask(targetPrepareReport) ? targetPrepareReport : (fixReport || dryRunReport);
     metadata.tasks.push({
       id: task.id,
       title: task.title,
       status: taskStatus,
       benchmarkUrl: sanitizeUrl(benchmarkUrl),
       targetPrepareStatus: targetPrepareReport?.status || null,
+      liveGuardVerdict: liveGuardReport?.verdict || null,
       dryRunStatus: dryRunReport.status,
       fixStatus: fixReport?.status || null,
       reason: sanitizeString(statusReasonReport.reason || ''),
       files: {
         prompt: `tasks/${task.id}/prompt.txt`,
         targetPrepare: targetPrepareReport ? `tasks/${task.id}/target-prepare.json` : null,
+        targetLiveGuard: liveGuardReport ? `tasks/${task.id}/target-live-guard.json` : null,
         preflightDryRun: `tasks/${task.id}/preflight-dry-run.json`,
         preflightFix: fixReport ? `tasks/${task.id}/preflight-fix.json` : null,
         trace: `tasks/${task.id}/trace.json`,

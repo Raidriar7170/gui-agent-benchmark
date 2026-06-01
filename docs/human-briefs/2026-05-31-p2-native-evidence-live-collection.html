@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2 Native Evidence Live Collection Brief</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17202a; background: #f7f8fa; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 24px 56px; }
+    h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; }
+    p, li { line-height: 1.65; }
+    .lead { font-size: 18px; color: #263442; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+    .card { background: #fff; border: 1px solid #dde3ea; border-radius: 8px; padding: 16px; }
+    .card b { display: block; margin-bottom: 6px; }
+    code { background: #eef2f6; padding: 2px 5px; border-radius: 4px; }
+    a { color: #0a66c2; text-decoration: none; }
+    .ok { color: #0b7a4b; font-weight: 700; }
+    .warn { color: #9a5b00; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>P2 Native Evidence Live Collection</h1>
+  <p class="lead">结论：P2 strict native action evidence gate 已闭合，三项代表性尝试都有 sanitized、run-scoped UI-TARS native action-event transcript。</p>
+
+  <div class="grid">
+    <div class="card"><b>当前状态</b><span class="ok">needs review</span><br>本地 artifacts 已生成，尚未提交或推送。</div>
+    <div class="card"><b>覆盖任务</b><code>settings-toggle</code><br><code>onboarding-form</code><br><code>ticket-review</code></div>
+    <div class="card"><b>严格 gate</b><code>npm run validate:p2-native-action-evidence</code><br><span class="ok">passed</span></div>
+    <div class="card"><b>关键限制</b><span class="warn">不是成功率提升</span><br>这轮证明动作证据可保存，也暴露可见 target 绑定问题。</div>
+  </div>
+
+  <h2>本阶段变化</h2>
+  <ul>
+    <li>新增 live CDP native transcript export，并支持 split endpoints：target guard 使用 child Chrome，renderer export 使用 UI-TARS Electron renderer。</li>
+    <li>新增 live target guard 和 renderer state inspector，避免在 sign-in、search、external target 存在时继续采集。</li>
+    <li>采集了 <code>onboarding-form</code> 与 <code>ticket-review</code> 的真实 UI-TARS renderer transcript 和 final capture；两者证明的是可见 target / screenshot-tool 失败，不是任务成功。</li>
+    <li>收紧 native action gate：action 必须位于 operator prompt 之后、final capture/judge 之前；<code>settings-toggle</code> 已截掉 final 后的继续滚动 actions。</li>
+    <li>重建 <code>experiments/2026-05-29-p2-native-action-evidence/summary.json</code>、<code>report.md</code>、<code>run-log.md</code>。</li>
+  </ul>
+
+  <h2>证据链接</h2>
+  <ul>
+    <li><a href="../../experiments/2026-05-29-p2-native-action-evidence/summary.json">P2 summary.json</a></li>
+    <li><a href="../../experiments/2026-05-29-p2-native-action-evidence/report.md">P2 report.md</a></li>
+    <li><a href="../../docs/p2-native-evidence-live-collection.md">P2 live collection runbook</a></li>
+    <li><a href="../../docs/raw-uitars-trace-schema.md">Raw UI-TARS trace schema</a></li>
+  </ul>
+
+  <h2>验证结果</h2>
+  <ul>
+    <li><code>npm run validate:uitars-native-transcript-export</code> passed</li>
+    <li><code>npm run validate:uitars-live-target-guard</code> passed</li>
+    <li><code>npm run validate:uitars-renderer-state-inspect</code> passed</li>
+    <li><code>npm run validate:harness</code> passed</li>
+    <li><code>npm run validate:capture</code> passed</li>
+    <li><code>npm run validate:p2-native-action-evidence</code> passed</li>
+  </ul>
+
+  <h2>诚实风险</h2>
+  <ul>
+    <li><code>onboarding-form</code> 和 <code>ticket-review</code> 的 live attempts 仍偏到 Google/screenshot-tool 行为；它们是失败证据，不是任务成功证明。</li>
+    <li>下一阶段应优先修复 UI-TARS 可见窗口绑定，让截图源稳定落在 prepared benchmark page。</li>
+    <li>不要把 P2 表述为 expanded 10-task raw action log 已补齐；P2 只是三项代表性 run-scoped native action-event transcript closure。</li>
+  </ul>
+
+  <h2>推荐下一步</h2>
+  <p>先做 P3 visible-target binding recovery：在 prompt 前用 CDP 和 macOS window evidence 证明 UI-TARS 截图源就是 prepared benchmark page，再重复 expanded 10-task round。</p>
+</main>
+</body>
+</html>

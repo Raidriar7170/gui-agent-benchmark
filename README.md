@@ -63,10 +63,14 @@ finish gate, but they are not raw UI-TARS action transcripts.
 Raw UI-TARS action-level logs, screenshots, browser private storage, and
 model-internal logs were not captured for the expanded round. The current
 evidence supports qualitative failure analysis, not leaderboard-style claims.
-P0 is covered by the scripted oracle baseline; P1 is a forward-looking
-ingestion/capture contract. P2 adds native action evidence tooling for fresh
-UI-TARS transcript samples, but it does not backfill raw logs for the historical
-expanded round.
+P0 is covered by the scripted oracle baseline; P1 defines the raw transcript
+ingestion/capture contract. P2 now includes a strict native action evidence
+sample for `settings-toggle`, `onboarding-form`, and `ticket-review`. These
+samples preserve sanitized UI-TARS renderer transcript actions bounded by the
+operator prompt and final capture/judge events, then validate them against
+final capture output. Historical expanded-round step traces remain derived
+timeline attributions; they are not presented as raw UI-TARS action
+transcripts.
 
 扩展轮次里的 step traces 是基于现有 artifact 重建的时间线归因，不是原始
 UI-TARS action transcript。当前证据适合解释失败模式和 primitive 难点，但还
@@ -200,6 +204,7 @@ runs. Keep public examples generic, and put setup guidance in
 | [artifacts/finish-gate/2026-05-25-expanded-real-round.json](artifacts/finish-gate/2026-05-25-expanded-real-round.json) | Local plus integration readiness result |
 | [src/oracle-baseline.mjs](src/oracle-baseline.mjs) and [scripts/validate-oracle-baseline.mjs](scripts/validate-oracle-baseline.mjs) | Scripted P0 oracle baseline proving task and judge solvability through UI actions |
 | [docs/raw-uitars-trace-schema.md](docs/raw-uitars-trace-schema.md) | Raw UI-TARS trace schema plus P2 native action evidence exporter, analyzer, and strict gate commands |
+| [experiments/2026-05-29-p2-native-action-evidence/summary.json](experiments/2026-05-29-p2-native-action-evidence/summary.json) | Strict P2 native UI-TARS action evidence for `settings-toggle`, `onboarding-form`, and `ticket-review` |
 
 Per-task capture bundles contain:
 
@@ -255,12 +260,14 @@ Supported formats:
 1. P0: Keep the scripted browser oracle baseline green as tasks evolve; it
    proves all deterministic tasks are solvable through the same UI and judge
    path.
-2. P1: Preserve raw UI-TARS action traces and referenced screenshots for future
-   real runs without backfilling historical derived step traces.
-3. P2: Close the native action evidence gate with a fresh raw transcript bundle
-   whose task-action events and external refs pass validation.
-4. P3: Repeat the expanded 10-task round and report variance.
-5. P4: Generate a visual dashboard or GIF from existing evidence artifacts.
+2. P1/P2: Preserve run-scoped native UI-TARS action-event traces for
+   representative real runs. The first closure pack covers the original
+   settings-toggle attempt plus two visible-target/screenshot-tool failure
+   attempts with raw transcript events and capture/judge cross-checks.
+3. P3: Fix visible-target binding so UI-TARS screenshots the prepared benchmark
+   page instead of stale/search pages, then repeat the expanded 10-task round.
+4. P4: Report repeated-round variance.
+5. P5: Generate a visual dashboard or GIF from existing evidence artifacts.
 
 ## Further Reading / 延伸阅读
 

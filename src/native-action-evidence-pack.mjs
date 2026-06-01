@@ -6,7 +6,8 @@ import {
   NATIVE_ACTION_EVIDENCE_GATE_SCHEMA_VERSION,
   NATIVE_ACTION_EVIDENCE_SUMMARY_SOURCE,
   NATIVE_ACTION_TRANSCRIPT_STATUSES,
-  TASK_EXECUTION_ACTION_NAMES
+  TASK_EXECUTION_ACTION_NAMES,
+  validateNativeActionRunScope
 } from './native-action-evidence-gate.mjs';
 import {
   validateRawUitarsTrace,
@@ -60,6 +61,18 @@ function taskActionCount(rawTrace) {
     const name = String(event?.action?.name || '').toLowerCase();
     return TASK_EXECUTION_ACTION_SET.has(name);
   }).length;
+}
+
+function actionTimestampRange(rawTrace) {
+  const times = actionEvents(rawTrace)
+    .map((event) => Date.parse(event?.timestamp || ''))
+    .filter((value) => !Number.isNaN(value))
+    .sort((left, right) => left - right);
+  if (times.length === 0) return null;
+  return {
+    first: new Date(times[0]).toISOString(),
+    last: new Date(times[times.length - 1]).toISOString()
+  };
 }
 
 function failedCriteriaFromEvaluation(evaluation) {
@@ -125,7 +138,7 @@ async function analyzeTask({ experimentDir, taskId }) {
       taskActionCount: 0,
       taskActionNames: [],
       evidence: [`no raw native UI-TARS transcript found at ${rawTracePath}`],
-      limitations: ['No native task-action transcript was preserved for this task; no actions were reconstructed.']
+      limitations: ['No native UI-TARS action-event transcript was preserved for this task; no actions were reconstructed.']
     };
   }
 
@@ -144,6 +157,7 @@ async function analyzeTask({ experimentDir, taskId }) {
       })).map((error) => `${rawTracePath}: ${error}`));
     }
     if (rawTrace?.taskId !== taskId) errors.push(`${rawTracePath}: taskId must match ${taskId}`);
+    errors.push(...validateNativeActionRunScope(rawTrace, { rawTracePath }));
   }
 
   if (rawTrace && await pathExists(capturePath)) {
@@ -153,6 +167,7 @@ async function analyzeTask({ experimentDir, taskId }) {
 
   const names = rawTrace && errors.length === 0 ? taskActionNames(rawTrace) : [];
   const count = rawTrace && errors.length === 0 ? taskActionCount(rawTrace) : 0;
+  const timestampRange = rawTrace && errors.length === 0 ? actionTimestampRange(rawTrace) : null;
   const status = errors.length > 0
     ? 'invalid_native_transcript'
     : count > 0
@@ -167,12 +182,13 @@ async function analyzeTask({ experimentDir, taskId }) {
     capturePath: await pathExists(capturePath) ? capturePath : null,
     taskActionCount: count,
     taskActionNames: names,
+    taskActionTimestampRange: timestampRange,
     rawTraceValidationErrors: errors,
     evidence: errors.length > 0
       ? [`raw native UI-TARS transcript rejected: ${errors.join('; ')}`]
       : [`raw native UI-TARS transcript validated: ${rawTracePath}`, `task-execution action events=${count}`],
     limitations: [
-      'Native task actions are accepted only from preserved UI-TARS raw transcript artifacts.',
+      'Native UI-TARS action events are accepted only from preserved UI-TARS raw transcript artifacts between the run prompt boundary and any final capture/judge boundary.',
       'Capture, run-export, step traces, screenshots, and final state are not used to reconstruct actions.'
     ]
   };
@@ -195,7 +211,7 @@ export async function analyzeNativeActionEvidencePack({
     scope: {
       taskCount: taskIds.length,
       taskIds,
-      measurement: 'P2 native action evidence closure for preserved UI-TARS task-action transcripts; not automated model scoring.'
+      measurement: 'P2 native action evidence closure for run-scoped preserved UI-TARS action-event transcripts; not automated model scoring or task success proof.'
     },
     metrics: countMetrics(tasks),
     tasks
@@ -203,8 +219,13 @@ export async function analyzeNativeActionEvidencePack({
 }
 
 export function renderNativeActionEvidencePackReport(summary) {
+  function rangeLabel(task) {
+    return task.taskActionTimestampRange
+      ? `${task.taskActionTimestampRange.first} to ${task.taskActionTimestampRange.last}`
+      : 'none';
+  }
   const rows = summary.tasks.map((task) => (
-    `| ${task.taskId} | ${task.transcriptStatus} | ${task.taskActionCount} | ${task.taskActionNames.join(', ') || 'none'} | ${task.rawTracePath || 'none'} |`
+    `| ${task.taskId} | ${task.transcriptStatus} | ${task.taskActionCount} | ${task.taskActionNames.join(', ') || 'none'} | ${rangeLabel(task)} | ${task.rawTracePath || 'none'} |`
   )).join('\n');
   return `# P2 Native Action Evidence Pack
 
@@ -225,8 +246,8 @@ Expected tasks: ${summary.scope.taskIds.join(', ')}
 
 ## Tasks
 
-| Task | Transcript status | Task actions | Action names | Raw trace |
-| --- | --- | ---: | --- | --- |
+| Task | Transcript status | Native action events | Action names | Action timestamp range | Raw trace |
+| --- | --- | ---: | --- | --- | --- |
 ${rows}
 
 ## Evidence Policy
@@ -237,14 +258,14 @@ Only preserved raw UI-TARS transcript bundles can satisfy native action evidence
 
 export function renderNativeActionEvidencePackRunLog(summary) {
   const lines = summary.tasks.map((task) => (
-    `- ${summary.createdAt}: ${task.taskId} -> ${task.transcriptStatus}, task actions=${task.taskActionCount}.`
+    `- ${summary.createdAt}: ${task.taskId} -> ${task.transcriptStatus}, native action events=${task.taskActionCount}.`
   )).join('\n');
   return `# P2 Native Action Evidence Pack Run Log
 
 ${lines}
 
 - ${summary.createdAt}: Wrote summary.json, report.md, and run-log.md.
-- ${summary.createdAt}: No task-action events were reconstructed from derived artifacts.
+- ${summary.createdAt}: No native action events were reconstructed from derived artifacts.
 `;
 }
 

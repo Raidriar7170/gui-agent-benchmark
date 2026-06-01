@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "source": "discovered-local-uitars",
+  "timestamp": "2026-05-31T12:35:10.756Z",
+  "status": "fixed",
+  "reason": "Isolated target preparation left exactly one benchmark task target and no supported search targets.",
+  "mode": {
+    "fix": true,
+    "prepareTarget": true,
+    "isolateTarget": true
+  },
+  "benchmark": {
+    "url": "http://127.0.0.1:4173/?task=ticket-review",
+    "origin": "http://127.0.0.1:4173",
+    "path": "/"
+  },
+  "cdp": {
+    "endpoint": "http://127.0.0.1:54123/",
+    "version": {
+      "browser": "Chrome/148.0.7778.179",
+      "protocolVersion": "1.3"
+    }
+  },
+  "actions": [
+    {
+      "action": "Page.navigate",
+      "status": "ok",
+      "candidateType": "benchmark_app_keeper",
+      "navigateTo": "http://127.0.0.1:4173/?task=ticket-review",
+      "target": {
+        "id": "0229837171FEADB87919AF4CD702F187",
+        "type": "page",
+        "title": "GUI Agent Benchmark",
+        "url": "http://127.0.0.1:4173/?task=onboarding-form"
+      }
+    },
+    {
+      "action": "Target.activateTarget",
+      "status": "ok",
+      "candidateType": "benchmark_app_keeper",
+      "target": {
+        "id": "0229837171FEADB87919AF4CD702F187",
+        "type": "page",
+        "title": "127.0.0.1:4173/?task=ticket-review",
+        "url": "http://127.0.0.1:4173/?task=ticket-review"
+      }
+    }
+  ],
+  "targetsBefore": [
+    {
+      "id": "0229837171FEADB87919AF4CD702F187",
+      "type": "page",
+      "title": "GUI Agent Benchmark",
+      "url": "http://127.0.0.1:4173/?task=onboarding-form"
+    }
+  ],
+  "targetsAfter": [
+    {
+      "id": "0229837171FEADB87919AF4CD702F187",
+      "type": "page",
+      "title": "127.0.0.1:4173/?task=ticket-review",
+      "url": "http://127.0.0.1:4173/?task=ticket-review"
+    }
+  ],
+  "warnings": []
+}

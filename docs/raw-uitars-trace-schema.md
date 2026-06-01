@@ -176,6 +176,15 @@ strict closure command. It validates the tooling and allows an absent P2 sample;
 `validate:p2-native-action-evidence` is the evidence-closure gate for fresh
 three-task native transcript samples.
 
+For the live collection procedure, use [P2 Native Evidence Live
+Collection](p2-native-evidence-live-collection.md). After the live collection
+phase, `npm run validate:p2-native-action-evidence` is expected to pass because
+all three expected P2 tasks have sanitized, run-scoped native action-event
+transcripts.
+The guarded live path uses split CDP endpoints: the child Chrome endpoint for
+target safety checks and the UI-TARS Electron renderer endpoint for transcript
+state export.
+
 ## P2 Native Transcript Export
 
 Offline export converts a UI-TARS renderer state snapshot shaped like
@@ -213,11 +222,20 @@ SSH paths, or non-local IP/connection details.
 `rawTrace.final`. When omitted, the exporter uses a conservative placeholder
 (`FINAL_CAPTURE_NOT_PROVIDED`) so the bundle remains honest but not closed.
 
-The CLI reserves `--cdp-url` and `--discover-local-uitars` for live renderer
-collection, but the verified path in this repository is offline `--state-json`.
-Live export requires the UI-TARS renderer to be reachable and expose
-`window.zustandBridge.getState()`; do not paste or persist CDP websocket URLs in
-artifacts or docs.
+The CLI supports live renderer collection with `--renderer-cdp-url`,
+`--cdp-url`, or `--discover-local-uitars` when `--state-json` is omitted. For
+guarded collection, pass `--guard-cdp-url`, `--renderer-cdp-url`, and
+`--require-live-guard` together so target safety and renderer transcript export
+come from explicit endpoints. Live export requires the matching operator prompt
+to be present in the UI-TARS renderer state and exports only messages at or
+after that prompt boundary; unbounded stale renderer messages are rejected.
+Live export also requires the UI-TARS renderer to be reachable and expose a
+supported renderer state store such as `window.zustandBridge.getState()`; do
+not paste or persist CDP websocket URLs in artifacts or docs.
+
+For native action evidence gates, accepted action events must stay inside the
+task run scope: at or after the operator prompt boundary, and before any final
+`capture` or `judge_result` boundary when those final events are present.
 
 ## P2 Evidence Pack Analyzer
 

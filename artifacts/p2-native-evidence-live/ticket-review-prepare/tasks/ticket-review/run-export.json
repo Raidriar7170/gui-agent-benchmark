@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-31T12:35:10.932Z",
+  "runs": [
+    {
+      "id": "harness-20260531123510-ticket-review",
+      "taskId": "ticket-review",
+      "taskTitle": "Review priority support ticket",
+      "startedAt": "2026-05-31T12:35:10.688Z",
+      "endedAt": null,
+      "durationMs": 241,
+      "steps": 0,
+      "actions": [
+        {
+          "timestamp": "2026-05-31T12:35:10.756Z",
+          "type": "target_prepare",
+          "label": "Target prepare fixed",
+          "target": "ticket-review",
+          "path": null,
+          "value": {
+            "prepareStatus": "fixed",
+            "reason": "Isolated target preparation left exactly one benchmark task target and no supported search targets.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-31T12:35:10.868Z",
+          "type": "live_target_guard",
+          "label": "Live target guard safe_to_prompt",
+          "target": "ticket-review",
+          "path": null,
+          "value": {
+            "guardVerdict": "safe_to_prompt",
+            "reason": "Exactly one local benchmark target is available and no blocked external targets are present.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+          },
+          "countsAsStep": false
+        },
+        {
+          "timestamp": "2026-05-31T12:35:10.929Z",
+          "type": "preflight",
+          "label": "Preflight ready",
+          "target": "ticket-review",
+          "path": null,
+          "value": {
+            "taskStatus": "ready",
+            "dryRunStatus": "ready",
+            "fixStatus": null,
+            "reason": "Benchmark target is already present and no search page target needs correction.",
+            "benchmarkUrl": "http://127.0.0.1:4173/?task=ticket-review"
+          },
+          "countsAsStep": false
+        }
+      ],
+      "inputs": [],
+      "stateTimeline": [],
+      "evaluation": null,
+      "success": null,
+      "score": null,
+      "failureReason": null
+    }
+  ]
+}

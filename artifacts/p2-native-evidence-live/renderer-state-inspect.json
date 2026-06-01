@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "timestamp": "2026-05-31T12:31:34.340Z",
+  "cdp": {
+    "endpoint": "http://127.0.0.1:9333/"
+  },
+  "targets": [
+    {
+      "id": "F9CDCFFC99BC6D1973BDF9CA884D053F",
+      "type": "page",
+      "title": "UI-TARS Desktop",
+      "url": "[redacted-url]"
+    }
+  ],
+  "rendererState": {
+    "available": true,
+    "source": "[redacted-host]",
+    "messageCount": 6,
+    "targetTitle": "UI-TARS Desktop",
+    "targetUrl": "[redacted-url]"
+  }
+}

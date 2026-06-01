@@ -1,9 +1,8 @@
-# P2 Native Action Evidence Run Log
+# P2 Native Action Evidence Pack Run Log
 
-- Branch: main after fast-forward merge of codex/native-action-evidence-closure.
-- Task: settings-toggle.
-- Local benchmark URL: http://127.0.0.1:4173/?task=settings-toggle.
-- Source: UI-TARS exposed renderer state via window.zustandBridge.getState(); no UI-TARS private storage read.
-- Outcome: user_stopped after repeated timezone dropdown clicks.
-- Final benchmark capture: score 0.75, success false.
-- Failed criteria: timezone is America/New_York.
+- 2026-05-31T13:50:32.595Z: settings-toggle -> native_task_actions_captured, native action events=23.
+- 2026-05-31T13:50:32.595Z: onboarding-form -> native_task_actions_captured, native action events=1.
+- 2026-05-31T13:50:32.595Z: ticket-review -> native_task_actions_captured, native action events=3.
+
+- 2026-05-31T13:50:32.595Z: Wrote summary.json, report.md, and run-log.md.
+- 2026-05-31T13:50:32.595Z: No native action events were reconstructed from derived artifacts.

@@ -18,6 +18,7 @@ Options:
   --base-url <url>             Benchmark base URL. Default: ${DEFAULT_CAPTURE_BASE_URL}
   --cdp-url <url>              Explicit Chrome DevTools Protocol endpoint.
   --discover-local-uitars      Safely discover a UI-TARS child Chrome endpoint from DevToolsActivePort.
+  --require-live-guard         Require exact live benchmark target with no external/search/sign-in target before capture.
   --allow-remote-cdp           Allow fixed benchmark Runtime.evaluate against a non-localhost browser target.
   --allow-remote-benchmark     Allow a non-localhost benchmark URL.
   --help                       Show this help.
@@ -26,6 +27,7 @@ Environment:
   UI_TARS_CDP_URL              CDP endpoint when --cdp-url is omitted.
   BENCHMARK_BASE_URL           Benchmark base URL when --base-url is omitted.
   UI_TARS_DISCOVER_LOCAL=1     Enable safe local UI-TARS discovery.
+  UI_TARS_REQUIRE_LIVE_GUARD=1 Require safe live target guard before capture.
 `);
 }
 
@@ -42,6 +44,7 @@ function parseArgs(argv) {
     baseUrl: process.env.BENCHMARK_BASE_URL || DEFAULT_CAPTURE_BASE_URL,
     cdpUrl: process.env.UI_TARS_CDP_URL,
     discoverLocalUitars: process.env.UI_TARS_DISCOVER_LOCAL === '1',
+    requireLiveGuard: process.env.UI_TARS_REQUIRE_LIVE_GUARD === '1',
     allowRemoteCdp: false,
     allowRemoteBenchmark: false,
     help: false
@@ -53,6 +56,8 @@ function parseArgs(argv) {
       options.help = true;
     } else if (arg === '--discover-local-uitars') {
       options.discoverLocalUitars = true;
+    } else if (arg === '--require-live-guard') {
+      options.requireLiveGuard = true;
     } else if (arg === '--allow-remote-cdp') {
       options.allowRemoteCdp = true;
     } else if (arg === '--allow-remote-benchmark') {

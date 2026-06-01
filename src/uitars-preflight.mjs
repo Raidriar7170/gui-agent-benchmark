@@ -120,13 +120,13 @@ function sanitizeVersion(version) {
   };
 }
 
-function makeCdpUrl(endpoint, path) {
+export function makeCdpUrl(endpoint, path) {
   const url = new URL(endpoint.href);
   url.pathname = `${endpoint.pathname}${path}`.replace(/\/{2,}/g, '/');
   return url;
 }
 
-async function fetchJson(url, { timeoutMs = 5000, method = 'GET' } = {}) {
+export async function fetchJson(url, { timeoutMs = 5000, method = 'GET' } = {}) {
   const timeout = timeoutSignal(timeoutMs);
   try {
     const response = await fetch(url, { method, signal: timeout.signal });
@@ -408,7 +408,7 @@ export async function discoverLocalUitarsCdpEndpoint() {
   return resolveLocalUitarsCdpEndpointFromPs({ psStdout: stdout });
 }
 
-class CdpWebSocket {
+export class CdpWebSocket {
   constructor(socket) {
     this.socket = socket;
     this.buffer = Buffer.alloc(0);
@@ -607,7 +607,7 @@ function decodeServerFrame(buffer) {
   };
 }
 
-function assertAllowedWebSocketEndpoint(webSocketUrl, allowRemoteCdp) {
+export function assertAllowedWebSocketEndpoint(webSocketUrl, allowRemoteCdp) {
   const url = new URL(webSocketUrl);
   if (url.username || url.password) {
     throw new Error('CDP target WebSocket must not include credentials.');

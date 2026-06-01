@@ -807,6 +807,57 @@ try {
     assert(exactPrepare.status === 'ready', 'exact task target should be ready without navigation');
     assert(exactPrepare.actions.length === 0, 'exact task target should not produce navigation actions');
     assert(validatePreflightReport(exactPrepare).length === 0, 'exact target prepare report should satisfy schema validation');
+
+    fixtureTargets = [
+      {
+        id: 'guard-exact-task',
+        type: 'page',
+        title: 'GUI Agent Benchmark',
+        url: 'http://127.0.0.1:4173/?task=catalog-filter',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/guard-exact-task`
+      },
+      {
+        id: 'guard-signin',
+        type: 'page',
+        title: 'Sign in',
+        url: 'https://signin.volcengine.com/auth/login',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/guard-signin`
+      }
+    ];
+    const guardedHarnessRoot = await mkdtemp(join(tmpdir(), 'uitars-harness-live-guard-'));
+    try {
+      const guardedHarness = await runBenchmarkHarness({
+        outputDir: guardedHarnessRoot,
+        tasks: 'catalog-filter',
+        baseUrl: 'http://127.0.0.1:4173',
+        cdpUrl,
+        requireLiveGuard: true,
+        preflightFix: true,
+        confirmExplicitCdpFix: true,
+        now: new Date('2026-05-21T00:00:00.000Z')
+      });
+      const guardedMetadata = await readJson(join(guardedHarnessRoot, 'metadata.json'));
+      const liveGuardReport = await readJson(join(guardedHarnessRoot, 'tasks', 'catalog-filter', 'target-live-guard.json'));
+      assert(liveGuardReport.verdict === 'blocked', 'requireLiveGuard should block exact benchmark plus sign-in target');
+      assert(liveGuardReport.blockedTargets?.[0]?.url === '[redacted-url]', 'live guard report should redact blocked remote sign-in URL');
+      assert(!JSON.stringify(liveGuardReport).includes('signin.volcengine.com'), 'live guard report should omit blocked remote sign-in hostname');
+      assert(guardedMetadata.tasks[0]?.status === 'blocked', 'harness metadata should block unsafe live guard target');
+      assert(guardedMetadata.tasks[0]?.liveGuardVerdict === 'blocked', 'harness metadata should record live guard verdict');
+      assert(guardedMetadata.tasks[0]?.files?.targetLiveGuard === 'tasks/catalog-filter/target-live-guard.json', 'harness metadata should reference target-live-guard.json');
+      assert(guardedMetadata.tasks[0]?.dryRunStatus === null, 'blocked live guard metadata should not record dry-run status');
+      assert(guardedMetadata.tasks[0]?.fixStatus === null, 'blocked live guard metadata should not record fix status');
+      assert(guardedMetadata.tasks[0]?.files?.preflightDryRun === null, 'blocked live guard metadata should not reference preflight-dry-run.json');
+      assert(guardedMetadata.tasks[0]?.files?.preflightFix === null, 'blocked live guard metadata should not reference preflight-fix.json');
+      assert(guardedMetadata.tasks[0]?.files?.trace === null, 'blocked live guard metadata should not reference trace.json');
+      assert(guardedMetadata.tasks[0]?.files?.runExport === null, 'blocked live guard metadata should not reference run-export.json');
+      assert(/external|sign-in|blocked/i.test(guardedMetadata.tasks[0]?.reason || ''), 'harness metadata should reflect live guard block reason');
+      assert(guardedHarness.tasks[0]?.status === 'blocked', 'harness result task status should be blocked by live guard');
+      for (const fileName of ['preflight-dry-run.json', 'preflight-fix.json', 'trace.json', 'run-export.json']) {
+        assert(!await pathExists(join(guardedHarnessRoot, 'tasks', 'catalog-filter', fileName)), `blocked live guard should not write ${fileName}`);
+      }
+    } finally {
+      await rm(guardedHarnessRoot, { recursive: true, force: true });
+    }
     assert(
       fixtureCdpErrors.length === 0,
       `synthetic CDP fixture should only receive Page.navigate during target preparation, got ${fixtureCdpErrors.map((entry) => `${entry.id}:${entry.method}`).join(', ')}`

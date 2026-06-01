@@ -357,6 +357,49 @@ await runTest('wrong-task decoy without exact target is blocked', async () => {
   }, /blocked|No exact benchmark target/i);
 });
 
+await runTest('require live guard blocks sign-in target and writes report', async () => {
+  await withSyntheticCdpServer({
+    targets: (port) => [
+      exactTarget(port),
+      {
+        id: 'signin-target',
+        type: 'page',
+        title: 'Sign in',
+        url: 'https://signin.volcengine.com/auth/login',
+        webSocketDebuggerUrl: `ws://127.0.0.1:${port}/devtools/page/signin-target`
+      }
+    ],
+    websocketPaths: []
+  }, async (cdpUrl) => {
+    const outputDir = await mkdtemp(join(tmpdir(), 'uitars-capture-live-guard-'));
+    try {
+      let rejected = false;
+      try {
+        await runUitarsCapture({
+          taskId: 'onboarding-form',
+          outputDir,
+          baseUrl: benchmarkBaseUrl,
+          cdpUrl,
+          requireLiveGuard: true
+        });
+      } catch (error) {
+        rejected = true;
+        assert(/blocked by live target guard: .*external|blocked by live target guard: .*sign-in/i.test(error.message), `live guard rejected with unexpected message: ${error.message}`);
+      }
+      assert(rejected, 'live guard unsafe target unexpectedly succeeded');
+      const guard = JSON.parse(await readFile(join(outputDir, 'live-guard.json'), 'utf8'));
+      assert(guard.verdict === 'blocked', 'capture live guard report should record blocked verdict');
+      assert(guard.blockedTargets?.[0]?.url === '[redacted-url]', 'capture live guard report should redact blocked remote sign-in URL');
+      assert(!JSON.stringify(guard).includes('signin.volcengine.com'), 'capture live guard report should omit blocked remote sign-in hostname');
+      for (const fileName of ['capture.json', 'trace.json', 'run-export.json']) {
+        assert(!await pathExists(join(outputDir, fileName)), `live guard rejection wrote ${fileName}`);
+      }
+    } finally {
+      await rm(outputDir, { recursive: true, force: true });
+    }
+  });
+});
+
 await runTest('runtime exception is rejected', async () => {
   await expectRejects('runtime exception', {
     targets: (port) => [exactTarget(port)],

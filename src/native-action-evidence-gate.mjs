@@ -67,6 +67,54 @@ function taskActionCount(rawTrace) {
   }).length;
 }
 
+function timestampMs(value) {
+  const parsed = Date.parse(value || '');
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function firstFinalBoundaryTime(events, promptTime) {
+  const finalTimes = events
+    .filter((event) => event?.type === 'capture' || event?.type === 'judge_result')
+    .map((event) => timestampMs(event?.timestamp))
+    .filter((time) => time !== null && time >= promptTime);
+  return finalTimes.length > 0 ? Math.min(...finalTimes) : null;
+}
+
+export function validateNativeActionRunScope(rawTrace, { rawTracePath = 'rawTrace' } = {}) {
+  const errors = [];
+  const events = Array.isArray(rawTrace?.events) ? rawTrace.events : [];
+  const promptEvent = events.find((event) => event?.type === 'prompt' && event?.role === 'operator');
+  if (!promptEvent) {
+    errors.push(`${rawTracePath}: at least one operator prompt event is required to define the run boundary`);
+    return errors;
+  }
+
+  const promptTime = timestampMs(promptEvent.timestamp);
+  if (promptTime === null) {
+    errors.push(`${rawTracePath}: prompt event ${promptEvent.id || 'unknown'} must have a valid timestamp`);
+    return errors;
+  }
+
+  const finalTime = firstFinalBoundaryTime(events, promptTime);
+  let previousTime = null;
+  for (const event of events) {
+    const currentTime = timestampMs(event?.timestamp);
+    if (currentTime === null) continue;
+    if (previousTime !== null && currentTime < previousTime) {
+      errors.push(`${rawTracePath}: event ${event.id || 'unknown'} timestamp is earlier than a preceding event`);
+    }
+    previousTime = currentTime;
+    if (event?.type === 'action' && currentTime < promptTime) {
+      errors.push(`${rawTracePath}: action event ${event.id || 'unknown'} occurs before the operator prompt boundary`);
+    }
+    if (event?.type === 'action' && finalTime !== null && currentTime > finalTime) {
+      errors.push(`${rawTracePath}: action event ${event.id || 'unknown'} occurs after the final capture/judge boundary`);
+    }
+  }
+
+  return errors;
+}
+
 function addSummaryConsistencyErrors({ summaryTask, rawTrace, rawTracePath, errors }) {
   if (rawTrace.taskId !== summaryTask.taskId) {
     errors.push(`${rawTracePath}: rawTrace.taskId must match summary taskId ${summaryTask.taskId}`);
@@ -223,6 +271,7 @@ export async function validateNativeActionEvidenceGate(options = {}) {
 
     const schemaErrors = validateRawUitarsTrace(rawTrace);
     errors.push(...schemaErrors.map((error) => `${rawTracePath}: ${error}`));
+    errors.push(...validateNativeActionRunScope(rawTrace, { rawTracePath }));
     addSummaryConsistencyErrors({ summaryTask, rawTrace, rawTracePath, errors });
     const count = taskActionCount(rawTrace);
     if (count < 1) errors.push(`${rawTracePath}: must include at least one native task-execution action`);

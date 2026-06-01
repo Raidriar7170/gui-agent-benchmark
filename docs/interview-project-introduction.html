@@ -682,6 +682,11 @@
         <strong>关键边界：</strong>扩展轮次里的 step trace 是 reconstructed / derived timeline，不是 UI-TARS 原始动作日志。
         所以它能支持 qualitative failure analysis，但不能声称逐动作延迟、动作次数或底层 policy 行为。
       </div>
+      <p>
+        The latest P2 pass adds sanitized, run-scoped native UI-TARS action-event transcripts for three representative
+        attempts: the original settings-toggle run plus two visible-target/screenshot-tool failure attempts for
+        onboarding-form and ticket-review.
+      </p>
     </section>
 
     <section id="results">
@@ -861,8 +866,8 @@
       <h3>Q5：step trace 不是原始动作日志，会不会不可靠？</h3>
       <p>
         它的定位不是替代 raw action log，而是把已有 artifact 做成可读的 timeline attribution。每个 step 都标明
-        evidence kind 和 references，并在 schema 里承认 limitation。面试时要主动说清楚：当前支持定性失败分析，
-        不支持动作级 timing 或 policy 分析。下一步就是保留 raw UI-TARS action traces 和截图引用。
+        evidence kind 和 references，并在 schema 里承认 limitation。现在 P2 已经补了一组三任务 native action
+        transcript 样本，但历史 expanded round 仍然不能被回填成 raw action log。
       </p>
 
       <h3>Q6：你在这个项目里最难的工程问题是什么？</h3>
@@ -875,8 +880,8 @@
 
       <h3>Q7：下一步你会怎么做？</h3>
       <ol>
-        <li>保留 raw UI-TARS action traces 和截图引用，补齐动作级证据。</li>
-        <li>重复 10-task expanded round，报告 variance 和 confidence intervals。</li>
+        <li>修复 UI-TARS 可见窗口绑定，让截图稳定落在 prepared benchmark page。</li>
+        <li>带 native transcript preservation 重复 10-task expanded round，报告 variance 和 confidence intervals。</li>
         <li>把同一 harness 接到更多 GUI agent/operator，对比 failure taxonomy，而不是只对比 success rate。</li>
         <li>把 dashboard/GIF 放在证据闭环之后，用可视化帮助读者浏览，不替代 artifact。</li>
       </ol>
@@ -904,8 +909,8 @@
       <p>
         我最重要的取舍是先追求可复核证据，而不是追求漂亮成功率。比如我加了 oracle baseline，证明所有任务通过 scripted
         UI actions 都可以拿满分，所以任务和 judge 是可解的；我也把 step trace 明确标成 derived attribution，不把它包装成
-        raw action log。后续如果继续做，我会保留原始 UI-TARS 动作日志，重复多轮实验，并把这个 harness 用到更多 GUI agent
-        上做 failure taxonomy 对比。
+        raw action log。现在 P2 已补齐三类代表性 native transcript 样本；后续我会先修复可见 target binding，再重复多轮实验，
+        并把这个 harness 用到更多 GUI agent 上做 failure taxonomy 对比。
       </p>
     </section>
 

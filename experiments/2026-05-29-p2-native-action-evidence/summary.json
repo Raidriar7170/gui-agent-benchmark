@@ -1,44 +1,96 @@
 {
   "schemaVersion": 1,
   "source": "ui-tars-native-task-action-transcript-smoke",
-  "createdAt": "2026-05-29T10:32:20.476Z",
-  "preflightContextPath": "experiments/2026-05-29-p2-native-action-evidence/preflight-context/metadata.json",
+  "createdAt": "2026-05-31T13:50:32.595Z",
   "scope": {
-    "taskCount": 1,
+    "taskCount": 3,
     "taskIds": [
-      "settings-toggle"
+      "settings-toggle",
+      "onboarding-form",
+      "ticket-review"
     ],
-    "measurement": "P2 native task-action transcript preservation sample from a real UI-TARS local run; not automated model scoring."
+    "measurement": "P2 native action evidence closure for run-scoped preserved UI-TARS action-event transcripts; not automated model scoring or task success proof."
+  },
+  "metrics": {
+    "native_task_actions_captured": 3,
+    "visible_transcript_only": 0,
+    "invalid_native_transcript": 0,
+    "missing_native_transcript": 0
   },
   "tasks": [
     {
       "taskId": "settings-toggle",
-      "preflightStatus": "ready",
+      "taskTitle": "Update workspace settings",
       "transcriptStatus": "native_task_actions_captured",
       "rawTracePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/raw-trace.json",
-      "analysisPath": "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/native-transcript-analysis.json",
-      "taskActionCount": 27,
+      "capturePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/capture/capture.json",
+      "taskActionCount": 23,
       "taskActionNames": [
         "click",
         "type"
       ],
+      "taskActionTimestampRange": {
+        "first": "2026-05-29T10:18:25.465Z",
+        "last": "2026-05-29T10:21:52.353Z"
+      },
+      "rawTraceValidationErrors": [],
       "evidence": [
-        "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/raw-trace.json",
-        "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/native-transcript-analysis.json",
-        "experiments/2026-05-29-p2-native-action-evidence/preflight-context/preflight-fix-settings-toggle.json",
-        "experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/capture/capture.json"
+        "raw native UI-TARS transcript validated: experiments/2026-05-29-p2-native-action-evidence/tasks/settings-toggle/raw-trace.json",
+        "task-execution action events=23"
       ],
       "limitations": [
-        "Actions are not reconstructed from capture, run-export, step trace, screenshots, or final state.",
-        "Native state was captured via UI-TARS exposed zustandBridge.getState(), not private storage.",
-        "Run ended user_stopped after repeated dropdown attempts."
+        "Native UI-TARS action events are accepted only from preserved UI-TARS raw transcript artifacts between the run prompt boundary and any final capture/judge boundary.",
+        "Capture, run-export, step traces, screenshots, and final state are not used to reconstruct actions."
+      ]
+    },
+    {
+      "taskId": "onboarding-form",
+      "taskTitle": "Submit onboarding request",
+      "transcriptStatus": "native_task_actions_captured",
+      "rawTracePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/onboarding-form/raw-trace.json",
+      "capturePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/onboarding-form/capture/capture.json",
+      "taskActionCount": 1,
+      "taskActionNames": [
+        "press"
+      ],
+      "taskActionTimestampRange": {
+        "first": "2026-05-31T12:32:57.011Z",
+        "last": "2026-05-31T12:32:57.011Z"
+      },
+      "rawTraceValidationErrors": [],
+      "evidence": [
+        "raw native UI-TARS transcript validated: experiments/2026-05-29-p2-native-action-evidence/tasks/onboarding-form/raw-trace.json",
+        "task-execution action events=1"
+      ],
+      "limitations": [
+        "Native UI-TARS action events are accepted only from preserved UI-TARS raw transcript artifacts between the run prompt boundary and any final capture/judge boundary.",
+        "Capture, run-export, step traces, screenshots, and final state are not used to reconstruct actions."
+      ]
+    },
+    {
+      "taskId": "ticket-review",
+      "taskTitle": "Review priority support ticket",
+      "transcriptStatus": "native_task_actions_captured",
+      "rawTracePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/ticket-review/raw-trace.json",
+      "capturePath": "experiments/2026-05-29-p2-native-action-evidence/tasks/ticket-review/capture/capture.json",
+      "taskActionCount": 3,
+      "taskActionNames": [
+        "press",
+        "click"
+      ],
+      "taskActionTimestampRange": {
+        "first": "2026-05-31T12:35:43.455Z",
+        "last": "2026-05-31T12:35:57.248Z"
+      },
+      "rawTraceValidationErrors": [],
+      "evidence": [
+        "raw native UI-TARS transcript validated: experiments/2026-05-29-p2-native-action-evidence/tasks/ticket-review/raw-trace.json",
+        "task-execution action events=3"
+      ],
+      "limitations": [
+        "Native UI-TARS action events are accepted only from preserved UI-TARS raw transcript artifacts between the run prompt boundary and any final capture/judge boundary.",
+        "Capture, run-export, step traces, screenshots, and final state are not used to reconstruct actions."
       ]
     }
-  ],
-  "metrics": {
-    "native_task_actions_captured": 1,
-    "visible_transcript_only": 0,
-    "invalid_native_transcript": 0,
-    "missing_native_transcript": 0
-  }
+  ]
 }
