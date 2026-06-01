@@ -18,6 +18,14 @@ tasks, with 0 full successes and an average score of 0.206. That result is
 diagnostic rather than leaderboard-style: it shows capture and environment
 readiness are closed, while failures concentrate in GUI interaction primitives.
 
+## Visual Overview / 可视化概览
+
+[![GUI Agent Benchmark summary dashboard](docs/assets/gui-agent-benchmark-summary.png)](docs/gui-agent-benchmark-dashboard.html)
+
+Open the [full dashboard](docs/gui-agent-benchmark-dashboard.html) for a
+skimmable view of the task scores, failure primitives, evidence chain, and claim
+boundaries.
+
 ## 3-Minute Review Path / 三分钟评审路径
 
 | Question | Where to look |
@@ -29,6 +37,7 @@ readiness are closed, while failures concentrate in GUI interaction primitives.
 | What should not be overclaimed? | Expanded-round step traces are derived timeline attributions, not raw UI-TARS action transcripts. Current evidence supports qualitative failure analysis, not leaderboard or paper-grade statistical claims. |
 
 Fast links:
+[dashboard](docs/gui-agent-benchmark-dashboard.html),
 [expanded report](docs/benchmark-report-2026-05-25-expanded-real-round.md),
 [interview guide](docs/interview-project-introduction.html),
 [oracle baseline](src/oracle-baseline.mjs),
@@ -37,6 +46,7 @@ Fast links:
 
 ## Navigation / 导航
 
+- [Visual Overview / 可视化概览](#visual-overview--可视化概览)
 - [3-Minute Review Path / 三分钟评审路径](#3-minute-review-path--三分钟评审路径)
 - [Project Positioning / 项目定位](#project-positioning--项目定位)
 - [Goals / 目标](#goals--目标)
