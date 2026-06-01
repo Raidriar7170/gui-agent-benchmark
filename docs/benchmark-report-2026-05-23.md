@@ -206,9 +206,9 @@ Validate the project and environment:
 
 ```sh
 npm run validate
-UI_TARS_REMOTE_KEY=/Users/raidriar/.ssh/id_volcano \
-UI_TARS_REMOTE_HOST=115.190.60.96 \
-UI_TARS_REMOTE_PORT=2222 \
-UI_TARS_REMOTE_USER=root \
+UI_TARS_REMOTE_KEY=~/.ssh/your_remote_key \
+UI_TARS_REMOTE_HOST=your-remote-host \
+UI_TARS_REMOTE_PORT=22 \
+UI_TARS_REMOTE_USER=your-remote-user \
 npm run check:finish -- --json --output artifacts/finish-gate/2026-05-23-real-e2e.json
 ```

@@ -1,1 +1,35 @@
 .DS_Store
+
+# Dependencies and build outputs
+node_modules/
+dist/
+coverage/
+.cache/
+tmp/
+
+# Local environment and private operator configuration
+.env
+.env.*
+!.env.example
+ui-tars.config.json
+.ui-tars.json
+*.local.json
+
+# Credentials, keys, and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+
+# Local logs and browser/private capture dumps
+*.log
+*.har
+runtime/
+artifacts/private/
+artifacts/local/
+experiments/**/browser-storage/
+experiments/**/model-logs/
+experiments/**/raw-private/
+experiments/**/screenshots/
+artifacts/**/screenshots/

@@ -18,8 +18,26 @@ tasks, with 0 full successes and an average score of 0.206. That result is
 diagnostic rather than leaderboard-style: it shows capture and environment
 readiness are closed, while failures concentrate in GUI interaction primitives.
 
+## 3-Minute Review Path / 三分钟评审路径
+
+| Question | Where to look |
+|---|---|
+| What is this project? | A deterministic GUI-agent failure-analysis benchmark, not a UI-TARS leaderboard. |
+| What is the core evidence? | 10 browser tasks, 40 judge criteria, 10/10 captured real UI-TARS attempts, 0/10 full successes, average score 0.206. |
+| Are the tasks solvable? | The scripted oracle baseline validates 10/10 tasks through the same browser UI and judge path. |
+| What did the real run show? | Failures cluster around dropdown commit, table/list selection, modal confirmation, pagination, sorting, multi-select submission, validation recovery, and upload flow completion. |
+| What should not be overclaimed? | Expanded-round step traces are derived timeline attributions, not raw UI-TARS action transcripts. Current evidence supports qualitative failure analysis, not leaderboard or paper-grade statistical claims. |
+
+Fast links:
+[expanded report](docs/benchmark-report-2026-05-25-expanded-real-round.md),
+[interview guide](docs/interview-project-introduction.html),
+[oracle baseline](src/oracle-baseline.mjs),
+[finish gate artifact](artifacts/finish-gate/2026-05-25-expanded-real-round.json),
+[raw trace contract](docs/raw-uitars-trace-schema.md).
+
 ## Navigation / 导航
 
+- [3-Minute Review Path / 三分钟评审路径](#3-minute-review-path--三分钟评审路径)
 - [Project Positioning / 项目定位](#project-positioning--项目定位)
 - [Goals / 目标](#goals--目标)
 - [Evidence Boundary / 证据边界](#evidence-boundary--证据边界)
