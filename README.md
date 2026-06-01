@@ -1,6 +1,12 @@
 # GUI Agent Benchmark
 
 [![Validate](https://github.com/Raidriar7170/gui-agent-benchmark/actions/workflows/validate.yml/badge.svg)](https://github.com/Raidriar7170/gui-agent-benchmark/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/Raidriar7170/gui-agent-benchmark?label=release)](https://github.com/Raidriar7170/gui-agent-benchmark/releases)
+
+[Live Dashboard](https://raidriar7170.github.io/gui-agent-benchmark/) ·
+[Expanded Report](docs/benchmark-report-2026-05-25-expanded-real-round.md) ·
+[Evidence Map](#evidence-map--证据地图) ·
+[Run Locally](#run-locally--本地运行)
 
 A deterministic browser benchmark for studying where GUI agents fail. The
 workspace combines local tasks, judge APIs, UI-TARS capture helpers, target
@@ -20,11 +26,12 @@ readiness are closed, while failures concentrate in GUI interaction primitives.
 
 ## Visual Overview / 可视化概览
 
-[![GUI Agent Benchmark summary dashboard](docs/assets/gui-agent-benchmark-summary.png)](docs/gui-agent-benchmark-dashboard.html)
+[![GUI Agent Benchmark summary dashboard](docs/assets/gui-agent-benchmark-summary.png)](https://raidriar7170.github.io/gui-agent-benchmark/)
 
-Open the [full dashboard](docs/gui-agent-benchmark-dashboard.html) for a
-skimmable view of the task scores, failure primitives, evidence chain, and claim
-boundaries.
+Open the [public dashboard](https://raidriar7170.github.io/gui-agent-benchmark/)
+or the [repo-local dashboard](docs/gui-agent-benchmark-dashboard.html) for a
+skimmable view of the task scores, failure primitives, evidence chain, and
+claim boundaries.
 
 ## 3-Minute Review Path / 三分钟评审路径
 
@@ -37,12 +44,13 @@ boundaries.
 | What should not be overclaimed? | Expanded-round step traces are derived timeline attributions, not raw UI-TARS action transcripts. Current evidence supports qualitative failure analysis, not leaderboard or paper-grade statistical claims. |
 
 Fast links:
-[dashboard](docs/gui-agent-benchmark-dashboard.html),
+[dashboard](https://raidriar7170.github.io/gui-agent-benchmark/),
 [expanded report](docs/benchmark-report-2026-05-25-expanded-real-round.md),
 [interview guide](docs/interview-project-introduction.html),
 [oracle baseline](src/oracle-baseline.mjs),
 [finish gate artifact](artifacts/finish-gate/2026-05-25-expanded-real-round.json),
-[raw trace contract](docs/raw-uitars-trace-schema.md).
+[raw trace contract](docs/raw-uitars-trace-schema.md),
+[release notes](https://github.com/Raidriar7170/gui-agent-benchmark/releases).
 
 ## Navigation / 导航
 
@@ -295,7 +303,8 @@ Supported formats:
 3. P3: Fix visible-target binding so UI-TARS screenshots the prepared benchmark
    page instead of stale/search pages, then repeat the expanded 10-task round.
 4. P4: Report repeated-round variance.
-5. P5: Generate a visual dashboard or GIF from existing evidence artifacts.
+5. P5: Add a short GIF only if a future reviewer needs motion evidence beyond
+   the static dashboard and preserved artifacts.
 
 ## Further Reading / 延伸阅读
 

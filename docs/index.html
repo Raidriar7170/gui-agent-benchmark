@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GUI Agent Benchmark</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212f;
+      --muted: #657185;
+      --line: #dbe3ee;
+      --panel: #f7f9fc;
+      --blue: #2563eb;
+      --green: #11845b;
+      --amber: #a46100;
+      --bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 56px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 880px;
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 4.8rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 820px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.02rem, 2vw, 1.24rem);
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 24px 0 28px;
+    }
+
+    .actions a {
+      display: inline-flex;
+      max-width: 100%;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 14px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 720;
+      text-decoration: none;
+    }
+
+    .actions a:first-child {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .snapshot {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .snapshot img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.65rem;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .note {
+      margin-top: 18px;
+      border-left: 4px solid var(--amber);
+      padding: 2px 0 2px 14px;
+      color: var(--muted);
+    }
+
+    .note strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 780px) {
+      main {
+        width: calc(100% - 24px);
+        padding: 30px 0 38px;
+      }
+
+      h1 {
+        font-size: 2.1rem;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .actions a {
+        width: 100%;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Reproducible GUI-agent failure analysis</p>
+    <h1>GUI Agent Benchmark</h1>
+    <p class="lead">
+      A deterministic browser benchmark and evidence-chain workspace for
+      studying where GUI agents fail at the primitive interaction level.
+    </p>
+
+    <nav class="actions" aria-label="Project links">
+      <a href="gui-agent-benchmark-dashboard.html">Open dashboard</a>
+      <a href="https://github.com/Raidriar7170/gui-agent-benchmark">GitHub repo</a>
+      <a href="https://github.com/Raidriar7170/gui-agent-benchmark/blob/main/docs/benchmark-report-2026-05-25-expanded-real-round.md">Expanded report</a>
+      <a href="https://github.com/Raidriar7170/gui-agent-benchmark/releases">Release notes</a>
+    </nav>
+
+    <section class="snapshot" aria-label="Dashboard preview">
+      <img src="assets/gui-agent-benchmark-summary.png" alt="Summary dashboard showing task capture, success rate, average score, and failure primitive distribution">
+    </section>
+
+    <section class="metrics" aria-label="Current expanded-round metrics">
+      <div class="metric">
+        <strong>10/10</strong>
+        <span>UI-TARS-style tasks captured</span>
+      </div>
+      <div class="metric">
+        <strong>0/10</strong>
+        <span>full end-to-end successes</span>
+      </div>
+      <div class="metric">
+        <strong>0.206</strong>
+        <span>average diagnostic score</span>
+      </div>
+      <div class="metric">
+        <strong>40</strong>
+        <span>judge criteria preserved</span>
+      </div>
+    </section>
+
+    <p class="note">
+      <strong>Evidence boundary:</strong> this release is a diagnostic
+      failure-analysis harness, not a leaderboard claim. The expanded round has
+      complete capture coverage, while historical step traces remain derived
+      timeline attributions rather than raw UI-TARS action transcripts.
+    </p>
+  </main>
+</body>
+</html>
